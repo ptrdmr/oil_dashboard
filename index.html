@@ -42,6 +42,28 @@
   .page-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
   .section { margin: 0 0 2rem; }
   .section-title { font-size: 18px; font-weight: 500; margin: 0 0 12px; }
+  .section-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 0 0 12px; }
+  .section-title-row .section-title { margin-bottom: 0; flex: 1; min-width: 0; }
+  .dte-help-btn { flex-shrink: 0; padding: 6px 12px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; font-size: 12px; font-family: var(--font-sans); white-space: nowrap; }
+  .dte-help-btn:hover { color: var(--text-primary); border-color: var(--text-tertiary); }
+  .dte-modal-backdrop { position: fixed; inset: 0; z-index: 1002; background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+  body.dte-modal-open .dte-modal-backdrop { opacity: 1; pointer-events: auto; }
+  .dte-modal { position: fixed; left: 50%; top: 50%; z-index: 1003; width: min(92vw, 540px); max-height: min(88vh, 620px); display: flex; flex-direction: column; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 20px 60px rgba(0,0,0,0.22); opacity: 0; pointer-events: none; transform: translate(-50%, -48%) scale(0.98); transition: opacity 0.2s ease, transform 0.2s ease; }
+  body.dte-modal-open .dte-modal { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+  body.dte-modal-open { overflow: hidden; }
+  .dte-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 20px 0; flex-shrink: 0; }
+  .dte-modal-header h2 { font-size: 17px; font-weight: 500; margin: 0; line-height: 1.3; padding-top: 2px; }
+  .dte-modal-close { flex-shrink: 0; width: 36px; height: 36px; border-radius: var(--radius-md); border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 22px; line-height: 1; font-family: var(--font-sans); display: flex; align-items: center; justify-content: center; }
+  .dte-modal-close:hover { color: var(--text-primary); border-color: var(--text-tertiary); }
+  .dte-modal-body { padding: 12px 20px 22px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .dte-modal-body h3 { font-size: 13px; font-weight: 600; color: var(--text-primary); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .dte-modal-body h3:first-child { margin-top: 0; }
+  .dte-modal-body ul { margin: 0 0 10px; padding-left: 18px; }
+  .dte-modal-body li { margin-bottom: 6px; }
+  .dte-modal-body p { margin: 0 0 10px; }
+  @media (prefers-color-scheme: dark) {
+    .dte-modal { box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
+  }
   .section-sub { font-size: 13px; color: var(--text-secondary); margin: -8px 0 12px; }
   .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
   .metric { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px 14px; }
@@ -227,7 +249,10 @@
 <hr class="divider">
 
 <div class="section">
-  <div class="section-title">Days to empty projection</div>
+  <div class="section-title-row">
+    <div class="section-title" id="dte-section-heading">Days to empty projection</div>
+    <button type="button" class="dte-help-btn" id="dte-help-open" aria-expanded="false" aria-haspopup="dialog" aria-controls="dte-modal">How to read this chart</button>
+  </div>
   <div class="section-sub">How long can America's crude last under different scenarios?</div>
   <div class="scenario-toggle">
     <button class="active" onclick="setScenario('base')">Base case</button>
@@ -262,7 +287,8 @@
   <div class="legend" id="dte-legend">
     <span><span class="dot" style="background:#185FA5"></span>Commercial crude</span>
     <span><span class="dot" style="background:#993556"></span>SPR</span>
-    <span><span class="dot" style="background:#A32D2D"></span>Critical threshold (90 days IEA)</span>
+    <span><span class="dot" style="background:#6B7C93"></span>Combined (commercial + SPR)</span>
+    <span><span class="dot" style="background:#A32D2D"></span>IEA-style floor (90 × net imports)</span>
   </div>
   <div class="note">
     <strong>Key insight:</strong> America is structurally insulated from the Hormuz crisis because ~88% of its supply (domestic production + Canadian pipeline) is land-locked and unaffected. The real risk isn't running out — it's the refinery mismatch: Gulf Coast refineries are configured for heavy, sour Middle Eastern grades, not the light sweet shale oil the U.S. produces. This creates a product-type squeeze even when barrels are nominally available.
@@ -383,6 +409,9 @@ const DATA = {
 
   // — Consumption —
   dailyConsumption:      20.3,
+
+  // — IEA 90-day stockholding benchmark (horizontal line on DTE chart): 90 × approximate net imports (mb/d) —
+  ieaNetImportMbPerDay:  3.2,
 
   // — DTE scenario overrides (mb/d) —
   // Only update commercialStart, sprStart, and per-scenario values.
@@ -515,21 +544,26 @@ function buildChart(key) {
   const months = [];
   const commercial = [];
   const spr = [];
+  const combined = [];
   let c = DATA.commercialCrude;
   let sp = DATA.effectiveSpr;
   const dailyDraw = s.deficit;
   const sprDaily = Math.min(dailyDraw * 0.6, 4.4);
   const commDaily = dailyDraw - sprDaily;
+  const ieaFloorMmb = Math.round(90 * DATA.ieaNetImportMbPerDay);
 
   for (let m = 0; m <= 36; m++) {
     months.push(m === 0 ? 'Now' : 'M+' + m);
     commercial.push(Math.max(0, Math.round(c)));
     spr.push(Math.max(0, Math.round(sp)));
+    combined.push(Math.max(0, Math.round(c)) + Math.max(0, Math.round(sp)));
     c -= commDaily * 30;
     sp -= sprDaily * 30;
     if (c < 0) c = 0;
     if (sp < 0) sp = 0;
   }
+
+  const threshold = months.map(function() { return ieaFloorMmb; });
 
   const totalStart = DATA.commercialCrude + DATA.effectiveSpr;
   const daysToZero = s.deficit > 0 ? Math.round(totalStart / s.deficit) : 99999;
@@ -549,8 +583,10 @@ function buildChart(key) {
     data: {
       labels: months,
       datasets: [
-        { label: 'Commercial crude (M bbl)', data: commercial, borderColor: '#185FA5', backgroundColor: 'rgba(24,95,165,0.08)', fill: true, tension: 0.3, pointRadius: 0 },
-        { label: 'SPR (M bbl)', data: spr, borderColor: '#993556', backgroundColor: 'rgba(153,53,86,0.08)', fill: true, tension: 0.3, pointRadius: 0 }
+        { label: 'Commercial crude (M bbl)', data: commercial, borderColor: '#185FA5', backgroundColor: 'rgba(24,95,165,0.08)', fill: true, tension: 0.3, pointRadius: 0, order: 2 },
+        { label: 'SPR (M bbl)', data: spr, borderColor: '#993556', backgroundColor: 'rgba(153,53,86,0.08)', fill: true, tension: 0.3, pointRadius: 0, order: 2 },
+        { label: 'Combined (M bbl)', data: combined, borderColor: '#6B7C93', backgroundColor: 'transparent', borderDash: [4, 3], fill: false, tension: 0.3, pointRadius: 0, borderWidth: 2, order: 1 },
+        { label: 'IEA-style floor (M bbl)', data: threshold, borderColor: '#A32D2D', backgroundColor: 'transparent', borderDash: [8, 4], fill: false, tension: 0, pointRadius: 0, borderWidth: 2, order: 0 }
       ]
     },
     options: {
@@ -597,7 +633,8 @@ function validateData() {
     brentCurrent: [20, 300],
     eiaForecastPrice: [20, 200],
     dailyConsumption: [14, 25],
-    strandedVLCCs: [0, 800]
+    strandedVLCCs: [0, 800],
+    ieaNetImportMbPerDay: [0.5, 12]
   };
 
   for (var field in requiredNumbers) {
@@ -766,6 +803,29 @@ var validationPassed = validateData();
 renderDashboard();
 </script>
 
+<div class="dte-modal-backdrop" id="dte-modal-backdrop" aria-hidden="true"></div>
+<div class="dte-modal" id="dte-modal" role="dialog" aria-modal="true" aria-labelledby="dte-modal-title" aria-hidden="true">
+  <div class="dte-modal-header">
+    <h2 id="dte-modal-title">Reading this chart</h2>
+    <button type="button" class="dte-modal-close" id="dte-modal-close" aria-label="Close dialog">&times;</button>
+  </div>
+  <div class="dte-modal-body">
+    <h3>What the chart is showing</h3>
+    <ul>
+      <li><strong>Vertical axis (Y):</strong> Inventories in millions of barrels. The blue series is commercial crude stocks; the magenta series is the Strategic Petroleum Reserve. The dashed gray line is the sum of those two — total crude held in commercial and government storage, which is the relevant measure for overall cover.</li>
+      <li><strong>Horizontal axis (X):</strong> Elapsed time from the present: “Now,” then monthly steps (M+4, M+8, …) out to 36 months (M+36). Each scenario uses a fixed daily shortfall and a fixed rule for how much of the draw comes from commercial stocks versus the SPR. The projection is intentionally simplified so scenarios can be compared side by side; it is an illustrative model, not a detailed market forecast.</li>
+      <li><strong>The red dashed line:</strong> Think of it as a <strong>minimum comfortable cushion</strong> for total crude stocks (commercial + SPR). We drew it at about <strong>90 days’ worth</strong> of oil using a rough, conservative guess at how much the U.S. still <strong>net-imports</strong> per day — the same <em>idea</em> as the old rule of thumb that big consuming countries should hold something like 90 days of import cover in emergency stocks. When the gray combined line drifts <strong>toward or under</strong> that red line, you’re in the zone where policymakers and analysts start to get nervous — not because the chart says something magical happens on that exact day, but because you’re no longer looking “fat and happy” on inventories. It’s a <strong>reference line for conversation</strong>, not a law of physics and not a promise about what Washington will do.</li>
+      <li><strong>“Days to critical” in the boxes above the chart:</strong> A back-of-the-envelope: take all the oil you started with in this model and divide by the scenario’s daily shortfall. That gives you a single headline number for how long until stocks are effectively gone <em>if</em> nothing changed. It won’t line up to the month with the moment the gray line kisses the red one — for that story, watch the shape of the lines.</li>
+    </ul>
+    <h3>Moderate disruption — where the numbers come from</h3>
+    <p><strong>15% off the Canada pipeline:</strong> By early March 2026 Canada was already looking at a <strong>10% tariff</strong> on energy exports to the U.S., and the trade fight was heating up. Cutting the flow 15% is our way of saying: tariffs make shipping oil south less attractive, <em>and</em> Alberta might squeeze supply on purpose in retaliation — they’ve done a version of that before with production curtailments. It’s meant to feel <strong>serious but not apocalyptic</strong>.</p>
+    <p><strong>30% less from the Atlantic basin:</strong> When tanker markets go haywire, the pain isn’t only at Hormuz. Picture <strong>200+ ships</strong> tied up, insurance going through the roof, and fewer hulls to go around. Cargoes that used to head here from West Africa, Brazil, or Guyana start getting bid away by Asian buyers who just lost Hormuz barrels and will pay anything. <strong>30%</strong> is our middle-of-the-road guess for how much of that Atlantic / Americas trade into the U.S. could get pulled away in a scramble like that.</p>
+    <p><strong>88% refinery runs:</strong> Real plants were running about <strong>91.4%</strong> in mid-March and already sliding. Dropping to 88% keeps you inside the kind of “normal operating band” the EIA talks about; once you fall <strong>below</strong> that band, you’re usually into planned maintenance or something actually choking supply.</p>
+    <h3>Severe disruption — a stress test, not a forecast</h3>
+    <p><strong>Half the Canadian pipe</strong> and <strong>no seaborne imports at all</strong> is the “everything breaks at once” story: tariffs pushed to something like an embargo, and every ocean route is too pricey or too risky to count on. We’re not saying that’s what <em>will</em> happen — we’re asking what it looks like if it <em>did</em>.</p>
+  </div>
+</div>
+
 <div class="update-log-backdrop" id="update-log-backdrop" aria-hidden="true"></div>
 <aside class="update-log-panel" id="update-log-panel" role="dialog" aria-modal="true" aria-labelledby="update-log-title" aria-hidden="true">
   <button type="button" class="update-log-close" id="update-log-close">Close</button>
@@ -811,6 +871,41 @@ renderDashboard();
     if (e.key === 'Escape' && document.body.classList.contains('update-log-open')) {
       closeUpdateLog();
       toggle.focus();
+    }
+  });
+})();
+</script>
+<script>
+/* DTE chart help modal */
+(function () {
+  var openBtn = document.getElementById('dte-help-open');
+  var modal = document.getElementById('dte-modal');
+  var backdrop = document.getElementById('dte-modal-backdrop');
+  var closeBtn = document.getElementById('dte-modal-close');
+  if (!openBtn || !modal || !backdrop) return;
+
+  function setOpen(open) {
+    document.body.classList.toggle('dte-modal-open', open);
+    openBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    modal.setAttribute('aria-hidden', open ? 'false' : 'true');
+    backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+    if (open && closeBtn) closeBtn.focus();
+  }
+
+  function closeModal() {
+    setOpen(false);
+    openBtn.focus();
+  }
+
+  openBtn.addEventListener('click', function () {
+    setOpen(!document.body.classList.contains('dte-modal-open'));
+  });
+  backdrop.addEventListener('click', closeModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.body.classList.contains('dte-modal-open')) {
+      e.preventDefault();
+      closeModal();
     }
   });
 })();
