@@ -1,6 +1,6 @@
 # Oil dashboard update instructions
 
-You are updating `americas_oil_situation_dashboard.html` — an interactive dashboard tracking U.S. crude oil supply, stockpiles, imports, Strait of Hormuz status, and days-to-empty projections.
+You are updating `index.html` (the dashboard page) — an interactive dashboard tracking U.S. crude oil supply, stockpiles, imports, Strait of Hormuz status, and days-to-empty projections.
 
 **All data lives in a single `DATA` object** at the top of the `<script>` block. You will only ever edit values inside that object. Do not touch the HTML structure, CSS, or the rendering logic below the `END DATA CONFIG` comment.
 
@@ -92,7 +92,7 @@ If the Hormuz crisis has resolved (strait reopened, ceasefire, etc.), update the
 
 ### 2. Update the DATA object
 
-Open `americas_oil_situation_dashboard.html` and locate the `DATA` object between these two comment markers:
+Open `index.html` and locate the `DATA` object between these two comment markers:
 
 ```
 /* ============================================================
@@ -198,7 +198,7 @@ If the page loads with no banner, validation passed.
 Only after steps 5 and 6 pass cleanly:
 
 ```bash
-git add americas_oil_situation_dashboard.html
+git add index.html
 git commit -m "oil dashboard update: [today's date] — EIA week ending [date]"
 git push
 ```
