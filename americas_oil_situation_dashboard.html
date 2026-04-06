@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>America's Oil Situation Dashboard — April 2026</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4f0;
+    --bg-tertiary: #eeecea;
+    --text-primary: #1a1a1a;
+    --text-secondary: #73726c;
+    --text-tertiary: #9c9a92;
+    --border: rgba(0,0,0,0.12);
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --color-danger: #A32D2D;
+    --color-warning: #854F0B;
+    --color-success: #3B6D11;
+    --color-info: #185FA5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2c2c2a;
+      --bg-tertiary: #222220;
+      --text-primary: #e8e6df;
+      --text-secondary: #9c9a92;
+      --text-tertiary: #73726c;
+      --border: rgba(255,255,255,0.12);
+      --color-danger: #F09595;
+      --color-warning: #FAC775;
+      --color-success: #C0DD97;
+      --color-info: #85B7EB;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); color: var(--text-primary); background: var(--bg-primary); padding: 24px; max-width: 780px; margin: 0 auto; line-height: 1.5; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 28px; }
+  .section { margin: 0 0 2rem; }
+  .section-title { font-size: 18px; font-weight: 500; margin: 0 0 12px; }
+  .section-sub { font-size: 13px; color: var(--text-secondary); margin: -8px 0 12px; }
+  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .metric { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px 14px; }
+  .metric .label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .metric .value { font-size: 22px; font-weight: 500; }
+  .metric .sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .metric .value.danger { color: var(--color-danger); }
+  .metric .value.warning { color: var(--color-warning); }
+  .metric .value.success { color: var(--color-success); }
+  .metric .value.info { color: var(--color-info); }
+  .chart-wrap { position: relative; width: 100%; margin-bottom: 8px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
+  .legend span { display: flex; align-items: center; gap: 4px; }
+  .legend .dot { width: 10px; height: 10px; border-radius: 2px; }
+  .flow-row { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: var(--radius-md); margin-bottom: 6px; font-size: 13px; background: var(--bg-secondary); }
+  .flow-bar { height: 6px; border-radius: 3px; }
+  .flow-label { min-width: 120px; font-weight: 500; }
+  .flow-val { min-width: 80px; text-align: right; color: var(--text-secondary); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .scenario-toggle { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+  .scenario-toggle button { padding: 6px 14px; border-radius: var(--radius-md); border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 12px; font-family: var(--font-sans); }
+  .scenario-toggle button.active { background: #E6F1FB; color: var(--color-info); border-color: var(--color-info); }
+  @media (prefers-color-scheme: dark) {
+    .scenario-toggle button.active { background: #0C447C; color: #85B7EB; border-color: #85B7EB; }
+  }
+  .note { font-size: 12px; color: var(--text-secondary); margin-top: 8px; padding: 8px 12px; background: var(--bg-secondary); border-radius: var(--radius-md); line-height: 1.5; }
+  .note strong { color: var(--text-primary); }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .intro { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 24px; }
+  .intro p { margin: 0 0 8px; }
+  .intro .caveat { font-size: 12px; padding: 10px 12px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-top: 12px; }
+  .intro .caveat strong { color: var(--text-primary); }
+  .validation-banner { display: none; background: var(--bg-secondary); border-left: 3px solid var(--color-danger); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+  .validation-banner.visible { display: block; }
+  .validation-banner .vb-title { font-weight: 500; color: var(--color-danger); margin-bottom: 6px; font-size: 14px; }
+  .validation-banner ul { margin: 4px 0 0 16px; padding: 0; }
+  .validation-banner li { margin-bottom: 2px; color: var(--text-secondary); }
+  .validation-banner li.warn { color: var(--color-warning); }
+  .validation-banner li.fail { color: var(--color-danger); }
+</style>
+</head>
+<body>
+<h1>America's oil situation</h1>
+<div class="page-sub" id="dash-updated">Compiled April 5, 2026 — Sources: EIA, DOE, UANI, Lloyd's List, Bloomberg, CNBC</div>
+
+<div class="intro">
+  <p>This dashboard tracks America's oil supply position during the 2026 Strait of Hormuz crisis. It shows how much crude oil the U.S. has in storage, where daily supply comes from, and how long reserves could last under different disruption scenarios.</p>
+  <p>The goal is to present a clear, at-a-glance picture of U.S. energy resilience — not to predict markets or recommend policy.</p>
+  <div class="caveat">
+    <strong>About the data:</strong> Stockpile figures (commercial crude, gasoline, distillates, Cushing) come from the EIA Weekly Petroleum Status Report — an official U.S. government source updated each Wednesday. Production and consumption estimates are drawn from the EIA Short-Term Energy Outlook. SPR levels come from the Department of Energy. These are the most reliable numbers on the dashboard. Hormuz transit counts, stranded tanker estimates, and attack tallies are compiled from maritime intelligence sources (UANI, Lloyd's List, Bloomberg) and news reporting — they represent best available estimates, not official counts, and may lag or vary between sources. Oil prices reflect market data at time of update. The "days to empty" projections are simplified models, not forecasts; they assume constant draw rates and do not account for policy responses, demand shifts, or supply changes that would occur in practice.
+  </div>
+</div>
+
+<div class="validation-banner" id="validation-banner">
+  <div class="vb-title">Data validation issues detected</div>
+  <ul id="validation-list"></ul>
+</div>
+
+<div class="section">
+  <div class="section-title">Current U.S. oil stockpiles</div>
+  <div class="section-sub" id="dash-eia-week">As of week ending March 27, 2026</div>
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="label">Commercial crude</div>
+      <div class="value" id="v-commercial">461.6M</div>
+      <div class="sub" id="s-commercial">barrels (+5.5M last week)</div>
+    </div>
+    <div class="metric">
+      <div class="label">SPR (pre-release)</div>
+      <div class="value warning" id="v-spr-pre">415M</div>
+      <div class="sub" id="s-spr-pre">58% of 714M capacity</div>
+    </div>
+    <div class="metric">
+      <div class="label">SPR committed release</div>
+      <div class="value danger" id="v-spr-release">-172M</div>
+      <div class="sub" id="s-spr-release">IEA coordinated (exchange)</div>
+    </div>
+    <div class="metric">
+      <div class="label">Effective SPR</div>
+      <div class="value danger" id="v-effective-spr">~243M</div>
+      <div class="sub">post-release estimate</div>
+    </div>
+    <div class="metric">
+      <div class="label">Gasoline stocks</div>
+      <div class="value" id="v-gasoline">240.9M</div>
+      <div class="sub" id="s-gasoline">barrels (-0.6M last week)</div>
+    </div>
+    <div class="metric">
+      <div class="label">Distillates</div>
+      <div class="value" id="v-distillate">117.8M</div>
+      <div class="sub" id="s-distillate">diesel + heating oil</div>
+    </div>
+    <div class="metric">
+      <div class="label">Total available</div>
+      <div class="value info" id="v-total">~1,063M</div>
+      <div class="sub">commercial + effective SPR + products</div>
+    </div>
+    <div class="metric">
+      <div class="label">Cushing, OK hub</div>
+      <div class="value success" id="v-cushing">+520K</div>
+      <div class="sub" id="s-cushing">barrels last week</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="section-title">Supply sources: how oil reaches America</div>
+  <div class="section-sub">Daily flows in millions of barrels per day (mb/d)</div>
+  <div class="flow-row" id="flow-domestic"><div class="flow-label">Domestic production</div><div style="flex:1"><div class="flow-bar" style="width:90%;background:#3B6D11"></div></div><div class="flow-val">13.6 mb/d</div><div class="status-dot" style="background:#3B6D11"></div></div>
+  <div class="flow-row" id="flow-canada"><div class="flow-label">Canada (pipeline)</div><div style="flex:1"><div class="flow-bar" style="width:28%;background:#185FA5"></div></div><div class="flow-val">4.1 mb/d</div><div class="status-dot" style="background:#3B6D11"></div></div>
+  <div class="flow-row" id="flow-mexico"><div class="flow-label">Mexico (maritime)</div><div style="flex:1"><div class="flow-bar" style="width:5%;background:#534AB7"></div></div><div class="flow-val">~0.6 mb/d</div><div class="status-dot" style="background:#3B6D11"></div></div>
+  <div class="flow-row" id="flow-atlantic"><div class="flow-label">Other (Atlantic Basin)</div><div style="flex:1"><div class="flow-bar" style="width:8%;background:#854F0B"></div></div><div class="flow-val">~1.8 mb/d</div><div class="status-dot" style="background:#854F0B"></div></div>
+  <div class="flow-row" id="flow-gulf"><div class="flow-label">Persian Gulf (Hormuz)</div><div style="flex:1"><div class="flow-bar" style="width:1%;background:#A32D2D"></div></div><div class="flow-val">~0 mb/d</div><div class="status-dot" style="background:#A32D2D"></div></div>
+  <div class="flow-row" id="flow-spr"><div class="flow-label">SPR drawdown (max)</div><div style="flex:1"><div class="flow-bar" style="width:29%;background:#993556"></div></div><div class="flow-val">4.4 mb/d</div><div class="status-dot" style="background:#854F0B"></div></div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="section-title">Strait of Hormuz status</div>
+  <div class="section-sub">Effectively closed since March 1, 2026</div>
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="label">Pre-war daily transits</div>
+      <div class="value" id="v-hormuz-pre">100+</div>
+      <div class="sub">vessels per day</div>
+    </div>
+    <div class="metric">
+      <div class="label">Current daily transits</div>
+      <div class="value danger" id="v-hormuz-current">~5</div>
+      <div class="sub" id="s-hormuz-current">mostly sanctioned/shadow fleet</div>
+    </div>
+    <div class="metric">
+      <div class="label">Stranded VLCCs</div>
+      <div class="value warning" id="v-vlccs">60</div>
+      <div class="sub" id="s-vlccs">8% of global VLCC fleet</div>
+    </div>
+    <div class="metric">
+      <div class="label">Attacks on ships</div>
+      <div class="value danger" id="v-attacks">21+</div>
+      <div class="sub" id="s-attacks">confirmed since Feb 28</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="section-title">Days to empty projection</div>
+  <div class="section-sub">How long can America's crude last under different scenarios?</div>
+  <div class="scenario-toggle">
+    <button class="active" onclick="setScenario('base')">Base case</button>
+    <button onclick="setScenario('moderate')">Moderate disruption</button>
+    <button onclick="setScenario('severe')">Severe disruption</button>
+  </div>
+  <div id="scenario-desc" style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5">
+    Domestic + Canada + Mexico supply remains intact. SPR releases at planned pace. No Hormuz-sourced oil. Refinery utilization at 91%.
+  </div>
+  <div class="metric-grid" id="dte-metrics">
+    <div class="metric">
+      <div class="label">Daily consumption</div>
+      <div class="value" id="dte-consumption">20.3 mb/d</div>
+    </div>
+    <div class="metric">
+      <div class="label">Domestic + imports</div>
+      <div class="value" id="dte-supply">20.1 mb/d</div>
+    </div>
+    <div class="metric">
+      <div class="label">Daily deficit</div>
+      <div class="value" id="dte-deficit">-0.2 mb/d</div>
+    </div>
+    <div class="metric">
+      <div class="label">Days to critical</div>
+      <div class="value" id="dte-days" style="font-size:28px">1,215</div>
+      <div class="sub" id="dte-sub">~3.3 years at current draw</div>
+    </div>
+  </div>
+  <div class="chart-wrap" style="height:280px">
+    <canvas id="dteChart"></canvas>
+  </div>
+  <div class="legend" id="dte-legend">
+    <span><span class="dot" style="background:#185FA5"></span>Commercial crude</span>
+    <span><span class="dot" style="background:#993556"></span>SPR</span>
+    <span><span class="dot" style="background:#A32D2D"></span>Critical threshold (90 days IEA)</span>
+  </div>
+  <div class="note">
+    <strong>Key insight:</strong> America is structurally insulated from the Hormuz crisis because ~88% of its supply (domestic production + Canadian pipeline) is land-locked and unaffected. The real risk isn't running out — it's the refinery mismatch: Gulf Coast refineries are configured for heavy, sour Middle Eastern grades, not the light sweet shale oil the U.S. produces. This creates a product-type squeeze even when barrels are nominally available.
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="section-title">Oil price impact</div>
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="label">Brent crude (pre-war)</div>
+      <div class="value" id="v-brent-pre">~$71/b</div>
+      <div class="sub" id="s-brent-pre">Feb 27, 2026</div>
+    </div>
+    <div class="metric">
+      <div class="label">Brent crude (current)</div>
+      <div class="value danger" id="v-brent-now">$94+/b</div>
+      <div class="sub" id="s-brent-now">+50% spike since war began</div>
+    </div>
+    <div class="metric">
+      <div class="label">U.S. gas prices</div>
+      <div class="value warning" id="v-gas">$4+/gal</div>
+      <div class="sub" id="s-gas">+30% in one month</div>
+    </div>
+    <div class="metric">
+      <div class="label">EIA price forecast</div>
+      <div class="value info" id="v-forecast">$70/b Q4</div>
+      <div class="sub" id="s-forecast">if Hormuz reopens</div>
+    </div>
+  </div>
+</div>
+
+<div class="note" id="dash-sources" style="margin-top: 2rem;">
+  <strong>Sources:</strong> EIA Weekly Petroleum Status Report (Apr 1, 2026), DOE SPR Quick Facts, EIA Short-Term Energy Outlook (Mar 10, 2026), UANI Iran War Shipping Update (Apr 1, 2026), Lloyd's List Intelligence, Bloomberg tanker tracking, CNBC, Al Jazeera, Wikipedia (2026 Strait of Hormuz crisis), The World Data.
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ============================================================
+   DATA CONFIG — AGENT: UPDATE THIS BLOCK ONLY
+   All dashboard values are driven from this single object.
+   After updating values here, run renderDashboard() — it
+   will propagate everything to the HTML and rebuild charts.
+   ============================================================ */
+const DATA = {
+  // — Metadata —
+  updated: "April 5, 2026",
+  eiaWeekEnding: "March 27, 2026",
+  sources: "EIA Weekly Petroleum Status Report (Apr 1, 2026), DOE SPR Quick Facts, EIA Short-Term Energy Outlook (Mar 10, 2026), UANI Iran War Shipping Update (Apr 1, 2026), Lloyd's List Intelligence, Bloomberg tanker tracking, CNBC, Al Jazeera, Wikipedia (2026 Strait of Hormuz crisis), The World Data.",
+
+  // — Stockpiles (millions of barrels) —
+  commercialCrude:       461.6,
+  commercialCrudeChange: "+5.5M last week",
+  sprPreRelease:         415,
+  sprCapacity:           714,
+  sprCommittedRelease:   172,
+  sprCommittedNote:      "IEA coordinated (exchange)",
+  effectiveSpr:          243,
+  gasolineStocks:        240.9,
+  gasolineChange:        "-0.6M last week",
+  distillateStocks:      117.8,
+  distillateNote:        "diesel + heating oil",
+  cushingChange:         "+520K",
+  cushingNote:           "barrels last week",
+
+  // — Supply flows (mb/d) —
+  domesticProduction:    13.6,
+  canadaPipeline:        4.1,
+  mexicoMaritime:        0.6,
+  atlanticBasin:         1.8,
+  persianGulf:           0,
+  sprMaxDrawdown:        4.4,
+
+  // — Supply flow status: "green", "yellow", or "red" —
+  domesticStatus:        "green",
+  canadaStatus:          "green",
+  mexicoStatus:          "green",
+  atlanticStatus:        "yellow",
+  persianGulfStatus:     "red",
+  sprDrawdownStatus:     "yellow",
+
+  // — Hormuz status —
+  hormuzPreWarTransits:  "100+",
+  hormuzCurrentTransits: "~5",
+  hormuzTransitNote:     "mostly sanctioned/shadow fleet",
+  strandedVLCCs:         60,
+  strandedVLCCNote:      "8% of global VLCC fleet",
+  attacksOnShips:        "21+",
+  attacksSince:          "confirmed since Feb 28",
+
+  // — Prices —
+  brentPreWar:           71,
+  brentPreWarDate:       "Feb 27, 2026",
+  brentCurrent:          94,
+  brentCurrentNote:      "+32% since war began",
+  gasPrice:              "4+",
+  gasPriceNote:          "+30% in one month",
+  eiaForecastPrice:      70,
+  eiaForecastNote:       "if Hormuz reopens",
+  eiaForecastPeriod:     "Q4",
+
+  // — Consumption —
+  dailyConsumption:      20.3,
+
+  // — DTE scenario overrides (mb/d) —
+  // Only update commercialStart, sprStart, and per-scenario values.
+  // The chart and DTE math are computed automatically.
+  scenarios: {
+    base: {
+      desc: "Domestic + Canada + Mexico supply remains intact. SPR releases at planned pace. No Hormuz-sourced oil. Refinery utilization at 91%.",
+      consumption: 20.3,
+      supply: 20.1,
+      deficit: 0.2,
+      label: "~9.6 years at current draw"
+    },
+    moderate: {
+      desc: "Canada pipeline flow reduced 15% due to tariff escalation. Atlantic Basin imports drop 30%. SPR drawdown accelerates to 2 mb/d. Refinery runs drop to 88%.",
+      consumption: 19.5,
+      supply: 18.1,
+      deficit: 1.4,
+      label: "~17 months to critical"
+    },
+    severe: {
+      desc: "Full trade disruption: Canada pipeline at 50%, all maritime imports halted, SPR at max drawdown 4.4 mb/d. Emergency demand destruction measures in effect.",
+      consumption: 18.0,
+      supply: 14.8,
+      deficit: 3.2,
+      label: "~7 months to critical"
+    }
+  }
+};
+/* ============================================================
+   END DATA CONFIG — DO NOT EDIT BELOW THIS LINE
+   ============================================================ */
+
+const statusColors = { green: '#3B6D11', yellow: '#854F0B', red: '#A32D2D' };
+const statusClasses = { green: 'success', yellow: 'warning', red: 'danger' };
+
+function renderDashboard() {
+  const d = DATA;
+
+  // Metadata
+  document.getElementById('dash-updated').textContent = 'Compiled ' + d.updated + ' — Sources: EIA, DOE, UANI, Lloyd\'s List, Bloomberg, CNBC';
+  document.getElementById('dash-eia-week').textContent = 'As of week ending ' + d.eiaWeekEnding;
+  document.getElementById('dash-sources').innerHTML = '<strong>Sources:</strong> ' + d.sources;
+
+  // Stockpiles
+  document.getElementById('v-commercial').textContent = d.commercialCrude + 'M';
+  document.getElementById('s-commercial').textContent = 'barrels (' + d.commercialCrudeChange + ')';
+  document.getElementById('v-spr-pre').textContent = d.sprPreRelease + 'M';
+  document.getElementById('s-spr-pre').textContent = Math.round(d.sprPreRelease / d.sprCapacity * 100) + '% of ' + d.sprCapacity + 'M capacity';
+  document.getElementById('v-spr-release').textContent = '-' + d.sprCommittedRelease + 'M';
+  document.getElementById('s-spr-release').textContent = d.sprCommittedNote;
+  document.getElementById('v-effective-spr').textContent = '~' + d.effectiveSpr + 'M';
+  document.getElementById('v-gasoline').textContent = d.gasolineStocks + 'M';
+  document.getElementById('s-gasoline').textContent = 'barrels (' + d.gasolineChange + ')';
+  document.getElementById('v-distillate').textContent = d.distillateStocks + 'M';
+  document.getElementById('s-distillate').textContent = d.distillateNote;
+  var totalAvail = Math.round(d.commercialCrude + d.effectiveSpr + d.gasolineStocks + d.distillateStocks);
+  document.getElementById('v-total').textContent = '~' + totalAvail.toLocaleString() + 'M';
+  document.getElementById('v-cushing').textContent = d.cushingChange;
+  document.getElementById('s-cushing').textContent = d.cushingNote;
+
+  // Supply flows
+  var maxFlow = d.domesticProduction;
+  function setFlow(id, val, status) {
+    var row = document.getElementById(id);
+    if (!row) return;
+    row.querySelector('.flow-bar').style.width = Math.round(val / maxFlow * 90) + '%';
+    row.querySelector('.flow-val').textContent = (val === 0 ? '~0' : val < 1 ? '~' + val : val) + ' mb/d';
+    row.querySelector('.status-dot').style.background = statusColors[status] || statusColors.green;
+  }
+  setFlow('flow-domestic', d.domesticProduction, d.domesticStatus);
+  setFlow('flow-canada', d.canadaPipeline, d.canadaStatus);
+  setFlow('flow-mexico', d.mexicoMaritime, d.mexicoStatus);
+  setFlow('flow-atlantic', d.atlanticBasin, d.atlanticStatus);
+  setFlow('flow-gulf', d.persianGulf, d.persianGulfStatus);
+  setFlow('flow-spr', d.sprMaxDrawdown, d.sprDrawdownStatus);
+
+  // Hormuz
+  document.getElementById('v-hormuz-pre').textContent = d.hormuzPreWarTransits;
+  document.getElementById('v-hormuz-current').textContent = d.hormuzCurrentTransits;
+  document.getElementById('s-hormuz-current').textContent = d.hormuzTransitNote;
+  document.getElementById('v-vlccs').textContent = d.strandedVLCCs;
+  document.getElementById('s-vlccs').textContent = d.strandedVLCCNote;
+  document.getElementById('v-attacks').textContent = d.attacksOnShips;
+  document.getElementById('s-attacks').textContent = d.attacksSince;
+
+  // Prices
+  document.getElementById('v-brent-pre').textContent = '~$' + d.brentPreWar + '/b';
+  document.getElementById('s-brent-pre').textContent = d.brentPreWarDate;
+  document.getElementById('v-brent-now').textContent = '$' + d.brentCurrent + '+/b';
+  document.getElementById('s-brent-now').textContent = d.brentCurrentNote;
+  document.getElementById('v-gas').textContent = '$' + d.gasPrice + '/gal';
+  document.getElementById('s-gas').textContent = d.gasPriceNote;
+  document.getElementById('v-forecast').textContent = '$' + d.eiaForecastPrice + '/b ' + d.eiaForecastPeriod;
+  document.getElementById('s-forecast').textContent = d.eiaForecastNote;
+
+  // Build initial chart
+  buildChart('base');
+}
+
+let chart;
+const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+function buildChart(key) {
+  const s = DATA.scenarios[key];
+  const months = [];
+  const commercial = [];
+  const spr = [];
+  let c = DATA.commercialCrude;
+  let sp = DATA.effectiveSpr;
+  const dailyDraw = s.deficit;
+  const sprDaily = Math.min(dailyDraw * 0.6, 4.4);
+  const commDaily = dailyDraw - sprDaily;
+
+  for (let m = 0; m <= 36; m++) {
+    months.push(m === 0 ? 'Now' : 'M+' + m);
+    commercial.push(Math.max(0, Math.round(c)));
+    spr.push(Math.max(0, Math.round(sp)));
+    c -= commDaily * 30;
+    sp -= sprDaily * 30;
+    if (c < 0) c = 0;
+    if (sp < 0) sp = 0;
+  }
+
+  const totalStart = DATA.commercialCrude + DATA.effectiveSpr;
+  const daysToZero = s.deficit > 0 ? Math.round(totalStart / s.deficit) : 99999;
+
+  document.getElementById('dte-consumption').textContent = s.consumption.toFixed(1) + ' mb/d';
+  document.getElementById('dte-supply').textContent = s.supply.toFixed(1) + ' mb/d';
+  document.getElementById('dte-deficit').textContent = '-' + s.deficit.toFixed(1) + ' mb/d';
+  document.getElementById('dte-deficit').style.color = s.deficit > 1 ? 'var(--color-danger, #A32D2D)' : 'var(--color-warning, #854F0B)';
+  document.getElementById('dte-days').textContent = daysToZero.toLocaleString();
+  document.getElementById('dte-sub').textContent = s.label;
+  document.getElementById('scenario-desc').textContent = s.desc;
+
+  if (chart) chart.destroy();
+  const ctx = document.getElementById('dteChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Commercial crude (M bbl)', data: commercial, borderColor: '#185FA5', backgroundColor: 'rgba(24,95,165,0.08)', fill: true, tension: 0.3, pointRadius: 0 },
+        { label: 'SPR (M bbl)', data: spr, borderColor: '#993556', backgroundColor: 'rgba(153,53,86,0.08)', fill: true, tension: 0.3, pointRadius: 0 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: isDark ? '#9c9a92' : '#73726c', font: { size: 11 }, maxTicksLimit: 12 } },
+        y: { beginAtZero: true, grid: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }, ticks: { color: isDark ? '#9c9a92' : '#73726c', font: { size: 11 }, callback: function(v) { return v + 'M'; } } }
+      }
+    }
+  });
+}
+
+function setScenario(key) {
+  document.querySelectorAll('.scenario-toggle button').forEach(function(b) { b.classList.remove('active'); });
+  event.target.classList.add('active');
+  buildChart(key);
+}
+
+function validateData() {
+  var issues = [];
+  var d = DATA;
+
+  function fail(msg) { issues.push({ level: 'fail', msg: msg }); }
+  function warn(msg) { issues.push({ level: 'warn', msg: msg }); }
+
+  // --- Required fields exist and are correct types ---
+  var requiredNumbers = {
+    commercialCrude: [100, 700],
+    sprPreRelease: [50, 714],
+    sprCapacity: [714, 714],
+    sprCommittedRelease: [0, 500],
+    effectiveSpr: [0, 714],
+    gasolineStocks: [50, 400],
+    distillateStocks: [30, 250],
+    domesticProduction: [8, 18],
+    canadaPipeline: [1, 7],
+    mexicoMaritime: [0, 3],
+    atlanticBasin: [0, 5],
+    persianGulf: [0, 5],
+    sprMaxDrawdown: [1, 6],
+    brentPreWar: [20, 200],
+    brentCurrent: [20, 300],
+    eiaForecastPrice: [20, 200],
+    dailyConsumption: [14, 25],
+    strandedVLCCs: [0, 800]
+  };
+
+  for (var field in requiredNumbers) {
+    var val = d[field];
+    var bounds = requiredNumbers[field];
+    if (val === undefined || val === null) {
+      fail('Missing required field: ' + field);
+    } else if (typeof val !== 'number' || isNaN(val)) {
+      fail(field + ' must be a number, got: ' + JSON.stringify(val));
+    } else if (val < bounds[0] || val > bounds[1]) {
+      fail(field + ' = ' + val + ' is outside expected range [' + bounds[0] + ' – ' + bounds[1] + ']. Possible typo or decimal error.');
+    }
+  }
+
+  var requiredStrings = ['updated', 'eiaWeekEnding', 'sources', 'commercialCrudeChange',
+    'sprCommittedNote', 'gasolineChange', 'distillateNote', 'cushingChange', 'cushingNote',
+    'hormuzPreWarTransits', 'hormuzCurrentTransits', 'hormuzTransitNote',
+    'strandedVLCCNote', 'attacksOnShips', 'attacksSince',
+    'brentPreWarDate', 'brentCurrentNote', 'gasPrice', 'gasPriceNote',
+    'eiaForecastNote', 'eiaForecastPeriod'];
+
+  for (var i = 0; i < requiredStrings.length; i++) {
+    var sf = requiredStrings[i];
+    if (!d[sf] || typeof d[sf] !== 'string' || d[sf].trim() === '') {
+      fail('Missing or empty string field: ' + sf);
+    }
+  }
+
+  var validStatuses = ['green', 'yellow', 'red'];
+  var statusFields = ['domesticStatus', 'canadaStatus', 'mexicoStatus',
+    'atlanticStatus', 'persianGulfStatus', 'sprDrawdownStatus'];
+  for (var j = 0; j < statusFields.length; j++) {
+    if (validStatuses.indexOf(d[statusFields[j]]) === -1) {
+      fail(statusFields[j] + ' must be "green", "yellow", or "red", got: ' + JSON.stringify(d[statusFields[j]]));
+    }
+  }
+
+  // --- Logical consistency checks ---
+
+  // SPR math
+  var expectedEffective = d.sprPreRelease - d.sprCommittedRelease;
+  if (typeof d.effectiveSpr === 'number' && Math.abs(d.effectiveSpr - expectedEffective) > 1) {
+    fail('effectiveSpr (' + d.effectiveSpr + ') should equal sprPreRelease - sprCommittedRelease (' + expectedEffective + ')');
+  }
+
+  // Effective SPR should not exceed pre-release
+  if (d.effectiveSpr > d.sprPreRelease) {
+    fail('effectiveSpr (' + d.effectiveSpr + ') cannot exceed sprPreRelease (' + d.sprPreRelease + ')');
+  }
+
+  // SPR pre-release should not exceed capacity
+  if (d.sprPreRelease > d.sprCapacity) {
+    fail('sprPreRelease (' + d.sprPreRelease + ') cannot exceed sprCapacity (' + d.sprCapacity + ')');
+  }
+
+  // Supply should not exceed consumption by a huge margin
+  var totalSupply = d.domesticProduction + d.canadaPipeline + d.mexicoMaritime + d.atlanticBasin + d.persianGulf;
+  if (totalSupply > d.dailyConsumption * 1.3) {
+    warn('Total supply (' + totalSupply.toFixed(1) + ' mb/d) is >130% of consumption (' + d.dailyConsumption + ' mb/d). Double-check import figures.');
+  }
+
+  // Brent current should be >= pre-war during a crisis (warn, not fail)
+  if (d.brentCurrent < d.brentPreWar * 0.8) {
+    warn('Brent current ($' + d.brentCurrent + ') is well below pre-war ($' + d.brentPreWar + '). Has the crisis de-escalated? Update notes if so.');
+  }
+
+  // --- Scenario consistency ---
+  var scenarioNames = ['base', 'moderate', 'severe'];
+  for (var k = 0; k < scenarioNames.length; k++) {
+    var name = scenarioNames[k];
+    var sc = d.scenarios[name];
+    if (!sc) {
+      fail('Missing scenario: ' + name);
+      continue;
+    }
+
+    // Deficit should equal consumption - supply
+    var expectedDeficit = parseFloat((sc.consumption - sc.supply).toFixed(2));
+    if (Math.abs(sc.deficit - expectedDeficit) > 0.15) {
+      fail('Scenario "' + name + '": deficit (' + sc.deficit + ') should ≈ consumption (' + sc.consumption + ') - supply (' + sc.supply + ') = ' + expectedDeficit);
+    }
+
+    // Deficit should not be negative (supply > consumption is a surplus, not a deficit)
+    if (sc.deficit < 0) {
+      warn('Scenario "' + name + '": deficit is negative (' + sc.deficit + '), meaning supply exceeds consumption. This is a surplus — label should reflect that.');
+    }
+
+    // Consumption should decrease from base to severe (demand destruction)
+    if (name === 'moderate' && sc.consumption > d.scenarios.base.consumption) {
+      warn('Moderate scenario consumption (' + sc.consumption + ') exceeds base case (' + d.scenarios.base.consumption + '). Usually disruptions reduce demand.');
+    }
+    if (name === 'severe' && sc.consumption > d.scenarios.moderate.consumption) {
+      warn('Severe scenario consumption (' + sc.consumption + ') exceeds moderate (' + d.scenarios.moderate.consumption + '). Expected demand destruction in severe cases.');
+    }
+
+    // Deficit should increase from base to severe
+    if (name === 'moderate' && sc.deficit < d.scenarios.base.deficit) {
+      warn('Moderate deficit (' + sc.deficit + ') is less than base (' + d.scenarios.base.deficit + '). Moderate should be worse than base.');
+    }
+    if (name === 'severe' && sc.deficit < d.scenarios.moderate.deficit) {
+      warn('Severe deficit (' + sc.deficit + ') is less than moderate (' + d.scenarios.moderate.deficit + '). Severe should be the worst case.');
+    }
+
+    // Required string fields in scenario
+    if (!sc.desc || sc.desc.trim() === '') fail('Scenario "' + name + '": missing description');
+    if (!sc.label || sc.label.trim() === '') fail('Scenario "' + name + '": missing label');
+  }
+
+  // --- Staleness check ---
+  // Try to parse the updated date and warn if it's more than 3 days old
+  try {
+    var updatedDate = new Date(d.updated);
+    var now = new Date();
+    var daysDiff = Math.floor((now - updatedDate) / (1000 * 60 * 60 * 24));
+    if (daysDiff > 3) {
+      warn('Dashboard was last updated ' + daysDiff + ' days ago (' + d.updated + '). Data may be stale.');
+    }
+  } catch(e) {}
+
+  // --- Render results ---
+  var banner = document.getElementById('validation-banner');
+  var list = document.getElementById('validation-list');
+  if (issues.length === 0) {
+    banner.classList.remove('visible');
+    return true;
+  }
+
+  list.innerHTML = '';
+  var hasFailures = false;
+  for (var m = 0; m < issues.length; m++) {
+    var li = document.createElement('li');
+    li.className = issues[m].level;
+    li.textContent = (issues[m].level === 'fail' ? 'ERROR: ' : 'WARNING: ') + issues[m].msg;
+    list.appendChild(li);
+    if (issues[m].level === 'fail') hasFailures = true;
+  }
+  banner.classList.add('visible');
+
+  if (hasFailures) {
+    banner.querySelector('.vb-title').textContent = 'Data validation failed — review before publishing';
+    banner.style.borderLeftColor = 'var(--color-danger)';
+  } else {
+    banner.querySelector('.vb-title').textContent = 'Data validation warnings — review recommended';
+    banner.style.borderLeftColor = 'var(--color-warning)';
+  }
+
+  return !hasFailures;
+}
+
+var validationPassed = validateData();
+renderDashboard();
+</script>
+</body>
+</html>
