@@ -75,11 +75,14 @@
   .intro .caveat { font-size: 12px; padding: 10px 12px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-top: 12px; }
   .intro .caveat strong { color: var(--text-primary); }
   .source-links { font-size: 12px; line-height: 1.55; }
-  .source-links .source-links-sub { display: block; margin-top: 14px; margin-bottom: 6px; }
-  .source-links .source-links-list { margin: 0; padding-left: 18px; }
-  .source-links .source-links-list li { margin-bottom: 4px; }
-  .source-links a { color: var(--color-info); text-decoration: underline; text-underline-offset: 2px; }
-  .source-links a:hover { text-decoration: none; }
+  .source-links .sources-intro { margin: 0 0 12px; color: var(--text-secondary); }
+  .source-links .source-unified-list { margin: 0; padding-left: 0; list-style: none; }
+  .source-links .source-unified-list li { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .source-links .source-unified-list li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .source-links .sources-head { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-primary); }
+  .source-links .source-unified-list a.src-link { display: block; font-size: 12px; font-weight: 500; color: var(--color-info); text-decoration: underline; text-underline-offset: 2px; margin-bottom: 4px; }
+  .source-links .source-unified-list a.src-link:hover { text-decoration: none; }
+  .source-links .source-unified-list .src-desc { display: block; font-size: 11px; color: var(--text-secondary); line-height: 1.45; }
   .validation-banner { display: none; background: var(--bg-secondary); border-left: 3px solid var(--color-danger); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
   .validation-banner.visible { display: block; }
   .validation-banner .vb-title { font-weight: 500; color: var(--color-danger); margin-bottom: 6px; font-size: 14px; }
@@ -294,9 +297,7 @@
   </div>
 </div>
 
-<div class="note source-links" id="dash-sources" style="margin-top: 2rem;">
-  <strong>Sources:</strong> EIA Weekly Petroleum Status Report (Apr 1, 2026), DOE SPR Quick Facts, EIA Short-Term Energy Outlook (Mar 10, 2026), UANI Iran War Shipping Update (Apr 1, 2026), Lloyd's List Intelligence, Bloomberg tanker tracking, CNBC, Al Jazeera, Wikipedia (2026 Strait of Hormuz crisis), The World Data.
-</div>
+<div class="note source-links" id="dash-sources" style="margin-top: 2rem;"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
@@ -310,22 +311,23 @@ const DATA = {
   // — Metadata —
   updated: "April 5, 2026",
   eiaWeekEnding: "March 27, 2026",
-  sources: "EIA Weekly Petroleum Status Report (Apr 1, 2026), DOE SPR Quick Facts, EIA Short-Term Energy Outlook (Mar 10, 2026), UANI Iran War Shipping Update (Apr 1, 2026), Lloyd's List Intelligence, Bloomberg tanker tracking, CNBC, Al Jazeera, Wikipedia (2026 Strait of Hormuz crisis), The World Data.",
+  // — One-line context for this compile (report dates, etc.); shown above the unified source list —
+  sourcesIntro: "Numbers on this page were checked against the reports below. EIA weekly data: release Apr 1, 2026 (week ending Mar 27, 2026). STEO reference: Mar 10, 2026.",
 
-  // — Direct URLs for verification (label + https URL) —
+  // — Unified source list: each row is label + what it offers + URL (for verification) —
   sourceLinks: [
-    { label: "EIA — Weekly Petroleum Status Report", url: "https://www.eia.gov/petroleum/supply/weekly/" },
-    { label: "EIA — Short-Term Energy Outlook", url: "https://www.eia.gov/outlooks/steo/" },
-    { label: "EIA — Petroleum Supply Monthly (imports context)", url: "https://www.eia.gov/petroleum/supply/monthly/" },
-    { label: "U.S. DOE — SPR Quick Facts", url: "https://www.energy.gov/hgeo/opr/spr-quick-facts" },
-    { label: "Trading Economics — U.S. crude oil stocks (backup)", url: "https://tradingeconomics.com/united-states/crude-oil-stocks-change" },
-    { label: "UANI", url: "https://www.unitedagainstnucleariran.com/" },
-    { label: "Lloyd's List", url: "https://www.lloydslist.com/" },
-    { label: "Bloomberg — Markets", url: "https://www.bloomberg.com/markets" },
-    { label: "CNBC — Markets", url: "https://www.cnbc.com/markets/" },
-    { label: "Al Jazeera", url: "https://www.aljazeera.com/" },
-    { label: "Wikipedia — Strait of Hormuz", url: "https://en.wikipedia.org/wiki/Strait_of_Hormuz" },
-    { label: "IEA — Oil Market Report", url: "https://www.iea.org/reports/oil-market-report" }
+    { label: "EIA — Weekly Petroleum Status Report", url: "https://www.eia.gov/petroleum/supply/weekly/", description: "Official U.S. weekly commercial crude inventories, motor gasoline and distillate stocks, Cushing hub, refinery inputs, and imports — the base for stockpile figures here." },
+    { label: "EIA — Short-Term Energy Outlook", url: "https://www.eia.gov/outlooks/steo/", description: "Official near-term U.S. crude production, petroleum consumption, and price outlook — used for production, demand, and forecast references." },
+    { label: "EIA — Petroleum Supply Monthly", url: "https://www.eia.gov/petroleum/supply/monthly/", description: "Monthly detail on imports by country and supply flows — context for splitting imports into Canada, Mexico, and other buckets." },
+    { label: "U.S. DOE — SPR Quick Facts", url: "https://www.energy.gov/hgeo/opr/spr-quick-facts", description: "Strategic Petroleum Reserve inventory, authorized capacity, and drawdown capability — basis for SPR and effective-SPR lines." },
+    { label: "Trading Economics — U.S. crude oil stocks", url: "https://tradingeconomics.com/united-states/crude-oil-stocks-change", description: "Third-party chart of the same EIA crude stock series — quick cross-check when the weekly PDF is heavy." },
+    { label: "UANI", url: "https://www.unitedagainstnucleariran.com/", description: "Shipping and sanctions-focused updates — one input for Hormuz-related transit and risk narrative." },
+    { label: "Lloyd's List", url: "https://www.lloydslist.com/", description: "Maritime trade and tanker intelligence — context for stranded tonnage and Gulf routing." },
+    { label: "Bloomberg — Markets", url: "https://www.bloomberg.com/markets", description: "Live oil benchmarks and energy-market coverage — spot checks on Brent/WTI and headlines." },
+    { label: "CNBC — Markets", url: "https://www.cnbc.com/markets/", description: "U.S.-oriented market news and commodity coverage — price and policy context." },
+    { label: "Al Jazeera", url: "https://www.aljazeera.com/", description: "Regional reporting on the Gulf and shipping — background for Hormuz and conflict framing." },
+    { label: "Wikipedia — Strait of Hormuz", url: "https://en.wikipedia.org/wiki/Strait_of_Hormuz", description: "Static geography and history of the strait — orientation only; not a live data feed." },
+    { label: "IEA — Oil Market Report", url: "https://www.iea.org/reports/oil-market-report", description: "Global supply/demand and coordinated release context — complements U.S.-centric EIA figures." }
   ],
 
   // — Stockpiles (millions of barrels) —
@@ -422,21 +424,32 @@ function renderDashboard() {
   // Metadata
   document.getElementById('dash-updated').textContent = 'Compiled ' + d.updated + ' — Sources: EIA, DOE, UANI, Lloyd\'s List, Bloomberg, CNBC';
   document.getElementById('dash-eia-week').textContent = 'As of week ending ' + d.eiaWeekEnding;
-  var sourcesHtml = '<strong>Sources:</strong> ' + d.sources;
+
+  function escHtml(t) {
+    return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  var srcParts = [];
+  srcParts.push('<strong class="sources-head">Sources</strong>');
+  if (d.sourcesIntro) {
+    srcParts.push('<p class="sources-intro">' + escHtml(d.sourcesIntro) + '</p>');
+  }
   if (d.sourceLinks && d.sourceLinks.length) {
-    var ulParts = [];
+    srcParts.push('<ul class="source-unified-list">');
     for (var si = 0; si < d.sourceLinks.length; si++) {
       var entry = d.sourceLinks[si];
       if (!entry || !entry.label || !entry.url) continue;
       var href = String(entry.url);
       if (href.indexOf('http://') !== 0 && href.indexOf('https://') !== 0) continue;
-      ulParts.push('<li><a href="' + href.replace(/"/g, '&quot;') + '" target="_blank" rel="noopener noreferrer">' + String(entry.label).replace(/</g, '&lt;') + '</a></li>');
+      var desc = entry.description ? escHtml(entry.description) : '';
+      srcParts.push(
+        '<li><a class="src-link" href="' + escHtml(href) + '" target="_blank" rel="noopener noreferrer">' + escHtml(entry.label) + '</a>' +
+        (desc ? '<span class="src-desc">' + desc + '</span>' : '') +
+        '</li>'
+      );
     }
-    if (ulParts.length) {
-      sourcesHtml += '<strong class="source-links-sub">Source links (verify the data):</strong><ul class="source-links-list">' + ulParts.join('') + '</ul>';
-    }
+    srcParts.push('</ul>');
   }
-  document.getElementById('dash-sources').innerHTML = sourcesHtml;
+  document.getElementById('dash-sources').innerHTML = srcParts.join('');
 
   // Stockpiles
   document.getElementById('v-commercial').textContent = d.commercialCrude + 'M';
@@ -599,7 +612,7 @@ function validateData() {
     }
   }
 
-  var requiredStrings = ['updated', 'eiaWeekEnding', 'sources', 'commercialCrudeChange',
+  var requiredStrings = ['updated', 'eiaWeekEnding', 'sourcesIntro', 'commercialCrudeChange',
     'sprCommittedNote', 'gasolineChange', 'distillateNote', 'cushingChange', 'cushingNote',
     'hormuzPreWarTransits', 'hormuzCurrentTransits', 'hormuzTransitNote',
     'strandedVLCCNote', 'attacksOnShips', 'attacksSince',
@@ -624,12 +637,14 @@ function validateData() {
 
   if (d.sourceLinks !== undefined) {
     if (!Array.isArray(d.sourceLinks)) {
-      warn('sourceLinks should be an array of { label, url }');
+      warn('sourceLinks should be an array of { label, url, description }');
     } else {
       for (var sl = 0; sl < d.sourceLinks.length; sl++) {
         var link = d.sourceLinks[sl];
         if (!link || typeof link.url !== 'string' || (link.url.indexOf('http://') !== 0 && link.url.indexOf('https://') !== 0)) {
           warn('sourceLinks[' + sl + '] needs a valid https? URL');
+        } else if (!link.description || String(link.description).trim() === '') {
+          warn('sourceLinks[' + sl + '] should include a description of what this source offers');
         }
       }
     }

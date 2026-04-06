@@ -126,15 +126,19 @@ The three DTE scenarios need to stay internally consistent. Here's the logic:
 
 For the label, compute: `(commercialCrude + effectiveSpr) / deficit` = days. Convert to months or years for readability.
 
-### 4. Update the sources line
+### 4. Sources footnote (`sourcesIntro` + `sourceLinks`)
 
-Update `DATA.sources` to reflect the actual reports you pulled from and their dates. Format: `"Source Name (date), Source Name (date), ..."`.
+**`DATA.sourcesIntro`** — Short paragraph (one to three sentences) naming **which report dates / compile** this dashboard snapshot uses (e.g. EIA WPSR release date, STEO vintage). No comma-separated wall of names; that detail lives in the list below.
 
-### 4b. Source links (direct URLs)
+**`DATA.sourceLinks`** — Ordered array of `{ label, url, description }`:
 
-`DATA.sourceLinks` is an array of `{ label, url }` objects. Each `url` must start with `http://` or `https://`. These render **in the same footnote** as `sources`: first the citation line (**Sources:** …), then **Source links (verify the data):** with a bulleted link list—one unified `#dash-sources` block.
+- **`label`** — Short name of the outlet or report (shown as the link text).
+- **`url`** — Must start with `https://` or `http://`.
+- **`description`** — One or two sentences on **what this source offers** and how the dashboard uses it (e.g. “Official weekly U.S. crude and product stocks…”).
 
-When you add a new outlet to `sources`, add a matching entry to `sourceLinks` (or remove obsolete links). Keep official sources first (EIA, DOE, IEA); news and trackers use their canonical home or markets page.
+These render as **one unified list** under **Sources** in `#dash-sources`: intro paragraph, then each item = **clickable title** + description beneath. Official sources first (EIA, DOE, IEA); then trackers and press.
+
+When you add a new outlet to your research set, append a `sourceLinks` row with a real description—do not add a bare link with no explanation.
 
 ### 4c. Update Log (data narrative)
 
@@ -162,12 +166,12 @@ The **Update Log** is the slide-out panel from the title bar (`Update Log` butto
 
 - **2–4 bullets** per update, not paragraphs. Lead with the **EIA week** when stock data changed.
 - Use **active voice** and **numbers** where they appear in `DATA` (e.g. “Commercial crude +3.2M bbl to 465M”).
-- Do **not** repeat the full `sources` line; say “per EIA WPSR” if needed.
+- Do **not** paste the whole `sourcesIntro` or source list; say “per EIA WPSR” if needed.
 - If only one section changed (e.g. Hormuz only), one focused bullet is enough.
 
 **AI / agent checklist when updating `DATA`:**
 
-1. After all `DATA` fields and `sourceLinks` / `sources` are updated, **open the Update Log HTML** and **prepend** a new `update-log-entry` as above.
+1. After all `DATA` fields and `sourceLinks` / `sourcesIntro` are updated, **open the Update Log HTML** and **prepend** a new `update-log-entry` as above.
 2. Use `updated` and `eiaWeekEnding` from `DATA` in the entry so the log matches the file.
 3. Summarize **only** what changed in this pass; skip “no change” sections or say “unchanged from prior week” in one clause.
 4. Do **not** log implementation details (validation fixes, CSS, hosting).
@@ -272,8 +276,8 @@ Here is every field in the DATA object with its type and unit:
 ```
 updated                 string    "Month Day, Year"
 eiaWeekEnding           string    "Month Day, Year"
-sources                 string    comma-separated source list
-sourceLinks             array     [{ label: string, url: string }, ...]  optional; direct verification links
+sourcesIntro            string    short paragraph: report dates / compile context for this snapshot
+sourceLinks             array     [{ label, url, description }, ...]  unified source list with what each offers
 
 commercialCrude         number    millions of barrels
 commercialCrudeChange   string    e.g. "+5.5M last week"
