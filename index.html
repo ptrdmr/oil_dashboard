@@ -74,6 +74,12 @@
   .intro p { margin: 0 0 8px; }
   .intro .caveat { font-size: 12px; padding: 10px 12px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-top: 12px; }
   .intro .caveat strong { color: var(--text-primary); }
+  .source-links { font-size: 12px; line-height: 1.55; }
+  .source-links .source-links-sub { display: block; margin-top: 14px; margin-bottom: 6px; }
+  .source-links .source-links-list { margin: 0; padding-left: 18px; }
+  .source-links .source-links-list li { margin-bottom: 4px; }
+  .source-links a { color: var(--color-info); text-decoration: underline; text-underline-offset: 2px; }
+  .source-links a:hover { text-decoration: none; }
   .validation-banner { display: none; background: var(--bg-secondary); border-left: 3px solid var(--color-danger); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
   .validation-banner.visible { display: block; }
   .validation-banner .vb-title { font-weight: 500; color: var(--color-danger); margin-bottom: 6px; font-size: 14px; }
@@ -81,10 +87,36 @@
   .validation-banner li { margin-bottom: 2px; color: var(--text-secondary); }
   .validation-banner li.warn { color: var(--color-warning); }
   .validation-banner li.fail { color: var(--color-danger); }
+  .page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 4px; }
+  .page-header h1 { margin-bottom: 0; flex: 1; min-width: 0; }
+  .update-log-btn { flex-shrink: 0; padding: 6px 12px; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; font-size: 12px; font-family: var(--font-sans); margin-top: 2px; }
+  .update-log-btn:hover { color: var(--text-primary); border-color: var(--text-tertiary); }
+  .update-log-backdrop { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.4); opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+  body.update-log-open .update-log-backdrop { opacity: 1; pointer-events: auto; }
+  .update-log-panel { position: fixed; top: 0; right: 0; z-index: 1001; width: min(100%, 380px); height: 100%; background: var(--bg-primary); border-left: 1px solid var(--border); box-shadow: -8px 0 24px rgba(0,0,0,0.12); transform: translateX(100%); transition: transform 0.25s ease; display: flex; flex-direction: column; }
+  body.update-log-open .update-log-panel { transform: translateX(0); }
+  body.update-log-open { overflow: hidden; }
+  .update-log-panel-inner { padding: 20px 20px 28px; overflow-y: auto; flex: 1; }
+  .update-log-panel h2 { font-size: 16px; font-weight: 500; margin: 0 0 6px; }
+  .update-log-sub { font-size: 12px; color: var(--text-secondary); margin: 0 0 18px; line-height: 1.45; }
+  .update-log-close { align-self: flex-end; margin: 12px 12px 0; padding: 6px 12px; border-radius: var(--radius-md); border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 12px; font-family: var(--font-sans); }
+  .update-log-close:hover { color: var(--text-primary); }
+  .update-log-entry { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .update-log-entry:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .update-log-entry .date { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); margin-bottom: 6px; }
+  .update-log-entry ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+  .update-log-entry li { margin-bottom: 4px; }
+  .update-log-entry code { font-size: 12px; background: var(--bg-secondary); padding: 1px 4px; border-radius: 4px; }
+  @media (prefers-color-scheme: dark) {
+    .update-log-panel { box-shadow: -8px 0 24px rgba(0,0,0,0.45); }
+  }
 </style>
 </head>
 <body>
-<h1>America's oil situation</h1>
+<div class="page-header">
+  <h1>America's oil situation</h1>
+  <button type="button" class="update-log-btn" id="update-log-toggle" aria-expanded="false" aria-controls="update-log-panel">Update Log</button>
+</div>
 <div class="page-sub" id="dash-updated">Compiled April 5, 2026 — Sources: EIA, DOE, UANI, Lloyd's List, Bloomberg, CNBC</div>
 
 <div class="intro">
@@ -247,7 +279,7 @@
     <div class="metric">
       <div class="label">Brent crude (current)</div>
       <div class="value danger" id="v-brent-now">$94+/b</div>
-      <div class="sub" id="s-brent-now">+50% spike since war began</div>
+      <div class="sub" id="s-brent-now">+32% since war began</div>
     </div>
     <div class="metric">
       <div class="label">U.S. gas prices</div>
@@ -262,7 +294,7 @@
   </div>
 </div>
 
-<div class="note" id="dash-sources" style="margin-top: 2rem;">
+<div class="note source-links" id="dash-sources" style="margin-top: 2rem;">
   <strong>Sources:</strong> EIA Weekly Petroleum Status Report (Apr 1, 2026), DOE SPR Quick Facts, EIA Short-Term Energy Outlook (Mar 10, 2026), UANI Iran War Shipping Update (Apr 1, 2026), Lloyd's List Intelligence, Bloomberg tanker tracking, CNBC, Al Jazeera, Wikipedia (2026 Strait of Hormuz crisis), The World Data.
 </div>
 
@@ -279,6 +311,22 @@ const DATA = {
   updated: "April 5, 2026",
   eiaWeekEnding: "March 27, 2026",
   sources: "EIA Weekly Petroleum Status Report (Apr 1, 2026), DOE SPR Quick Facts, EIA Short-Term Energy Outlook (Mar 10, 2026), UANI Iran War Shipping Update (Apr 1, 2026), Lloyd's List Intelligence, Bloomberg tanker tracking, CNBC, Al Jazeera, Wikipedia (2026 Strait of Hormuz crisis), The World Data.",
+
+  // — Direct URLs for verification (label + https URL) —
+  sourceLinks: [
+    { label: "EIA — Weekly Petroleum Status Report", url: "https://www.eia.gov/petroleum/supply/weekly/" },
+    { label: "EIA — Short-Term Energy Outlook", url: "https://www.eia.gov/outlooks/steo/" },
+    { label: "EIA — Petroleum Supply Monthly (imports context)", url: "https://www.eia.gov/petroleum/supply/monthly/" },
+    { label: "U.S. DOE — SPR Quick Facts", url: "https://www.energy.gov/hgeo/opr/spr-quick-facts" },
+    { label: "Trading Economics — U.S. crude oil stocks (backup)", url: "https://tradingeconomics.com/united-states/crude-oil-stocks-change" },
+    { label: "UANI", url: "https://www.unitedagainstnucleariran.com/" },
+    { label: "Lloyd's List", url: "https://www.lloydslist.com/" },
+    { label: "Bloomberg — Markets", url: "https://www.bloomberg.com/markets" },
+    { label: "CNBC — Markets", url: "https://www.cnbc.com/markets/" },
+    { label: "Al Jazeera", url: "https://www.aljazeera.com/" },
+    { label: "Wikipedia — Strait of Hormuz", url: "https://en.wikipedia.org/wiki/Strait_of_Hormuz" },
+    { label: "IEA — Oil Market Report", url: "https://www.iea.org/reports/oil-market-report" }
+  ],
 
   // — Stockpiles (millions of barrels) —
   commercialCrude:       461.6,
@@ -374,7 +422,21 @@ function renderDashboard() {
   // Metadata
   document.getElementById('dash-updated').textContent = 'Compiled ' + d.updated + ' — Sources: EIA, DOE, UANI, Lloyd\'s List, Bloomberg, CNBC';
   document.getElementById('dash-eia-week').textContent = 'As of week ending ' + d.eiaWeekEnding;
-  document.getElementById('dash-sources').innerHTML = '<strong>Sources:</strong> ' + d.sources;
+  var sourcesHtml = '<strong>Sources:</strong> ' + d.sources;
+  if (d.sourceLinks && d.sourceLinks.length) {
+    var ulParts = [];
+    for (var si = 0; si < d.sourceLinks.length; si++) {
+      var entry = d.sourceLinks[si];
+      if (!entry || !entry.label || !entry.url) continue;
+      var href = String(entry.url);
+      if (href.indexOf('http://') !== 0 && href.indexOf('https://') !== 0) continue;
+      ulParts.push('<li><a href="' + href.replace(/"/g, '&quot;') + '" target="_blank" rel="noopener noreferrer">' + String(entry.label).replace(/</g, '&lt;') + '</a></li>');
+    }
+    if (ulParts.length) {
+      sourcesHtml += '<strong class="source-links-sub">Source links (verify the data):</strong><ul class="source-links-list">' + ulParts.join('') + '</ul>';
+    }
+  }
+  document.getElementById('dash-sources').innerHTML = sourcesHtml;
 
   // Stockpiles
   document.getElementById('v-commercial').textContent = d.commercialCrude + 'M';
@@ -560,6 +622,19 @@ function validateData() {
     }
   }
 
+  if (d.sourceLinks !== undefined) {
+    if (!Array.isArray(d.sourceLinks)) {
+      warn('sourceLinks should be an array of { label, url }');
+    } else {
+      for (var sl = 0; sl < d.sourceLinks.length; sl++) {
+        var link = d.sourceLinks[sl];
+        if (!link || typeof link.url !== 'string' || (link.url.indexOf('http://') !== 0 && link.url.indexOf('https://') !== 0)) {
+          warn('sourceLinks[' + sl + '] needs a valid https? URL');
+        }
+      }
+    }
+  }
+
   // --- Logical consistency checks ---
 
   // SPR math
@@ -674,6 +749,56 @@ function validateData() {
 
 var validationPassed = validateData();
 renderDashboard();
+</script>
+
+<div class="update-log-backdrop" id="update-log-backdrop" aria-hidden="true"></div>
+<aside class="update-log-panel" id="update-log-panel" role="dialog" aria-modal="true" aria-labelledby="update-log-title" aria-hidden="true">
+  <button type="button" class="update-log-close" id="update-log-close">Close</button>
+  <div class="update-log-panel-inner">
+    <h2 id="update-log-title">Update Log</h2>
+    <p class="update-log-sub">Summary of changes to the numbers and narrative on this page (not technical site notes). Updated when <code>DATA</code> is refreshed.</p>
+    <div class="update-log-entry">
+      <div class="date">April 5, 2026 (compile date)</div>
+      <ul>
+        <li><strong>EIA (week ending March 27, 2026):</strong> Commercial crude rose 5.5M bbl to 461.6M; motor gasoline stocks fell 0.6M bbl to 240.9M; Cushing, OK hub up 520K bbl. Distillate inventories at 117.8M bbl.</li>
+        <li><strong>Balances:</strong> Total supply from domestic + named imports is shown at ~20.1 mb/d vs consumption ~20.3 mb/d in the base scenario, leaving a small structural deficit for the days-to-empty model.</li>
+        <li><strong>Hormuz / maritime:</strong> Narrative reflects a near-closure picture: Persian Gulf supply to the U.S. at 0 mb/d; transit and attack figures are compiled from shipping trackers and press—see source links below the page.</li>
+        <li><strong>Prices:</strong> Brent quoted around $94/b vs a pre-war baseline of $71/b; retail gas shown as $4+/gal with elevated volatility.</li>
+      </ul>
+    </div>
+  </div>
+</aside>
+<script>
+/* Update Log drawer — not part of DATA pipeline */
+(function () {
+  var toggle = document.getElementById('update-log-toggle');
+  var panel = document.getElementById('update-log-panel');
+  var backdrop = document.getElementById('update-log-backdrop');
+  var closeBtn = document.getElementById('update-log-close');
+  if (!toggle || !panel || !backdrop) return;
+
+  function setOpen(open) {
+    document.body.classList.toggle('update-log-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+    backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+    if (open && closeBtn) closeBtn.focus();
+  }
+
+  function closeUpdateLog() { setOpen(false); }
+
+  toggle.addEventListener('click', function () {
+    setOpen(!document.body.classList.contains('update-log-open'));
+  });
+  backdrop.addEventListener('click', closeUpdateLog);
+  if (closeBtn) closeBtn.addEventListener('click', closeUpdateLog);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.body.classList.contains('update-log-open')) {
+      closeUpdateLog();
+      toggle.focus();
+    }
+  });
+})();
 </script>
 </body>
 </html>

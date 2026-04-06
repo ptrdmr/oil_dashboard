@@ -130,6 +130,48 @@ For the label, compute: `(commercialCrude + effectiveSpr) / deficit` = days. Con
 
 Update `DATA.sources` to reflect the actual reports you pulled from and their dates. Format: `"Source Name (date), Source Name (date), ..."`.
 
+### 4b. Source links (direct URLs)
+
+`DATA.sourceLinks` is an array of `{ label, url }` objects. Each `url` must start with `http://` or `https://`. These render **in the same footnote** as `sources`: first the citation line (**Sources:** …), then **Source links (verify the data):** with a bulleted link list—one unified `#dash-sources` block.
+
+When you add a new outlet to `sources`, add a matching entry to `sourceLinks` (or remove obsolete links). Keep official sources first (EIA, DOE, IEA); news and trackers use their canonical home or markets page.
+
+### 4c. Update Log (data narrative)
+
+The **Update Log** is the slide-out panel from the title bar (`Update Log` button). It is **not** for technical or deploy notes (Netlify, file renames, bugfixes). It is for a **short reporter-style summary** of **substantive changes to the dashboard’s information** after you update `DATA`—so readers can see “what moved” in plain language.
+
+**Who maintains it:** Anyone changing `DATA` (human or AI) should add a log entry as part of the same update.
+
+**Where to edit:** In [index.html](index.html), find `<aside class="update-log-panel" id="update-log-panel">`. Inside `.update-log-panel-inner`, add a **new** `<div class="update-log-entry">` block at the **top** (newest first), above older entries. Keep at least one older entry if you want history, or trim very old blocks so the panel stays readable.
+
+**Entry format (copy this structure):**
+
+```html
+<div class="update-log-entry">
+  <div class="date">[Month Day, Year] — data refresh</div>
+  <ul>
+    <li><strong>EIA (week ending [date]):</strong> One sentence: biggest commercial crude / products / Cushing moves vs last week.</li>
+    <li><strong>Balances / scenarios (if changed):</strong> One sentence on supply vs consumption or scenario assumptions.</li>
+    <li><strong>Hormuz / maritime (if changed):</strong> One sentence; say if figures are estimates.</li>
+    <li><strong>Prices (if changed):</strong> Brent / gas direction vs prior snapshot.</li>
+  </ul>
+</div>
+```
+
+**Reporter style (keep it small):**
+
+- **2–4 bullets** per update, not paragraphs. Lead with the **EIA week** when stock data changed.
+- Use **active voice** and **numbers** where they appear in `DATA` (e.g. “Commercial crude +3.2M bbl to 465M”).
+- Do **not** repeat the full `sources` line; say “per EIA WPSR” if needed.
+- If only one section changed (e.g. Hormuz only), one focused bullet is enough.
+
+**AI / agent checklist when updating `DATA`:**
+
+1. After all `DATA` fields and `sourceLinks` / `sources` are updated, **open the Update Log HTML** and **prepend** a new `update-log-entry` as above.
+2. Use `updated` and `eiaWeekEnding` from `DATA` in the entry so the log matches the file.
+3. Summarize **only** what changed in this pass; skip “no change” sections or say “unchanged from prior week” in one clause.
+4. Do **not** log implementation details (validation fixes, CSS, hosting).
+
 ### 5. Pre-commit validation (you do this BEFORE saving)
 
 The dashboard has a built-in validation system that runs automatically when the page loads. But you should catch problems *before* they get into the file. Run through this checklist after editing the DATA object:
@@ -195,7 +237,7 @@ If the page loads with no banner, validation passed.
 
 ### 7. Commit
 
-Only after steps 5 and 6 pass cleanly:
+Only after steps 5 and 6 pass cleanly (and §4c Update Log entry is added if this was a substantive data refresh):
 
 ```bash
 git add index.html
@@ -213,7 +255,7 @@ git commit -m "oil dashboard update: April 9, 2026 — EIA week ending April 3, 
 
 ## What NOT to change
 
-- Any HTML structure (tags, classes, IDs)
+- Any HTML structure (tags, classes, IDs)—**except** appending or editing **Update Log** entries inside `#update-log-panel` as described in §4c when refreshing data.
 - Any CSS
 - Any JavaScript below the `END DATA CONFIG` comment
 - The Chart.js CDN link
@@ -231,6 +273,7 @@ Here is every field in the DATA object with its type and unit:
 updated                 string    "Month Day, Year"
 eiaWeekEnding           string    "Month Day, Year"
 sources                 string    comma-separated source list
+sourceLinks             array     [{ label: string, url: string }, ...]  optional; direct verification links
 
 commercialCrude         number    millions of barrels
 commercialCrudeChange   string    e.g. "+5.5M last week"
