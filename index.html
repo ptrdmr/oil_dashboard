@@ -94,8 +94,17 @@
   .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
   .intro { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 24px; }
   .intro p { margin: 0 0 8px; }
-  .intro .caveat { font-size: 12px; padding: 10px 12px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-top: 12px; }
-  .intro .caveat strong { color: var(--text-primary); }
+  .intro .caveat-details { font-size: 12px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-top: 12px; border: 1px solid var(--border); }
+  .intro .caveat-details summary { padding: 10px 12px; cursor: pointer; color: var(--text-primary); list-style: none; }
+  .intro .caveat-details summary::-webkit-details-marker { display: none; }
+  .intro .caveat-details summary::marker { content: ''; }
+  .intro .caveat-details summary strong { color: var(--text-primary); font-weight: 600; }
+  .intro .caveat-details summary::before { content: '▸ '; display: inline-block; color: var(--text-tertiary); margin-right: 2px; transition: transform 0.15s ease; }
+  .intro .caveat-details[open] summary::before { transform: rotate(90deg); }
+  .intro .caveat-details ul { margin: 0; padding: 4px 12px 8px 28px; color: var(--text-secondary); line-height: 1.55; }
+  .intro .caveat-details li { margin-bottom: 8px; }
+  .intro .caveat-details li:last-child { margin-bottom: 0; }
+  .intro .caveat-sources-note { text-align: center; font-size: 12px; color: var(--color-info); margin: 0; padding: 0 16px 12px; line-height: 1.45; }
   .source-links { font-size: 12px; line-height: 1.55; }
   .source-links .sources-intro { margin: 0 0 12px; color: var(--text-secondary); }
   .source-links .source-unified-list { margin: 0; padding-left: 0; list-style: none; }
@@ -147,9 +156,19 @@
 <div class="intro">
   <p>This dashboard tracks America's oil supply position during the 2026 Strait of Hormuz crisis. It shows how much crude oil the U.S. has in storage, where daily supply comes from, and how long reserves could last under different disruption scenarios.</p>
   <p>The goal is to present a clear, at-a-glance picture of U.S. energy resilience — not to predict markets or recommend policy.</p>
-  <div class="caveat">
-    <strong>About the data:</strong> Stockpile figures (commercial crude, gasoline, distillates, Cushing) come from the EIA Weekly Petroleum Status Report — an official U.S. government source updated each Wednesday. Production and consumption estimates are drawn from the EIA Short-Term Energy Outlook. SPR levels come from the Department of Energy. These are the most reliable numbers on the dashboard. Hormuz transit counts, stranded tanker estimates, and attack tallies are compiled from maritime intelligence sources (UANI, Lloyd's List, Bloomberg) and news reporting — they represent best available estimates, not official counts, and may lag or vary between sources. Oil prices reflect market data at time of update. The "days to empty" projections are simplified models, not forecasts; they assume constant draw rates and do not account for policy responses, demand shifts, or supply changes that would occur in practice.
-  </div>
+  <details class="caveat-details">
+    <summary><strong>About the data</strong></summary>
+    <ul>
+      <li>Stockpile figures (commercial crude, gasoline, distillates, Cushing) come from the EIA Weekly Petroleum Status Report — an official U.S. government source updated each Wednesday.</li>
+      <li>Production and consumption estimates are drawn from the EIA Short-Term Energy Outlook.</li>
+      <li>SPR levels come from the Department of Energy.</li>
+      <li>Those government-sourced stockpile and supply figures are the most reliable numbers on the dashboard.</li>
+      <li>Hormuz transit counts, stranded tanker estimates, and attack tallies are compiled from maritime intelligence sources (UANI, Lloyd's List, Bloomberg) and news reporting — they are best-available estimates, not official counts, and may lag or vary between sources.</li>
+      <li>Oil prices reflect market data at the time of update.</li>
+      <li>The &quot;days to empty&quot; projections are simplified models, not forecasts; they assume constant draw rates and do not account for policy responses, demand shifts, or supply changes that would occur in practice.</li>
+    </ul>
+    <p class="caveat-sources-note">Links to sources, with short descriptions of what each one is for, are at the bottom of the page.</p>
+  </details>
 </div>
 
 <div class="validation-banner" id="validation-banner">
