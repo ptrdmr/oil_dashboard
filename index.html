@@ -354,10 +354,10 @@
    ============================================================ */
 const DATA = {
   // — Metadata —
-  updated: "April 5, 2026",
-  eiaWeekEnding: "March 27, 2026",
+  updated: "April 8, 2026",
+  eiaWeekEnding: "April 3, 2026",
   // — One-line context for this compile (report dates, etc.); shown above the unified source list —
-  sourcesIntro: "Numbers on this page were checked against the reports below. EIA weekly data: release Apr 1, 2026 (week ending Mar 27, 2026). STEO reference: Mar 10, 2026.",
+  sourcesIntro: "Numbers on this page were checked against the reports below. EIA Weekly Petroleum Status Report: release Apr 8, 2026 (week ending Apr 3, 2026). Production and consumption references align with the prior STEO-style snapshot unless a monthly update revises them.",
 
   // — Unified source list: each row is label + what it offers + URL (for verification) —
   sourceLinks: [
@@ -372,22 +372,23 @@ const DATA = {
     { label: "CNBC — Markets", url: "https://www.cnbc.com/markets/", description: "U.S.-oriented market news and commodity coverage — price and policy context." },
     { label: "Al Jazeera", url: "https://www.aljazeera.com/", description: "Regional reporting on the Gulf and shipping — background for Hormuz and conflict framing." },
     { label: "Wikipedia — Strait of Hormuz", url: "https://en.wikipedia.org/wiki/Strait_of_Hormuz", description: "Static geography and history of the strait — orientation only; not a live data feed." },
-    { label: "IEA — Oil Market Report", url: "https://www.iea.org/reports/oil-market-report", description: "Global supply/demand and coordinated release context — complements U.S.-centric EIA figures." }
+    { label: "IEA — Oil Market Report", url: "https://www.iea.org/reports/oil-market-report", description: "Global supply/demand and coordinated release context — complements U.S.-centric EIA figures." },
+    { label: "Reuters — Energy", url: "https://www.reuters.com/business/energy/", description: "Wire summaries of weekly EIA builds/draws and SPR changes — useful when verifying headline numbers against the full WPSR tables." }
   ],
 
   // — Stockpiles (millions of barrels) —
-  commercialCrude:       461.6,
-  commercialCrudeChange: "+5.5M last week",
-  sprPreRelease:         415,
+  commercialCrude:       464.7,
+  commercialCrudeChange: "+3.1M last week",
+  sprPreRelease:         413,
   sprCapacity:           714,
   sprCommittedRelease:   172,
   sprCommittedNote:      "IEA coordinated (exchange)",
-  effectiveSpr:          243,
-  gasolineStocks:        240.9,
-  gasolineChange:        "-0.6M last week",
-  distillateStocks:      117.8,
+  effectiveSpr:          241,
+  gasolineStocks:        239.3,
+  gasolineChange:        "-1.6M last week",
+  distillateStocks:      114.7,
   distillateNote:        "diesel + heating oil",
-  cushingChange:         "+520K",
+  cushingChange:         "+24K",
   cushingNote:           "barrels last week",
 
   // — Supply flows (mb/d) —
@@ -395,7 +396,7 @@ const DATA = {
   canadaPipeline:        4.1,
   mexicoMaritime:        0.6,
   atlanticBasin:         1.8,
-  persianGulf:           0,
+  persianGulf:           0.5,
   sprMaxDrawdown:        4.4,
 
   // — Supply flow status: "green", "yellow", or "red" —
@@ -403,15 +404,15 @@ const DATA = {
   canadaStatus:          "green",
   mexicoStatus:          "green",
   atlanticStatus:        "yellow",
-  persianGulfStatus:     "red",
+  persianGulfStatus:     "yellow",
   sprDrawdownStatus:     "yellow",
 
   // — Hormuz status —
   hormuzPreWarTransits:  "100+",
-  hormuzCurrentTransits: "~5",
-  hormuzTransitNote:     "mostly sanctioned/shadow fleet",
-  strandedVLCCs:         60,
-  strandedVLCCNote:      "8% of global VLCC fleet",
+  hormuzCurrentTransits: "~25",
+  hormuzTransitNote:     "Apr 8: U.S.-Iran ceasefire & Hormuz reopening plan — flows still thin vs pre-war",
+  strandedVLCCs:         55,
+  strandedVLCCNote:      "~7% of global VLCC fleet",
   attacksOnShips:        "21+",
   attacksSince:          "confirmed since Feb 28",
 
@@ -419,9 +420,9 @@ const DATA = {
   brentPreWar:           71,
   brentPreWarDate:       "Feb 27, 2026",
   brentCurrent:          94,
-  brentCurrentNote:      "+32% since war began",
-  gasPrice:              "4+",
-  gasPriceNote:          "+30% in one month",
+  brentCurrentNote:      "+32% vs pre-war baseline",
+  gasPrice:              "4.16",
+  gasPriceNote:          "+10¢ vs week ago (AAA national avg., 4/8)",
   eiaForecastPrice:      70,
   eiaForecastNote:       "if Hormuz reopens",
   eiaForecastPeriod:     "Q4",
@@ -441,7 +442,7 @@ const DATA = {
       consumption: 20.3,
       supply: 20.1,
       deficit: 0.2,
-      label: "~9.6 years at current draw"
+      label: "~9.7 years at current draw"
     },
     moderate: {
       desc: "Canada pipeline flow reduced 15% due to tariff escalation. Atlantic Basin imports drop 30%. SPR drawdown accelerates to 2 mb/d. Refinery runs drop to 88%.",
@@ -851,6 +852,15 @@ renderDashboard();
   <div class="update-log-panel-inner">
     <h2 id="update-log-title">Update Log</h2>
     <p class="update-log-sub">Summary of changes to the numbers and narrative on this page (not technical site notes). Updated when <code>DATA</code> is refreshed.</p>
+    <div class="update-log-entry">
+      <div class="date">April 8, 2026 — data refresh</div>
+      <ul>
+        <li><strong>EIA (week ending April 3, 2026):</strong> Commercial crude +3.1M bbl to 464.7M; gasoline −1.6M bbl to 239.3M; distillates −3.1M bbl to 114.7M; Cushing +24K bbl. SPR crude −1.7M bbl to 413M per WPSR (release Apr 8).</li>
+        <li><strong>Balances / scenarios:</strong> Base-case DTE inputs unchanged (~20.3 mb/d demand vs ~20.1 mb/d non–Gulf supply); inventory path shifts with higher commercial crude and lower effective SPR (~241M bbl post–committed release).</li>
+        <li><strong>Hormuz / maritime:</strong> Transits and Gulf flow row updated for an Apr 8 U.S.–Iran ceasefire and planned strait reopening—figures are estimates from press and market reporting, not vessel counts.</li>
+        <li><strong>Prices:</strong> Brent futures off double digits on the ceasefire headline (snapshot ~$94/b vs ~$71/b pre-war); AAA national regular gasoline ~$4.16/gal on 4/8.</li>
+      </ul>
+    </div>
     <div class="update-log-entry">
       <div class="date">April 5, 2026 (compile date)</div>
       <ul>
