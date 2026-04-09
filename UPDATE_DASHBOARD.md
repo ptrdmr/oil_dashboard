@@ -114,6 +114,22 @@ Update each field with the new values you found. Follow these formatting rules:
 - **The `eiaWeekEnding` field** must reflect the EIA report date, not today
 - **`effectiveSpr`** must equal `sprPreRelease - sprCommittedRelease`
 
+### 2b. Metric history (click-to-chart)
+
+The file **`metric-history.json`** (next to `index.html`) stores **time series** for dashboard metrics. When readers click a highlighted card or flow row, the page loads this file and draws a **Chart.js** line of past values.
+
+**On each data refresh**, append a new point to **every series you changed** (same keys as `data-metric` in `index.html`). Each point looks like:
+
+```json
+{ "t": "2026-04-03", "v": 464.7, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+```
+
+- **`t`** — ISO date; prefer the **EIA week-ending date** for weekly stocks.
+- **`v`** — number in the same units as `DATA` (e.g. commercial crude in **M bbl**, Cushing change in **thousands of barrels** for `cushingChangeKbbl`, gas in **`gasPriceUsd`** as dollars per gallon).
+- **`compile`** / **`eiaWeekEnding`** — optional; shown in the chart tooltip.
+
+If a series is missing or empty, the modal explains that no history is recorded yet. **Serving over `http://`/`https://`** is required so the browser can `fetch('metric-history.json')`; opening `index.html` alone as `file://` will not load the file.
+
 ### 3. Update the scenario parameters
 
 The three DTE scenarios need to stay internally consistent. Here's the logic:
@@ -244,7 +260,7 @@ If the page loads with no banner, validation passed.
 Only after steps 5 and 6 pass cleanly (and §4c Update Log entry is added if this was a substantive data refresh):
 
 ```bash
-git add index.html
+git add index.html metric-history.json
 git commit -m "oil dashboard update: [today's date] — EIA week ending [date]"
 git push
 ```

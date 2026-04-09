@@ -144,6 +144,25 @@
   @media (prefers-color-scheme: dark) {
     .update-log-panel { box-shadow: -8px 0 24px rgba(0,0,0,0.45); }
   }
+  .metric[data-metric], .flow-row[data-metric] { cursor: pointer; transition: background 0.15s ease, box-shadow 0.15s ease; }
+  .metric[data-metric]:hover, .flow-row[data-metric]:hover { background: var(--bg-tertiary); box-shadow: inset 0 0 0 1px var(--border); }
+  .metric[data-metric]:focus { outline: 2px solid var(--color-info); outline-offset: 2px; }
+  .mh-modal-backdrop { position: fixed; inset: 0; z-index: 1004; background: rgba(0,0,0,0.45); opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+  body.mh-modal-open .mh-modal-backdrop { opacity: 1; pointer-events: auto; }
+  .mh-modal { position: fixed; left: 50%; top: 50%; z-index: 1005; width: min(94vw, 520px); max-height: min(88vh, 480px); display: flex; flex-direction: column; background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 20px 60px rgba(0,0,0,0.22); opacity: 0; pointer-events: none; transform: translate(-50%, -48%) scale(0.98); transition: opacity 0.2s ease, transform 0.2s ease; }
+  body.mh-modal-open .mh-modal { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+  body.mh-modal-open { overflow: hidden; }
+  .mh-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 20px 0; flex-shrink: 0; }
+  .mh-modal-header h2 { font-size: 17px; font-weight: 500; margin: 0; line-height: 1.3; padding-top: 2px; }
+  .mh-modal-close { flex-shrink: 0; width: 36px; height: 36px; border-radius: var(--radius-md); border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 22px; line-height: 1; font-family: var(--font-sans); display: flex; align-items: center; justify-content: center; }
+  .mh-modal-close:hover { color: var(--text-primary); border-color: var(--text-tertiary); }
+  .mh-modal-body { padding: 8px 20px 20px; overflow-y: auto; font-size: 13px; color: var(--text-secondary); line-height: 1.55; flex: 1; min-height: 0; }
+  .mh-modal-body .mh-chart-wrap { position: relative; width: 100%; height: 260px; margin-top: 8px; }
+  .mh-modal-body .mh-note { margin: 0 0 10px; font-size: 12px; }
+  .mh-modal-body .mh-empty { margin: 0; padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-md); font-size: 13px; }
+  @media (prefers-color-scheme: dark) {
+    .mh-modal { box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
+  }
 </style>
 </head>
 <body>
@@ -152,6 +171,7 @@
   <button type="button" class="update-log-btn" id="update-log-toggle" aria-expanded="false" aria-controls="update-log-panel">Update Log</button>
 </div>
 <div class="page-sub" id="dash-updated">Compiled April 5, 2026 — Sources: EIA, DOE, UANI, Lloyd's List, Bloomberg, CNBC</div>
+<p class="page-hint" style="font-size:12px;color:var(--text-tertiary);margin:-18px 0 24px;line-height:1.45">Tip: click a stockpile card, supply row, or price tile (pointer cursor) to open a chart of past snapshots from <code style="font-size:11px">metric-history.json</code>.</p>
 
 <div class="intro">
   <p>This dashboard tracks America's oil supply position during the 2026 Strait of Hormuz crisis. It shows how much crude oil the U.S. has in storage, where daily supply comes from, and how long reserves could last under different disruption scenarios.</p>
@@ -180,12 +200,12 @@
   <div class="section-title">Current U.S. oil stockpiles</div>
   <div class="section-sub" id="dash-eia-week">As of week ending March 27, 2026</div>
   <div class="metric-grid">
-    <div class="metric">
+    <div class="metric" data-metric="commercialCrude" role="button" tabindex="0" aria-label="Commercial crude — show history">
       <div class="label">Commercial crude</div>
       <div class="value" id="v-commercial">461.6M</div>
       <div class="sub" id="s-commercial">barrels (+5.5M last week)</div>
     </div>
-    <div class="metric">
+    <div class="metric" data-metric="sprPreRelease" role="button" tabindex="0" aria-label="SPR pre-release — show history">
       <div class="label">SPR (pre-release)</div>
       <div class="value warning" id="v-spr-pre">415M</div>
       <div class="sub" id="s-spr-pre">58% of 714M capacity</div>
@@ -195,17 +215,17 @@
       <div class="value danger" id="v-spr-release">-172M</div>
       <div class="sub" id="s-spr-release">IEA coordinated (exchange)</div>
     </div>
-    <div class="metric">
+    <div class="metric" data-metric="effectiveSpr" role="button" tabindex="0" aria-label="Effective SPR — show history">
       <div class="label">Effective SPR</div>
       <div class="value danger" id="v-effective-spr">~243M</div>
       <div class="sub">post-release estimate</div>
     </div>
-    <div class="metric">
+    <div class="metric" data-metric="gasolineStocks" role="button" tabindex="0" aria-label="Gasoline stocks — show history">
       <div class="label">Gasoline stocks</div>
       <div class="value" id="v-gasoline">240.9M</div>
       <div class="sub" id="s-gasoline">barrels (-0.6M last week)</div>
     </div>
-    <div class="metric">
+    <div class="metric" data-metric="distillateStocks" role="button" tabindex="0" aria-label="Distillate stocks — show history">
       <div class="label">Distillates</div>
       <div class="value" id="v-distillate">117.8M</div>
       <div class="sub" id="s-distillate">diesel + heating oil</div>
@@ -215,7 +235,7 @@
       <div class="value info" id="v-total">~1,063M</div>
       <div class="sub">commercial + effective SPR + products</div>
     </div>
-    <div class="metric">
+    <div class="metric" data-metric="cushingChangeKbbl" role="button" tabindex="0" aria-label="Cushing weekly change — show history">
       <div class="label">Cushing, OK hub</div>
       <div class="value success" id="v-cushing">+520K</div>
       <div class="sub" id="s-cushing">barrels last week</div>
@@ -228,11 +248,11 @@
 <div class="section">
   <div class="section-title">Supply sources: how oil reaches America</div>
   <div class="section-sub">Daily flows in millions of barrels per day (mb/d)</div>
-  <div class="flow-row" id="flow-domestic"><div class="flow-label">Domestic production</div><div style="flex:1"><div class="flow-bar" style="width:90%;background:#3B6D11"></div></div><div class="flow-val">13.6 mb/d</div><div class="status-dot" style="background:#3B6D11"></div></div>
-  <div class="flow-row" id="flow-canada"><div class="flow-label">Canada (pipeline)</div><div style="flex:1"><div class="flow-bar" style="width:28%;background:#185FA5"></div></div><div class="flow-val">4.1 mb/d</div><div class="status-dot" style="background:#3B6D11"></div></div>
-  <div class="flow-row" id="flow-mexico"><div class="flow-label">Mexico (maritime)</div><div style="flex:1"><div class="flow-bar" style="width:5%;background:#534AB7"></div></div><div class="flow-val">~0.6 mb/d</div><div class="status-dot" style="background:#3B6D11"></div></div>
-  <div class="flow-row" id="flow-atlantic"><div class="flow-label">Other (Atlantic Basin)</div><div style="flex:1"><div class="flow-bar" style="width:8%;background:#854F0B"></div></div><div class="flow-val">~1.8 mb/d</div><div class="status-dot" style="background:#854F0B"></div></div>
-  <div class="flow-row" id="flow-gulf"><div class="flow-label">Persian Gulf (Hormuz)</div><div style="flex:1"><div class="flow-bar" style="width:1%;background:#A32D2D"></div></div><div class="flow-val">~0 mb/d</div><div class="status-dot" style="background:#A32D2D"></div></div>
+  <div class="flow-row" id="flow-domestic" data-metric="domesticProduction" role="button" tabindex="0" aria-label="Domestic production — show history"><div class="flow-label">Domestic production</div><div style="flex:1"><div class="flow-bar" style="width:90%;background:#3B6D11"></div></div><div class="flow-val">13.6 mb/d</div><div class="status-dot" style="background:#3B6D11"></div></div>
+  <div class="flow-row" id="flow-canada" data-metric="canadaPipeline" role="button" tabindex="0" aria-label="Canada pipeline — show history"><div class="flow-label">Canada (pipeline)</div><div style="flex:1"><div class="flow-bar" style="width:28%;background:#185FA5"></div></div><div class="flow-val">4.1 mb/d</div><div class="status-dot" style="background:#3B6D11"></div></div>
+  <div class="flow-row" id="flow-mexico" data-metric="mexicoMaritime" role="button" tabindex="0" aria-label="Mexico maritime — show history"><div class="flow-label">Mexico (maritime)</div><div style="flex:1"><div class="flow-bar" style="width:5%;background:#534AB7"></div></div><div class="flow-val">~0.6 mb/d</div><div class="status-dot" style="background:#3B6D11"></div></div>
+  <div class="flow-row" id="flow-atlantic" data-metric="atlanticBasin" role="button" tabindex="0" aria-label="Atlantic Basin imports — show history"><div class="flow-label">Other (Atlantic Basin)</div><div style="flex:1"><div class="flow-bar" style="width:8%;background:#854F0B"></div></div><div class="flow-val">~1.8 mb/d</div><div class="status-dot" style="background:#854F0B"></div></div>
+  <div class="flow-row" id="flow-gulf" data-metric="persianGulf" role="button" tabindex="0" aria-label="Persian Gulf flow — show history"><div class="flow-label">Persian Gulf (Hormuz)</div><div style="flex:1"><div class="flow-bar" style="width:1%;background:#A32D2D"></div></div><div class="flow-val">~0 mb/d</div><div class="status-dot" style="background:#A32D2D"></div></div>
   <div class="flow-row" id="flow-spr"><div class="flow-label">SPR drawdown (max)</div><div style="flex:1"><div class="flow-bar" style="width:29%;background:#993556"></div></div><div class="flow-val">4.4 mb/d</div><div class="status-dot" style="background:#854F0B"></div></div>
 </div>
 
@@ -252,7 +272,7 @@
       <div class="value danger" id="v-hormuz-current">~5</div>
       <div class="sub" id="s-hormuz-current">mostly sanctioned/shadow fleet</div>
     </div>
-    <div class="metric">
+    <div class="metric" data-metric="strandedVLCCs" role="button" tabindex="0" aria-label="Stranded VLCCs — show history">
       <div class="label">Stranded VLCCs</div>
       <div class="value warning" id="v-vlccs">60</div>
       <div class="sub" id="s-vlccs">8% of global VLCC fleet</div>
@@ -282,7 +302,7 @@
     Domestic + Canada + Mexico supply remains intact. SPR releases at planned pace. No Hormuz-sourced oil. Refinery utilization at 91%.
   </div>
   <div class="metric-grid" id="dte-metrics">
-    <div class="metric">
+    <div class="metric" data-metric="dailyConsumption" role="button" tabindex="0" aria-label="Daily consumption — show history">
       <div class="label">Daily consumption</div>
       <div class="value" id="dte-consumption">20.3 mb/d</div>
     </div>
@@ -324,17 +344,17 @@
       <div class="value" id="v-brent-pre">~$71/b</div>
       <div class="sub" id="s-brent-pre">Feb 27, 2026</div>
     </div>
-    <div class="metric">
+    <div class="metric" data-metric="brentCurrent" role="button" tabindex="0" aria-label="Brent crude current — show history">
       <div class="label">Brent crude (current)</div>
       <div class="value danger" id="v-brent-now">$94+/b</div>
       <div class="sub" id="s-brent-now">+32% since war began</div>
     </div>
-    <div class="metric">
+    <div class="metric" data-metric="gasPriceUsd" role="button" tabindex="0" aria-label="U.S. gas price — show history">
       <div class="label">U.S. gas prices</div>
       <div class="value warning" id="v-gas">$4+/gal</div>
       <div class="sub" id="s-gas">+30% in one month</div>
     </div>
-    <div class="metric">
+    <div class="metric" data-metric="eiaForecastPrice" role="button" tabindex="0" aria-label="EIA price forecast — show history">
       <div class="label">EIA price forecast</div>
       <div class="value info" id="v-forecast">$70/b Q4</div>
       <div class="sub" id="s-forecast">if Hormuz reopens</div>
@@ -819,6 +839,175 @@ function validateData() {
   return !hasFailures;
 }
 
+var metricHistoryChart = null;
+var metricHistoryJsonPromise = null;
+
+var METRIC_HISTORY_META = {
+  commercialCrude: { title: 'Commercial crude inventories', unit: 'M bbl' },
+  sprPreRelease: { title: 'SPR (pre-release inventory)', unit: 'M bbl' },
+  effectiveSpr: { title: 'Effective SPR (post–committed release)', unit: 'M bbl' },
+  gasolineStocks: { title: 'Motor gasoline stocks', unit: 'M bbl' },
+  distillateStocks: { title: 'Distillate stocks', unit: 'M bbl' },
+  cushingChangeKbbl: { title: 'Cushing, OK — weekly inventory change', unit: '1000 bbl' },
+  domesticProduction: { title: 'Domestic crude production', unit: 'mb/d' },
+  canadaPipeline: { title: 'Canada (pipeline) imports', unit: 'mb/d' },
+  mexicoMaritime: { title: 'Mexico (maritime) imports', unit: 'mb/d' },
+  atlanticBasin: { title: 'Other (Atlantic Basin) imports', unit: 'mb/d' },
+  persianGulf: { title: 'Persian Gulf (Hormuz) imports', unit: 'mb/d' },
+  strandedVLCCs: { title: 'Stranded VLCCs (estimate)', unit: 'ships' },
+  brentCurrent: { title: 'Brent crude (current)', unit: '$/b' },
+  gasPriceUsd: { title: 'U.S. average regular gasoline', unit: '$/gal' },
+  dailyConsumption: { title: 'U.S. petroleum consumption', unit: 'mb/d' },
+  eiaForecastPrice: { title: 'EIA Brent forecast', unit: '$/b' }
+};
+
+function loadMetricHistoryJson() {
+  if (!metricHistoryJsonPromise) {
+    metricHistoryJsonPromise = fetch('metric-history.json')
+      .then(function (res) {
+        if (!res.ok) throw new Error('bad status');
+        return res.json();
+      })
+      .catch(function () { return null; });
+  }
+  return metricHistoryJsonPromise;
+}
+
+function formatHistoryDate(iso) {
+  try {
+    var dt = new Date(iso + 'T12:00:00');
+    return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch (e) {
+    return iso;
+  }
+}
+
+function closeMetricHistoryModal() {
+  document.body.classList.remove('mh-modal-open');
+  if (metricHistoryChart) {
+    metricHistoryChart.destroy();
+    metricHistoryChart = null;
+  }
+  var modal = document.getElementById('metric-history-modal');
+  if (modal) modal.setAttribute('aria-hidden', 'true');
+}
+
+function openMetricHistoryModal(key) {
+  var meta = METRIC_HISTORY_META[key];
+  if (!meta) return;
+  loadMetricHistoryJson().then(function (bundle) {
+    var modal = document.getElementById('metric-history-modal');
+    var titleEl = document.getElementById('metric-history-title');
+    var canvas = document.getElementById('metric-history-canvas');
+    var noteEl = document.getElementById('metric-history-note');
+    var emptyEl = document.getElementById('metric-history-empty');
+    var wrap = document.getElementById('metric-history-chart-wrap');
+    if (!modal || !canvas || !titleEl || !noteEl || !emptyEl || !wrap) return;
+
+    titleEl.textContent = meta.title;
+    noteEl.textContent = 'Each point is a saved dashboard snapshot. Hover a point for compile date and EIA week (when recorded in metric-history.json).';
+
+    if (metricHistoryChart) {
+      metricHistoryChart.destroy();
+      metricHistoryChart = null;
+    }
+    emptyEl.style.display = 'none';
+    wrap.style.display = 'block';
+
+    if (!bundle || !bundle.series || !bundle.series[key] || bundle.series[key].length === 0) {
+      emptyEl.textContent = !bundle
+        ? 'Could not load metric-history.json. Serve the site over http(s) (e.g. npx serve) so the browser can fetch the file — opening index.html as a file:// URL will not work.'
+        : 'No history entries for this metric yet. Append points under "' + key + '" in metric-history.json when you update the dashboard.';
+      emptyEl.style.display = 'block';
+      wrap.style.display = 'none';
+      document.body.classList.add('mh-modal-open');
+      modal.setAttribute('aria-hidden', 'false');
+      return;
+    }
+
+    var points = bundle.series[key].slice().sort(function (a, b) {
+      return (a.t || '').localeCompare(b.t || '');
+    });
+    var labels = points.map(function (p) { return formatHistoryDate(p.t); });
+    var vals = points.map(function (p) { return p.v; });
+    var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var tickColor = isDark ? '#9c9a92' : '#73726c';
+
+    metricHistoryChart = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: meta.title,
+          data: vals,
+          borderColor: '#185FA5',
+          backgroundColor: 'rgba(24,95,165,0.1)',
+          fill: true,
+          tension: 0.25,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterBody: function (items) {
+                var idx = items[0].dataIndex;
+                var p = points[idx];
+                var lines = [];
+                if (p && p.compile) lines.push('Compiled: ' + p.compile);
+                if (p && p.eiaWeekEnding) lines.push('EIA week ending: ' + p.eiaWeekEnding);
+                return lines;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { ticks: { color: tickColor, maxRotation: 45 }, grid: { display: false } },
+          y: {
+            title: { display: true, text: meta.unit, color: tickColor },
+            ticks: { color: tickColor }
+          }
+        }
+      }
+    });
+
+    document.body.classList.add('mh-modal-open');
+    modal.setAttribute('aria-hidden', 'false');
+  });
+}
+
+(function initMetricHistoryUi() {
+  document.querySelectorAll('[data-metric]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      var k = el.getAttribute('data-metric');
+      if (k) openMetricHistoryModal(k);
+    });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        var k = el.getAttribute('data-metric');
+        if (k) openMetricHistoryModal(k);
+      }
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.body.classList.contains('mh-modal-open')) {
+      closeMetricHistoryModal();
+    }
+  });
+  window.addEventListener('load', function () {
+    var backdrop = document.getElementById('mh-modal-backdrop');
+    var closeBtn = document.getElementById('mh-modal-close');
+    if (backdrop) backdrop.addEventListener('click', closeMetricHistoryModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeMetricHistoryModal);
+  });
+})();
+
 var validationPassed = validateData();
 renderDashboard();
 </script>
@@ -843,6 +1032,21 @@ renderDashboard();
     <p><strong>88% refinery runs:</strong> Real plants were running about <strong>91.4%</strong> in mid-March and already sliding. Dropping to 88% keeps you inside the kind of “normal operating band” the EIA talks about; once you fall <strong>below</strong> that band, you’re usually into planned maintenance or something actually choking supply.</p>
     <h3>Severe disruption — a stress test, not a forecast</h3>
     <p><strong>Half the Canadian pipe</strong> and <strong>no seaborne imports at all</strong> is the “everything breaks at once” story: tariffs pushed to something like an embargo, and every ocean route is too pricey or too risky to count on. We’re not saying that’s what <em>will</em> happen — we’re asking what it looks like if it <em>did</em>.</p>
+  </div>
+</div>
+
+<div class="mh-modal-backdrop" id="mh-modal-backdrop" aria-hidden="true"></div>
+<div class="mh-modal" id="metric-history-modal" role="dialog" aria-modal="true" aria-labelledby="metric-history-title" aria-hidden="true">
+  <div class="mh-modal-header">
+    <h2 id="metric-history-title">Metric history</h2>
+    <button type="button" class="mh-modal-close" id="mh-modal-close" aria-label="Close dialog">&times;</button>
+  </div>
+  <div class="mh-modal-body">
+    <p class="mh-note" id="metric-history-note"></p>
+    <p class="mh-empty" id="metric-history-empty" style="display:none"></p>
+    <div class="mh-chart-wrap" id="metric-history-chart-wrap">
+      <canvas id="metric-history-canvas" aria-label="History chart"></canvas>
+    </div>
   </div>
 </div>
 

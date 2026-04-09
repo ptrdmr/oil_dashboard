@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "note": "Append one object per dashboard compile to each series. Use ISO date in t (prefer EIA week-ending date for weekly stocks). Keep keys in sync with data-metric attributes in index.html.",
+  "series": {
+    "commercialCrude": [
+      { "t": "2026-03-27", "v": 461.6, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 464.7, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "sprPreRelease": [
+      { "t": "2026-03-27", "v": 415, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 413, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "effectiveSpr": [
+      { "t": "2026-03-27", "v": 243, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 241, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "gasolineStocks": [
+      { "t": "2026-03-27", "v": 240.9, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 239.3, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "distillateStocks": [
+      { "t": "2026-03-27", "v": 117.8, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 114.7, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "cushingChangeKbbl": [
+      { "t": "2026-03-27", "v": 520, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 24, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "domesticProduction": [
+      { "t": "2026-03-27", "v": 13.6, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 13.6, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "canadaPipeline": [
+      { "t": "2026-03-27", "v": 4.1, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 4.1, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "mexicoMaritime": [
+      { "t": "2026-03-27", "v": 0.6, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 0.6, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "atlanticBasin": [
+      { "t": "2026-03-27", "v": 1.8, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 1.8, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "persianGulf": [
+      { "t": "2026-03-27", "v": 0, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 0.5, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "strandedVLCCs": [
+      { "t": "2026-03-27", "v": 60, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 55, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "brentCurrent": [
+      { "t": "2026-03-27", "v": 94, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-08", "v": 94, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "gasPriceUsd": [
+      { "t": "2026-03-27", "v": 4.08, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-08", "v": 4.16, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "dailyConsumption": [
+      { "t": "2026-03-27", "v": 20.3, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 20.3, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ],
+    "eiaForecastPrice": [
+      { "t": "2026-03-27", "v": 70, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
+      { "t": "2026-04-03", "v": 70, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" }
+    ]
+  }
+}
