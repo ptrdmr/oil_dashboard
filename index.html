@@ -374,10 +374,10 @@
    ============================================================ */
 const DATA = {
   // — Metadata —
-  updated: "April 8, 2026",
-  eiaWeekEnding: "April 3, 2026",
+  updated: "April 16, 2026",
+  eiaWeekEnding: "April 10, 2026",
   // — One-line context for this compile (report dates, etc.); shown above the unified source list —
-  sourcesIntro: "Numbers on this page were checked against the reports below. EIA Weekly Petroleum Status Report: release Apr 8, 2026 (week ending Apr 3, 2026). Production and consumption references align with the prior STEO-style snapshot unless a monthly update revises them.",
+  sourcesIntro: "Numbers on this page were checked against the reports below. EIA Weekly Petroleum Status Report: release Apr 15, 2026 (week ending Apr 10, 2026). Production and consumption references align with the STEO released Apr 8, 2026 unless a monthly update revises them.",
 
   // — Unified source list: each row is label + what it offers + URL (for verification) —
   sourceLinks: [
@@ -397,18 +397,18 @@ const DATA = {
   ],
 
   // — Stockpiles (millions of barrels) —
-  commercialCrude:       464.7,
-  commercialCrudeChange: "+3.1M last week",
-  sprPreRelease:         413,
+  commercialCrude:       463.8,
+  commercialCrudeChange: "-0.9M last week",
+  sprPreRelease:         409.2,
   sprCapacity:           714,
   sprCommittedRelease:   172,
   sprCommittedNote:      "IEA coordinated (exchange)",
-  effectiveSpr:          241,
-  gasolineStocks:        239.3,
-  gasolineChange:        "-1.6M last week",
-  distillateStocks:      114.7,
+  effectiveSpr:          237.2,
+  gasolineStocks:        232.9,
+  gasolineChange:        "-6.3M last week",
+  distillateStocks:      111.6,
   distillateNote:        "diesel + heating oil",
-  cushingChange:         "+24K",
+  cushingChange:         "-1.7M",
   cushingNote:           "barrels last week",
 
   // — Supply flows (mb/d) —
@@ -416,7 +416,7 @@ const DATA = {
   canadaPipeline:        4.1,
   mexicoMaritime:        0.6,
   atlanticBasin:         1.8,
-  persianGulf:           0.5,
+  persianGulf:           0.3,
   sprMaxDrawdown:        4.4,
 
   // — Supply flow status: "green", "yellow", or "red" —
@@ -424,25 +424,25 @@ const DATA = {
   canadaStatus:          "green",
   mexicoStatus:          "green",
   atlanticStatus:        "yellow",
-  persianGulfStatus:     "yellow",
+  persianGulfStatus:     "red",
   sprDrawdownStatus:     "yellow",
 
   // — Hormuz status —
   hormuzPreWarTransits:  "100+",
-  hormuzCurrentTransits: "~25",
-  hormuzTransitNote:     "Apr 8: U.S.-Iran ceasefire & Hormuz reopening plan — flows still thin vs pre-war",
-  strandedVLCCs:         55,
-  strandedVLCCNote:      "~7% of global VLCC fleet",
-  attacksOnShips:        "21+",
+  hormuzCurrentTransits: "~15",
+  hormuzTransitNote:     "U.S. blockade on Iranian ports took effect Apr 12–13; transits ~10% of pre-war via IRGC-controlled northern corridor, ceasefire has not normalized flows",
+  strandedVLCCs:         60,
+  strandedVLCCNote:      "~7–8% of global VLCC fleet; hundreds of ships of all types stranded in Gulf",
+  attacksOnShips:        "22+",
   attacksSince:          "confirmed since Feb 28",
 
   // — Prices —
   brentPreWar:           71,
   brentPreWarDate:       "Feb 27, 2026",
-  brentCurrent:          94,
-  brentCurrentNote:      "+32% vs pre-war baseline",
-  gasPrice:              "4.16",
-  gasPriceNote:          "+10¢ vs week ago (AAA national avg., 4/8)",
+  brentCurrent:          95,
+  brentCurrentNote:      "+34% vs pre-war baseline",
+  gasPrice:              "4.11",
+  gasPriceNote:          "-5¢ vs week ago (AAA national avg., 4/15)",
   eiaForecastPrice:      70,
   eiaForecastNote:       "if Hormuz reopens",
   eiaForecastPeriod:     "Q4",
@@ -458,25 +458,25 @@ const DATA = {
   // The chart and DTE math are computed automatically.
   scenarios: {
     base: {
-      desc: "Domestic + Canada + Mexico supply remains intact. SPR releases at planned pace. No Hormuz-sourced oil. Refinery utilization at 91%.",
+      desc: "Domestic + Canada + Mexico supply remains intact. SPR releases at planned pace. No Hormuz-sourced oil. Refinery utilization at ~90%.",
       consumption: 20.3,
       supply: 20.1,
       deficit: 0.2,
-      label: "~9.7 years at current draw"
+      label: "~9.6 years at current draw"
     },
     moderate: {
       desc: "Canada pipeline flow reduced 15% due to tariff escalation. Atlantic Basin imports drop 30%. SPR drawdown accelerates to 2 mb/d. Refinery runs drop to 88%.",
       consumption: 19.5,
-      supply: 18.1,
-      deficit: 1.4,
-      label: "~17 months to critical"
+      supply: 18.9,
+      deficit: 0.6,
+      label: "~3.2 years to critical"
     },
     severe: {
       desc: "Full trade disruption: Canada pipeline at 50%, all maritime imports halted, SPR at max drawdown 4.4 mb/d. Emergency demand destruction measures in effect.",
       consumption: 18.0,
-      supply: 14.8,
-      deficit: 3.2,
-      label: "~7 months to critical"
+      supply: 15.7,
+      deficit: 2.3,
+      label: "~10 months to critical"
     }
   }
 };
@@ -1056,6 +1056,15 @@ renderDashboard();
   <div class="update-log-panel-inner">
     <h2 id="update-log-title">Update Log</h2>
     <p class="update-log-sub">Summary of changes to the numbers and narrative on this page (not technical site notes). Updated when <code>DATA</code> is refreshed.</p>
+    <div class="update-log-entry">
+      <div class="date">April 16, 2026 — data refresh</div>
+      <ul>
+        <li><strong>EIA (week ending April 10, 2026):</strong> Commercial crude −0.9M bbl to 463.8M; gasoline −6.3M bbl to 232.9M (larger draw than expected); distillates −3.1M bbl to 111.6M; Cushing −1.7M bbl. SPR crude −4.1M bbl to 409.2M on continuing committed releases.</li>
+        <li><strong>Balances / scenarios:</strong> Base case unchanged (20.1 mb/d supply vs 20.3 mb/d demand, DTE ~9.6 years). Moderate and severe scenarios recalibrated to match the formula in the update spec (supply 18.9 / 15.7 mb/d; deficits 0.6 / 2.3 mb/d).</li>
+        <li><strong>Hormuz / maritime:</strong> U.S. blockade on Iranian ports took effect Apr 12–13; transits running ~10% of pre-war via IRGC-controlled northern corridor (11–21 vessels/day vs ~100 pre-war, per Windward/StoneX/Kpler). Gulf flow downgraded to red; 22+ attacks confirmed since Feb 28.</li>
+        <li><strong>Prices:</strong> Brent ~$95/b after a 4.6% drop on Apr 15 on U.S.–Iran ceasefire-extension talks (+34% vs pre-war); AAA national regular gasoline $4.11/gal on 4/15, down 5¢ week-over-week.</li>
+      </ul>
+    </div>
     <div class="update-log-entry">
       <div class="date">April 8, 2026 — data refresh</div>
       <ul>
