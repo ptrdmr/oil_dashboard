@@ -83,6 +83,32 @@
   .flow-label { min-width: 120px; font-weight: 500; }
   .flow-val { min-width: 80px; text-align: right; color: var(--text-secondary); }
   .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .flow-chain { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+  .flow-chain-stage { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 10px 14px; border-radius: var(--radius-md); background: var(--bg-secondary); border-left: 3px solid var(--text-tertiary); }
+  .flow-chain-stage.stage-red { border-left-color: var(--color-danger); }
+  .flow-chain-stage.stage-yellow { border-left-color: var(--color-warning); }
+  .flow-chain-stage.stage-green { border-left-color: var(--color-success); }
+  .flow-chain-stage .fc-num { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-tertiary); color: var(--text-secondary); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .flow-chain-stage .fc-body .fc-stage { font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.3; }
+  .flow-chain-stage .fc-body .fc-note { font-size: 12px; color: var(--text-secondary); line-height: 1.45; margin-top: 3px; }
+  .flow-chain-stage .fc-metric { font-size: 12px; color: var(--text-primary); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; align-self: start; padding-top: 3px; }
+  .flow-chain-arrow { color: var(--text-tertiary); font-size: 16px; line-height: 1; text-align: center; margin: 0; padding: 2px 0; user-select: none; }
+  .est-pill { display: inline-block; font-size: 10px; color: var(--text-tertiary); background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px; padding: 0 5px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.3px; text-transform: lowercase; font-weight: 500; line-height: 1.5; cursor: help; }
+  .flow-val .est-pill { margin-left: 4px; }
+  .est-details { font-size: 12px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-top: 12px; border: 1px solid var(--border); }
+  .est-details summary { padding: 10px 12px; cursor: pointer; color: var(--text-primary); list-style: none; font-size: 12px; font-weight: 500; }
+  .est-details summary::-webkit-details-marker { display: none; }
+  .est-details summary::marker { content: ''; }
+  .est-details summary::before { content: '▸ '; display: inline-block; color: var(--text-tertiary); margin-right: 2px; transition: transform 0.15s ease; }
+  .est-details[open] summary::before { transform: rotate(90deg); }
+  .est-details ul { margin: 0; padding: 4px 12px 10px 30px; color: var(--text-secondary); line-height: 1.55; list-style: disc; }
+  .est-details li { margin-bottom: 8px; }
+  .est-details li:last-child { margin-bottom: 0; }
+  .est-details li strong { color: var(--text-primary); font-weight: 500; }
+  @media (max-width: 520px) {
+    .flow-chain-stage { grid-template-columns: 24px 1fr; }
+    .flow-chain-stage .fc-metric { grid-column: 1 / -1; text-align: left; padding-left: 36px; padding-top: 0; }
+  }
   .scenario-toggle { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
   .scenario-toggle button { padding: 6px 14px; border-radius: var(--radius-md); border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 12px; font-family: var(--font-sans); }
   .scenario-toggle button.active { background: #E6F1FB; color: var(--color-info); border-color: var(--color-info); }
@@ -254,6 +280,18 @@
   <div class="flow-row" id="flow-atlantic" data-metric="atlanticBasin" role="button" tabindex="0" aria-label="Atlantic Basin imports — show history"><div class="flow-label">Other (Atlantic Basin)</div><div style="flex:1"><div class="flow-bar" style="width:8%;background:#854F0B"></div></div><div class="flow-val">~1.8 mb/d</div><div class="status-dot" style="background:#854F0B"></div></div>
   <div class="flow-row" id="flow-gulf" data-metric="persianGulf" role="button" tabindex="0" aria-label="Persian Gulf flow — show history"><div class="flow-label">Persian Gulf (Hormuz)</div><div style="flex:1"><div class="flow-bar" style="width:1%;background:#A32D2D"></div></div><div class="flow-val">~0 mb/d</div><div class="status-dot" style="background:#A32D2D"></div></div>
   <div class="flow-row" id="flow-spr"><div class="flow-label">SPR drawdown (max)</div><div style="flex:1"><div class="flow-bar" style="width:29%;background:#993556"></div></div><div class="flow-val">4.4 mb/d</div><div class="status-dot" style="background:#854F0B"></div></div>
+  <div id="est-supply-flows"></div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="section-title">Shortage propagation: how the Gulf crisis reaches U.S. shores</div>
+  <div class="section-sub">Each stage is a link in the chain. When Gulf-dependent buyers scramble, they outbid the cargoes the U.S. normally draws on.</div>
+  <div class="flow-chain" id="shortage-chain"></div>
+  <div class="note">
+    <strong>Why this matters:</strong> The U.S. gets only ~0.3 mb/d directly from the Persian Gulf, so a Hormuz closure <em>looks</em> small on the supply chart. But Asian and European refiners depend on it heavily. When they scramble for non-Gulf crude, they outbid U.S. Gulf Coast and Atlantic Basin buyers for the same cargoes — so the shortage reaches America through <strong>price and cargo competition</strong>, not through pipeline cuts. The further up the chain the red moves, the closer the squeeze gets to the U.S. dock.
+  </div>
 </div>
 
 <hr class="divider">
@@ -283,6 +321,7 @@
       <div class="sub" id="s-attacks">confirmed since Feb 28</div>
     </div>
   </div>
+  <div id="est-hormuz"></div>
 </div>
 
 <hr class="divider">
@@ -362,6 +401,39 @@
   </div>
 </div>
 
+<hr class="divider">
+
+<div class="section">
+  <div class="section-title">Paper vs. physical oil price</div>
+  <div class="section-sub">When actual cargoes clear well above screen futures, the physical market is telling you what headline prices can't.</div>
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="label">Paper (futures)</div>
+      <div class="value" id="v-disp-paper">$95</div>
+      <div class="sub" id="s-disp-paper">ICE Brent front-month</div>
+    </div>
+    <div class="metric">
+      <div class="label">Physical (Dated Brent)</div>
+      <div class="value danger" id="v-disp-physical">~$130</div>
+      <div class="sub" id="s-disp-physical">Platts assessment</div>
+    </div>
+    <div class="metric">
+      <div class="label">Physical premium</div>
+      <div class="value danger" id="v-disp-spread">+$35</div>
+      <div class="sub" id="s-disp-spread">vs. paper</div>
+    </div>
+    <div class="metric">
+      <div class="label">Backwardation (M1–M3)</div>
+      <div class="value warning" id="v-disp-m1m3">~$18</div>
+      <div class="sub" id="s-disp-m1m3">front month vs 3-out</div>
+    </div>
+  </div>
+  <div class="note">
+    <strong>Reading this:</strong> <em>Paper</em> is the futures price quoted on TV — a financial contract traded on ICE. <em>Physical</em> (Dated Brent, assessed by Platts) is what actual North Sea cargoes trade at. When a chokepoint like Hormuz tightens, cargoes get scarce <em>before</em> futures reprice, so physical premiums blow out. A persistent <strong>$20+/bbl</strong> gap and a <strong>steep backwardation</strong> (front month above deferred months) both flash: supply is tight <em>right now</em>, even if the headline screens haven't fully caught up.
+  </div>
+  <div id="est-price-disparity"></div>
+</div>
+
 <div class="note source-links" id="dash-sources" style="margin-top: 2rem;"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -374,10 +446,10 @@
    ============================================================ */
 const DATA = {
   // — Metadata —
-  updated: "April 16, 2026",
+  updated: "April 21, 2026",
   eiaWeekEnding: "April 10, 2026",
   // — One-line context for this compile (report dates, etc.); shown above the unified source list —
-  sourcesIntro: "Numbers on this page were checked against the reports below. EIA Weekly Petroleum Status Report: release Apr 15, 2026 (week ending Apr 10, 2026). Production and consumption references align with the STEO released Apr 8, 2026 unless a monthly update revises them.",
+  sourcesIntro: "Numbers on this page were checked against the reports below. EIA Weekly Petroleum Status Report: release Apr 15, 2026 (week ending Apr 10, 2026) — the next WPSR (week ending Apr 17) publishes Apr 22, so U.S. stock figures here carry over from the Apr 15 release. Production and consumption references align with the STEO released Apr 8, 2026. Physical vs. paper and shortage-propagation figures draw on IEA OMR (Apr 14), Platts Dated Brent (CNBC reporting of Apr 9 assessment), Reuters/Kpler refinery and transit coverage, and Argus / Insights Global ARA stock data (Apr 16).",
 
   // — Unified source list: each row is label + what it offers + URL (for verification) —
   sourceLinks: [
@@ -385,6 +457,11 @@ const DATA = {
     { label: "EIA — Short-Term Energy Outlook", url: "https://www.eia.gov/outlooks/steo/", description: "Official near-term U.S. crude production, petroleum consumption, and price outlook — used for production, demand, and forecast references." },
     { label: "EIA — Petroleum Supply Monthly", url: "https://www.eia.gov/petroleum/supply/monthly/", description: "Monthly detail on imports by country and supply flows — context for splitting imports into Canada, Mexico, and other buckets." },
     { label: "U.S. DOE — SPR Quick Facts", url: "https://www.energy.gov/hgeo/opr/spr-quick-facts", description: "Strategic Petroleum Reserve inventory, authorized capacity, and drawdown capability — basis for SPR and effective-SPR lines." },
+    { label: "IEA — Oil Market Report", url: "https://www.iea.org/reports/oil-market-report", description: "Global supply/demand, coordinated-release context, and middle-distillate crack commentary — anchors the shortage-propagation narrative (Asian run cuts, European distillate stress)." },
+    { label: "S&P Global Platts — Dated Brent explained", url: "https://www.spglobal.com/energy/en/pricing-benchmarks/assessments/crude-oil/dated-brent-price-explained", description: "Primer on how Dated Brent is assessed from actual North Sea cargo trades — reference for the paper-vs-physical section." },
+    { label: "CNBC — Dated Brent & market stress", url: "https://www.cnbc.com/2026/04/10/oil-prices-dated-brent-energy-iran-war-ceasefire-strait-of-hormuz.html", description: "Reporting of the Apr 9 Platts Dated Brent assessment ($131.97/bbl) vs front-month futures ($96.51), which framed the ~$35 physical premium shown in the price disparity panel." },
+    { label: "Kpler — maritime & crude pricing insights", url: "https://www.kpler.com/blog/brent-prices-balancing-risks-within-us-iran-conflict", description: "Vessel tracking and Brent-curve analysis — source for prompt-spread / backwardation commentary during the Hormuz crisis." },
+    { label: "Argus Media — ARA stocks via Insights Global", url: "https://www.argusmedia.com/en/news-and-insights/latest-market-news/2815208-ara-jet-fuel-stocks-at-six-year-low-insights-global", description: "Weekly Amsterdam-Rotterdam-Antwerp independent oil product stocks — input for the European refiners stage of the shortage chain (gasoil, jet, distillates)." },
     { label: "Trading Economics — U.S. crude oil stocks", url: "https://tradingeconomics.com/united-states/crude-oil-stocks-change", description: "Third-party chart of the same EIA crude stock series — quick cross-check when the weekly PDF is heavy." },
     { label: "UANI", url: "https://www.unitedagainstnucleariran.com/", description: "Shipping and sanctions-focused updates — one input for Hormuz-related transit and risk narrative." },
     { label: "Lloyd's List", url: "https://www.lloydslist.com/", description: "Maritime trade and tanker intelligence — context for stranded tonnage and Gulf routing." },
@@ -392,7 +469,6 @@ const DATA = {
     { label: "CNBC — Markets", url: "https://www.cnbc.com/markets/", description: "U.S.-oriented market news and commodity coverage — price and policy context." },
     { label: "Al Jazeera", url: "https://www.aljazeera.com/", description: "Regional reporting on the Gulf and shipping — background for Hormuz and conflict framing." },
     { label: "Wikipedia — Strait of Hormuz", url: "https://en.wikipedia.org/wiki/Strait_of_Hormuz", description: "Static geography and history of the strait — orientation only; not a live data feed." },
-    { label: "IEA — Oil Market Report", url: "https://www.iea.org/reports/oil-market-report", description: "Global supply/demand and coordinated release context — complements U.S.-centric EIA figures." },
     { label: "Reuters — Energy", url: "https://www.reuters.com/business/energy/", description: "Wire summaries of weekly EIA builds/draws and SPR changes — useful when verifying headline numbers against the full WPSR tables." }
   ],
 
@@ -429,23 +505,105 @@ const DATA = {
 
   // — Hormuz status —
   hormuzPreWarTransits:  "100+",
-  hormuzCurrentTransits: "~15",
-  hormuzTransitNote:     "U.S. blockade on Iranian ports took effect Apr 12–13; transits ~10% of pre-war via IRGC-controlled northern corridor, ceasefire has not normalized flows",
+  hormuzCurrentTransits: "~5–10",
+  hormuzTransitNote:     "Two-week U.S.–Iran ceasefire set to expire Apr 22 (extension 'highly unlikely' per Trump); brief Apr 17 reopening stalled Apr 18 after Iranian gunboats fired on transit vessels; transits <5% of pre-war baseline",
   strandedVLCCs:         60,
   strandedVLCCNote:      "~7–8% of global VLCC fleet; hundreds of ships of all types stranded in Gulf",
-  attacksOnShips:        "22+",
-  attacksSince:          "confirmed since Feb 28",
+  attacksOnShips:        "24+",
+  attacksSince:          "confirmed since Feb 28; fresh gunboat incidents Apr 18",
 
   // — Prices —
   brentPreWar:           71,
   brentPreWarDate:       "Feb 27, 2026",
   brentCurrent:          95,
   brentCurrentNote:      "+34% vs pre-war baseline",
-  gasPrice:              "4.11",
-  gasPriceNote:          "-5¢ vs week ago (AAA national avg., 4/15)",
+  gasPrice:              "4.02",
+  gasPriceNote:          "-9¢ vs week ago (AAA national avg., 4/21) on ceasefire-talk optimism",
   eiaForecastPrice:      70,
   eiaForecastNote:       "if Hormuz reopens",
   eiaForecastPeriod:     "Q4",
+
+  // — Shortage propagation chain (Gulf-dependent buyers → Atlantic bidding → European refiners → U.S. impact) —
+  // Each stage describes one link in how the Hormuz crisis travels to U.S. docks.
+  // status values: "green" | "yellow" | "red"
+  shortageFlow: [
+    {
+      stage: "Gulf-dependent Asian refiners",
+      status: "red",
+      metric: "Japan at 67.8% run",
+      note: "Japan releasing national stockpiles (Reuters, Apr 15); South Korea pivoting to Algeria/Libya; India juggling expired Russia (Apr 11) and Iran (Apr 19) waivers. Regional run cuts >2 mb/d — the deepest since the pandemic."
+    },
+    {
+      stage: "Atlantic Basin bidding war",
+      status: "red",
+      metric: "Asian buyers outbidding EU",
+      note: "Asian refiners scrambling for non-ME crude (WTI, Brazil, West Africa, Azerbaijan) are paying up — dragging replacement cargoes away from European and U.S. East/Gulf Coast buyers."
+    },
+    {
+      stage: "European refiners squeezed",
+      status: "yellow",
+      metric: "ARA stocks 12-yr low",
+      note: "ARA independent stocks fell 4% wow to 4.72 Mt (Apr 16); gasoil −6.8% to 1.95 Mt, jet kero −7.6% to a 4-yr low. NW Europe hydroskimming margins went negative (−$6.45/bbl); analysts expect up to 500 kb/d of utilization cuts."
+    },
+    {
+      stage: "U.S. impact window",
+      status: "yellow",
+      metric: "Atlantic imports ~1.8 mb/d",
+      note: "Persian Gulf imports already at ~0.3 mb/d; Atlantic Basin cargoes under competition from Asian buyers. AAA gas back below $4.10/gal on ceasefire-talk optimism, but the physical premium (Dated Brent ~$35 above futures) still flashes tightness."
+    }
+  ],
+
+  // — Paper vs physical price disparity —
+  // paperBrent  = ICE Brent front-month futures ($/bbl)
+  // physicalEstimate = Dated Brent (Platts) or best reported physical cargo assessment ($/bbl)
+  // spread      = physicalEstimate - paperBrent (USD/bbl, positive = physical premium)
+  // m1m3Spread  = Brent futures front-month minus 3-months-out ($/bbl, positive = backwardation)
+  priceDisparity: {
+    paperBrent:           95,
+    paperNote:            "ICE Brent front-month (Jun '26 contract) on Apr 21",
+    physicalEstimate:     130,
+    physicalNote:         "Platts Dated Brent $131.97 on Apr 9 (CNBC); held near $130 as of mid-April",
+    spread:               35,
+    spreadNote:           "vs. paper — peaked at +$48 on Apr 7 ($144.42 Dated vs $96.51 futures)",
+    m1m3Spread:           18,
+    m1m3Note:             "Brent front month vs 3-out (est.); peaked near $22/bbl earlier April",
+    backwardationStatus:  "yellow"
+  },
+
+  // — Estimate transparency —
+  // Fields listed under estimatedFields get a small "est." pill rendered next to their displayed value.
+  // Each section has a methodology block (rendered as an expandable <details>) explaining how each soft
+  // value was derived. Keep notes to 1–2 sentences, citing source + date where possible.
+  estimatedFields: {
+    values: ["v-hormuz-current", "v-vlccs", "v-attacks", "v-disp-physical", "v-disp-spread", "v-disp-m1m3"],
+    flows:  ["flow-atlantic", "flow-gulf", "flow-spr"]
+  },
+  estimates: {
+    supplyFlows: {
+      title: "How these flows are estimated",
+      items: [
+        { label: "Other (Atlantic Basin) ~1.8 mb/d", note: "Computed residual: EIA total U.S. crude imports minus named flows (Canada pipeline, Mexico maritime, Persian Gulf). Swings with whichever Petroleum Supply Monthly / STEO vintage is current and cannot be read directly from any single EIA table." },
+        { label: "Persian Gulf ~0.3 mb/d", note: "Approximated from reported Arabian Gulf → U.S. Gulf Coast tanker arrivals during the Hormuz crisis; the weekly WPSR import line lags by 1–2 weeks for country-of-origin detail, so this is a nowcast rather than a confirmed figure." },
+        { label: "SPR drawdown max 4.4 mb/d", note: "A statutory capability per DOE — the legal maximum release rate, not an actual flow being drawn today. Treat it as a ceiling when reading the supply-flow chart." }
+      ]
+    },
+    hormuz: {
+      title: "How Hormuz figures are estimated",
+      items: [
+        { label: "Current daily transits ~5–10", note: "Range synthesized from Windward, StoneX, and Kpler ship-tracking feeds as reported by Reuters and Al Jazeera, cross-referenced against Al Jazeera's '95%+ decline from pre-war' framing (Apr 14). Not an official vessel count — Iran and the IMO publish nothing real-time." },
+        { label: "Stranded VLCCs 60", note: "Midpoint compiled from Lloyd's List and press reporting. The global VLCC fleet is ~800 ships; no open registry tracks 'stranded' status daily, so this is a rough indicator that may lag fleet movements by days." },
+        { label: "Attacks on ships 24+", note: "Running tally: Al Jazeera confirmed 22 through Apr 14, plus Apr 18 Iranian gunboat incidents reported by CNBC and Algemeiner. The '+' signals likely undercount; there is no official cumulative IMO / UKMTO figure for this conflict." }
+      ]
+    },
+    priceDisparity: {
+      title: "How these price estimates are derived",
+      items: [
+        { label: "Physical (Dated Brent) ~$130", note: "Anchored to the Apr 9, 2026 Platts Dated Brent assessment of $131.97/bbl as reported by CNBC; live Platts assessments are paywalled. Assumed modest drift through Apr 21 since front-month Brent has stayed within ~$1 of $95. Treat as ±$5 accurate." },
+        { label: "Physical premium +$35", note: "Computed: physicalEstimate − paperBrent. Inherits the uncertainty of the physical estimate above. Peaked around +$48 on Apr 7 when Dated Brent hit $144.42 against $96.51 futures." },
+        { label: "M1–M3 backwardation ~$18", note: "Inferred from IEA Oil Market Report (Apr 14) and EBC Financial analysis noting Dated Brent M1–M3 peaked near $22/bbl earlier April. Rounded to a conservative current value — not a direct screen read of the ICE futures curve." }
+      ]
+    }
+  },
 
   // — Consumption —
   dailyConsumption:      20.3,
@@ -572,8 +730,116 @@ function renderDashboard() {
   document.getElementById('v-forecast').textContent = '$' + d.eiaForecastPrice + '/b ' + d.eiaForecastPeriod;
   document.getElementById('s-forecast').textContent = d.eiaForecastNote;
 
+  // Shortage propagation chain
+  renderShortageChain(d.shortageFlow);
+
+  // Paper vs physical price disparity
+  renderPriceDisparity(d.priceDisparity);
+
+  // Estimate markers and per-section methodology blocks
+  applyEstimateMarkers(d.estimatedFields);
+  renderEstimateBlock('est-supply-flows', d.estimates && d.estimates.supplyFlows);
+  renderEstimateBlock('est-hormuz', d.estimates && d.estimates.hormuz);
+  renderEstimateBlock('est-price-disparity', d.estimates && d.estimates.priceDisparity);
+
   // Build initial chart
   buildChart('base');
+}
+
+function appendEstPill(el) {
+  if (!el || el.querySelector('.est-pill')) return;
+  var pill = document.createElement('span');
+  pill.className = 'est-pill';
+  pill.textContent = 'est.';
+  pill.title = 'Estimated value — expand "How these … are estimated" below for methodology';
+  pill.setAttribute('aria-label', 'Estimated value');
+  el.appendChild(pill);
+}
+
+function applyEstimateMarkers(cfg) {
+  if (!cfg) return;
+  if (Array.isArray(cfg.values)) {
+    for (var i = 0; i < cfg.values.length; i++) {
+      appendEstPill(document.getElementById(cfg.values[i]));
+    }
+  }
+  if (Array.isArray(cfg.flows)) {
+    for (var j = 0; j < cfg.flows.length; j++) {
+      var row = document.getElementById(cfg.flows[j]);
+      if (row) appendEstPill(row.querySelector('.flow-val'));
+    }
+  }
+}
+
+function renderEstimateBlock(hostId, section) {
+  var host = document.getElementById(hostId);
+  if (!host) return;
+  if (!section || !section.items || !section.items.length) {
+    host.innerHTML = '';
+    return;
+  }
+  function esc(t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  var items = section.items.map(function (it) {
+    return '<li><strong>' + esc(it.label) + '</strong> — ' + esc(it.note) + '</li>';
+  }).join('');
+  var title = esc(section.title || 'How these values are estimated');
+  host.innerHTML = '<details class="est-details"><summary>' + title + '</summary><ul>' + items + '</ul></details>';
+}
+
+function renderShortageChain(flow) {
+  var host = document.getElementById('shortage-chain');
+  if (!host) return;
+  if (!Array.isArray(flow) || flow.length === 0) {
+    host.innerHTML = '';
+    return;
+  }
+  function esc(t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  var validStatuses = { green: 1, yellow: 1, red: 1 };
+  var parts = [];
+  for (var i = 0; i < flow.length; i++) {
+    var s = flow[i] || {};
+    var statusKey = validStatuses[s.status] ? s.status : 'yellow';
+    parts.push(
+      '<div class="flow-chain-stage stage-' + statusKey + '">' +
+        '<div class="fc-num">' + (i + 1) + '</div>' +
+        '<div class="fc-body">' +
+          '<div class="fc-stage">' + esc(s.stage) + '</div>' +
+          (s.note ? '<div class="fc-note">' + esc(s.note) + '</div>' : '') +
+        '</div>' +
+        '<div class="fc-metric">' + esc(s.metric || '') + '</div>' +
+      '</div>'
+    );
+    if (i < flow.length - 1) {
+      parts.push('<div class="flow-chain-arrow" aria-hidden="true">↓</div>');
+    }
+  }
+  host.innerHTML = parts.join('');
+}
+
+function renderPriceDisparity(pd) {
+  if (!pd) return;
+  function setText(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+  var spreadSign = pd.spread >= 0 ? '+' : '−';
+  var spreadAbs = Math.abs(pd.spread);
+  setText('v-disp-paper', '$' + pd.paperBrent);
+  setText('s-disp-paper', pd.paperNote || 'ICE Brent front-month');
+  setText('v-disp-physical', '~$' + pd.physicalEstimate);
+  setText('s-disp-physical', pd.physicalNote || 'Platts Dated Brent');
+  setText('v-disp-spread', spreadSign + '$' + spreadAbs);
+  setText('s-disp-spread', pd.spreadNote || 'vs. paper');
+  setText('v-disp-m1m3', '~$' + pd.m1m3Spread);
+  setText('s-disp-m1m3', pd.m1m3Note || 'front month vs 3-out');
 }
 
 let chart;
@@ -722,6 +988,120 @@ function validateData() {
           warn('sourceLinks[' + sl + '] needs a valid https? URL');
         } else if (!link.description || String(link.description).trim() === '') {
           warn('sourceLinks[' + sl + '] should include a description of what this source offers');
+        }
+      }
+    }
+  }
+
+  // --- Shortage propagation chain ---
+  if (d.shortageFlow === undefined) {
+    warn('shortageFlow is missing — the shortage propagation panel will render empty');
+  } else if (!Array.isArray(d.shortageFlow) || d.shortageFlow.length === 0) {
+    fail('shortageFlow must be a non-empty array of stages');
+  } else {
+    for (var sf = 0; sf < d.shortageFlow.length; sf++) {
+      var stage = d.shortageFlow[sf];
+      if (!stage || typeof stage !== 'object') {
+        fail('shortageFlow[' + sf + '] must be an object');
+        continue;
+      }
+      if (!stage.stage || typeof stage.stage !== 'string') {
+        fail('shortageFlow[' + sf + '].stage must be a non-empty string');
+      }
+      if (validStatuses.indexOf(stage.status) === -1) {
+        fail('shortageFlow[' + sf + '].status must be "green", "yellow", or "red", got: ' + JSON.stringify(stage.status));
+      }
+      if (!stage.note || typeof stage.note !== 'string') {
+        warn('shortageFlow[' + sf + ']: missing note (the explanatory sentence for this stage)');
+      }
+    }
+  }
+
+  // --- Paper vs physical price disparity ---
+  if (d.priceDisparity === undefined) {
+    warn('priceDisparity is missing — paper-vs-physical panel will not render');
+  } else {
+    var pd = d.priceDisparity;
+    var pdNumBounds = {
+      paperBrent:       [20, 300],
+      physicalEstimate: [20, 400],
+      spread:           [-20, 120],
+      m1m3Spread:       [-20, 60]
+    };
+    for (var pdf in pdNumBounds) {
+      var pdv = pd[pdf];
+      var pdb = pdNumBounds[pdf];
+      if (pdv === undefined || pdv === null) {
+        fail('priceDisparity.' + pdf + ' is missing');
+      } else if (typeof pdv !== 'number' || isNaN(pdv)) {
+        fail('priceDisparity.' + pdf + ' must be a number, got: ' + JSON.stringify(pdv));
+      } else if (pdv < pdb[0] || pdv > pdb[1]) {
+        fail('priceDisparity.' + pdf + ' = ' + pdv + ' is outside expected range [' + pdb[0] + ' – ' + pdb[1] + '].');
+      }
+    }
+    if (typeof pd.paperBrent === 'number' && typeof pd.physicalEstimate === 'number' && typeof pd.spread === 'number') {
+      var expectedSpread = pd.physicalEstimate - pd.paperBrent;
+      if (Math.abs(pd.spread - expectedSpread) > 2) {
+        fail('priceDisparity.spread (' + pd.spread + ') should ≈ physicalEstimate (' + pd.physicalEstimate + ') - paperBrent (' + pd.paperBrent + ') = ' + expectedSpread);
+      }
+    }
+    if (validStatuses.indexOf(pd.backwardationStatus) === -1) {
+      fail('priceDisparity.backwardationStatus must be "green", "yellow", or "red", got: ' + JSON.stringify(pd.backwardationStatus));
+    }
+    var pdStrings = ['paperNote', 'physicalNote', 'spreadNote', 'm1m3Note'];
+    for (var pdsi = 0; pdsi < pdStrings.length; pdsi++) {
+      var pdsf = pdStrings[pdsi];
+      if (!pd[pdsf] || typeof pd[pdsf] !== 'string') {
+        warn('priceDisparity.' + pdsf + ' should be a short descriptive string');
+      }
+    }
+  }
+
+  // --- Estimate transparency (estimatedFields pills + estimates methodology blocks) ---
+  if (d.estimatedFields !== undefined) {
+    if (typeof d.estimatedFields !== 'object' || d.estimatedFields === null) {
+      warn('estimatedFields should be an object with "values" and/or "flows" arrays of DOM IDs');
+    } else {
+      var efKeys = ['values', 'flows'];
+      for (var efi = 0; efi < efKeys.length; efi++) {
+        var efk = efKeys[efi];
+        if (d.estimatedFields[efk] !== undefined && !Array.isArray(d.estimatedFields[efk])) {
+          warn('estimatedFields.' + efk + ' should be an array of DOM element IDs');
+        }
+      }
+    }
+  }
+  if (d.estimates !== undefined) {
+    if (typeof d.estimates !== 'object' || d.estimates === null) {
+      warn('estimates should be an object keyed by section name');
+    } else {
+      var estSections = Object.keys(d.estimates);
+      for (var esi = 0; esi < estSections.length; esi++) {
+        var sk = estSections[esi];
+        var sec = d.estimates[sk];
+        if (!sec || typeof sec !== 'object') {
+          warn('estimates.' + sk + ' should be { title, items: [...] }');
+          continue;
+        }
+        if (!sec.title || typeof sec.title !== 'string') {
+          warn('estimates.' + sk + '.title should be a short section heading');
+        }
+        if (!Array.isArray(sec.items) || sec.items.length === 0) {
+          warn('estimates.' + sk + '.items should be a non-empty array of { label, note }');
+          continue;
+        }
+        for (var ei = 0; ei < sec.items.length; ei++) {
+          var it = sec.items[ei];
+          if (!it || typeof it !== 'object') {
+            warn('estimates.' + sk + '.items[' + ei + '] should be an object');
+            continue;
+          }
+          if (!it.label || typeof it.label !== 'string') {
+            warn('estimates.' + sk + '.items[' + ei + '].label is missing');
+          }
+          if (!it.note || typeof it.note !== 'string') {
+            warn('estimates.' + sk + '.items[' + ei + '].note is missing (one-sentence methodology)');
+          }
         }
       }
     }
@@ -1056,6 +1436,17 @@ renderDashboard();
   <div class="update-log-panel-inner">
     <h2 id="update-log-title">Update Log</h2>
     <p class="update-log-sub">Summary of changes to the numbers and narrative on this page (not technical site notes). Updated when <code>DATA</code> is refreshed.</p>
+    <div class="update-log-entry">
+      <div class="date">April 21, 2026 — narrative refresh + new sections</div>
+      <ul>
+        <li><strong>EIA (week ending April 10, 2026):</strong> unchanged from prior snapshot — next WPSR (week ending Apr 17) publishes Apr 22, so all stockpile, SPR, production, and consumption fields carry over.</li>
+        <li><strong>Hormuz / maritime:</strong> two-week U.S.–Iran ceasefire set to expire Apr 22 (extension "highly unlikely" per Trump); Apr 17 brief reopening stalled Apr 18 after Iranian gunboats fired on transit vessels; Apr 20 seized-ship report (CNBC). Transit count revised to ~5–10 vessels/day (&lt;5% of pre-war); attacks bumped to 24+ with a note for the Apr 18 gunboat incidents.</li>
+        <li><strong>Prices:</strong> Brent roughly flat near $95/b (ceasefire-extension headlines nudged both directions). AAA national regular gasoline down to $4.02/gal on 4/21, −9¢ week-over-week.</li>
+        <li><strong>New section — Shortage propagation:</strong> four-stage chain (Gulf-dependent Asian refiners → Atlantic Basin bidding war → European refiners squeezed → U.S. impact window) showing how the crisis reaches U.S. docks through cargo competition, not direct supply cuts. Powered by Reuters (Japan 67.8% run), IEA OMR, Argus/Insights Global ARA stock data.</li>
+        <li><strong>New section — Paper vs. physical price:</strong> shows ICE Brent front-month ($95) alongside Platts Dated Brent (~$130, Apr 9 assessment), +$35/bbl physical premium, and ~$18/bbl Brent M1–M3 backwardation as a physical-tightness gauge.</li>
+        <li><strong>Transparency — estimate markers:</strong> soft values (Hormuz transits, stranded VLCCs, attack counts, Atlantic Basin and Persian Gulf flows, SPR max-drawdown capability, Dated Brent, backwardation spread) now display a small <code>est.</code> pill; each section has an expandable "How these … are estimated" block explaining the derivation and source-date of each figure.</li>
+      </ul>
+    </div>
     <div class="update-log-entry">
       <div class="date">April 16, 2026 — data refresh</div>
       <ul>

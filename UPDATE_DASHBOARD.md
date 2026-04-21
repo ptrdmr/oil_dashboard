@@ -90,6 +90,76 @@ If the Hormuz crisis has resolved (strait reopened, ceasefire, etc.), update the
 |---|---|---|
 | `dailyConsumption` | "US petroleum consumption barrels per day" | EIA — usually ~20 mb/d, updates quarterly |
 
+#### Shortage propagation (`shortageFlow` array)
+
+The "Shortage propagation" section shows a four-stage chain: Gulf-dependent buyers → Atlantic Basin bidding → European refiners → U.S. impact. Update each stage's `status` (`"green"`/`"yellow"`/`"red"`), `metric` (short headline number), and `note` (one-sentence plain-language summary).
+
+| Stage (typical) | What to search | Primary sources |
+|---|---|---|
+| Gulf-dependent Asian refiners | "Japan refinery run cuts", "South Korea crude imports", "India crude waivers" | Reuters energy, Energy Intelligence, S&P Platts |
+| Atlantic Basin bidding war | "Asian refiners outbidding Europe for WTI", "non-Middle East crude competition" | Reuters, Kpler, Argus, IEA OMR |
+| European refiners squeezed | "ARA oil stocks weekly", "Northwest Europe refining margins", "gasoil crack" | Argus Media (Insights Global), Oxford Energy, IEA OMR |
+| U.S. impact window | "US Atlantic Basin crude imports", "Gulf Coast refinery crude", AAA gas prices | EIA PSM, Reuters, AAA |
+
+Keep `note` under ~35 words per stage. The chain renders from top-to-bottom in the order listed in the array — stage 1 is the furthest from the U.S., stage 4 is the closest. When the crisis eases, downgrade statuses from red → yellow → green from the top down (the pressure releases from the source first).
+
+#### Paper vs. physical price (`priceDisparity` object)
+
+The "Paper vs. physical oil price" section compares screen futures to actual cargo prices and shows the backwardation as a tightness gauge.
+
+| Field | What to search | Primary source |
+|---|---|---|
+| `paperBrent` | "Brent crude oil price today" (front-month futures) | ICE / tradingeconomics / Bloomberg |
+| `physicalEstimate` | "Dated Brent price", "Dated Brent vs futures spread" | Platts assessments via S&P Global, Argus, CNBC/Reuters reporting (usually behind paywall — rely on press quoting the Platts number) |
+| `spread` | Computed: `physicalEstimate - paperBrent` | You calculate this |
+| `m1m3Spread` | "Brent M1 M3 spread", "Brent front-month backwardation" | ICE margin rate PDFs, CME Group insights, tradingview, IEA OMR |
+| `backwardationStatus` | Judgment based on `m1m3Spread` magnitude | Typical: $0–$2 green, $2–$10 yellow, $10+ red |
+
+If Dated Brent is not quoted anywhere free, mark `physicalNote` with a clear "estimate from press reporting, date X" so readers know it's not a live number.
+
+#### Estimate transparency (`estimatedFields` + `estimates`)
+
+Any value on the dashboard that is not a direct read of a primary source should be flagged as an estimate. The page shows a small `est.` pill next to flagged values and an expandable "How these … are estimated" block in each affected section.
+
+**`estimatedFields`** — which rendered cells get the pill:
+
+```js
+estimatedFields: {
+  values: ["v-hormuz-current", "v-vlccs", "v-attacks",
+           "v-disp-physical", "v-disp-spread", "v-disp-m1m3"],
+  flows:  ["flow-atlantic", "flow-gulf", "flow-spr"]
+}
+```
+
+- `values` — DOM IDs of `<div class="value">` elements (on metric cards).
+- `flows` — DOM IDs of `<div class="flow-row">` rows (pill goes on the `.flow-val` span).
+
+If you introduce a new estimated value, add the ID here and add a matching item under `estimates`.
+
+**`estimates`** — methodology blocks, keyed by section:
+
+```js
+estimates: {
+  supplyFlows:    { title, items: [{ label, note }, ...] },
+  hormuz:         { title, items: [...] },
+  priceDisparity: { title, items: [...] }
+}
+```
+
+- `title` — section heading shown in the collapsed `<details>` summary (e.g. "How these flows are estimated").
+- `items[].label` — short descriptor including the rendered value (e.g. "Physical (Dated Brent) ~$130").
+- `items[].note` — one or two sentences explaining the derivation, naming the source and date where possible. Readers should be able to answer "how do we know this number and how recent is it?" from the note alone.
+
+**Rules of thumb for what qualifies as an estimate:**
+
+- Computed residuals (e.g. `atlanticBasin` = EIA total minus named flows).
+- Statutory capabilities surfaced as if they were flows (e.g. `sprMaxDrawdown`).
+- Values derived from press reporting of paywalled assessments (e.g. Dated Brent).
+- Tallies compiled from news outlets without an official cumulative authority (e.g. attacks on ships).
+- Ranges instead of point values (e.g. `~5–10` transits).
+
+Hard numbers direct from EIA, DOE, AAA, ICE, or equivalent primary sources do **not** need the marker.
+
 ### 2. Update the DATA object
 
 Open `index.html` and locate the `DATA` object between these two comment markers:
@@ -216,12 +286,18 @@ Every number must fall within these bounds. If a value you found is outside thes
 | `brentCurrent` | 20 | 300 | Oil has never traded outside this range. |
 | `dailyConsumption` | 14 | 25 | US consumption is structurally in this band. |
 | `strandedVLCCs` | 0 | 800 | Global VLCC fleet is ~800 ships. |
+| `priceDisparity.paperBrent` | 20 | 300 | Front-month Brent futures — same bounds as `brentCurrent`. |
+| `priceDisparity.physicalEstimate` | 20 | 400 | Dated Brent can spike well above futures in a crisis (peaked $144 in Apr 2026). |
+| `priceDisparity.spread` | -20 | 120 | Physical premium over paper. Negative = contango (physical below futures). |
+| `priceDisparity.m1m3Spread` | -20 | 60 | Brent M1–M3 futures spread; positive = backwardation. |
 
 #### Logical consistency checks
 
 Run these mentally before saving:
 
 1. **SPR math**: `effectiveSpr` must equal `sprPreRelease - sprCommittedRelease`. If it doesn't, something is wrong.
+
+   **Paper/physical spread math**: `priceDisparity.spread` must equal `physicalEstimate - paperBrent` (within ±$2/bbl tolerance). If it doesn't, recompute.
 
 2. **Scenario deficit math**: For each scenario, `deficit` must equal `consumption - supply`. Recalculate by hand.
 
@@ -349,4 +425,32 @@ scenarios.{base|moderate|severe}:
   supply                number    mb/d
   deficit               number    mb/d (consumption - supply)
   label                 string    human-readable DTE estimate
+
+shortageFlow            array     [{ stage, status, metric, note }, ...]
+  stage                 string    short name of the propagation stage
+  status                string    "green" | "yellow" | "red"
+  metric                string    short headline number or phrase (e.g. "Japan at 67.8% run")
+  note                  string    one-sentence plain-language explainer (~35 words)
+
+priceDisparity          object
+  paperBrent            number    $/bbl — ICE Brent front-month futures
+  paperNote             string    which contract / when
+  physicalEstimate      number    $/bbl — Dated Brent or press-reported physical cargo assessment
+  physicalNote          string    source and date of the assessment
+  spread                number    $/bbl — physicalEstimate - paperBrent (positive = physical premium)
+  spreadNote            string    context (peak, recent range)
+  m1m3Spread            number    $/bbl — Brent front month minus 3-months-out (positive = backwardation)
+  m1m3Note              string    short context
+  backwardationStatus   string    "green" | "yellow" | "red" (judgment)
+
+estimatedFields         object    which rendered cells get the "est." pill
+  values                string[]  DOM IDs of .metric .value elements
+  flows                 string[]  DOM IDs of .flow-row elements (pill goes on .flow-val)
+
+estimates               object    per-section methodology blocks
+  <section>             object    keyed by supplyFlows | hormuz | priceDisparity | ...
+    title               string    summary shown when <details> is collapsed
+    items               array     [{ label, note }, ...]
+      label             string    short descriptor naming the estimated value
+      note              string    one or two sentences: source, date, derivation, confidence
 ```

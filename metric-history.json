@@ -70,7 +70,8 @@
     "gasPriceUsd": [
       { "t": "2026-03-27", "v": 4.08, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
       { "t": "2026-04-08", "v": 4.16, "compile": "April 8, 2026", "eiaWeekEnding": "April 3, 2026" },
-      { "t": "2026-04-15", "v": 4.11, "compile": "April 16, 2026", "eiaWeekEnding": "April 10, 2026" }
+      { "t": "2026-04-15", "v": 4.11, "compile": "April 16, 2026", "eiaWeekEnding": "April 10, 2026" },
+      { "t": "2026-04-21", "v": 4.02, "compile": "April 21, 2026", "eiaWeekEnding": "April 10, 2026" }
     ],
     "dailyConsumption": [
       { "t": "2026-03-27", "v": 20.3, "compile": "April 5, 2026", "eiaWeekEnding": "March 27, 2026" },
