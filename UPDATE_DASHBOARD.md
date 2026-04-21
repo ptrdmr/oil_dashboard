@@ -103,6 +103,30 @@ The "Shortage propagation" section shows a four-stage chain: Gulf-dependent buye
 
 Keep `note` under ~35 words per stage. The chain renders from top-to-bottom in the order listed in the array — stage 1 is the furthest from the U.S., stage 4 is the closest. When the crisis eases, downgrade statuses from red → yellow → green from the top down (the pressure releases from the source first).
 
+#### Shortage map (`shortageMap` object)
+
+The world-map companion to the shortage-propagation chain. It shades countries by pre-crisis Persian Gulf / Hormuz reliance and draws a simple arc from the Gulf to each country's centroid. Keep the data list small and curated (10–15 countries) — the signal dies if you try to cover everyone.
+
+**Only use free, open data.** No Kpler / Vortexa / ClipperData / paid Platts assessments. Primary sources, all free:
+
+| Field | What to search | Primary sources |
+|---|---|---|
+| `hormuzSharePct` | "\<country\> crude oil imports by origin", "Middle East share of \<country\> oil imports" | JODI-Oil (joint-org CSVs), EIA International Energy Data / Country Analysis Briefs, Energy Institute Statistical Review, national regulators (METI, KNOC, PPAC, Philippines DOE, DESNZ) |
+| `daysOfCover` | "\<country\> strategic petroleum reserve days", "\<country\> crude stocks cover" | IEA Monthly Oil Data Service (OECD), national stockpile reporters, Reuters explainer pieces. When no hard number exists, pick a conservative middle estimate and note the uncertainty in `notes`. |
+| `lastCargo` | Reuters / CNBC / Argus / Al Jazeera vessel-level reporting | If free sources don't resolve a named vessel, set `status: "unknown"` and leave dates null. **Do not fabricate** load/arrival dates or vessel names. Typical loadings: Ras Tanura (SA), Juaymah (SA), Jubail (SA), Mina Al Ahmadi (KW), Basrah (IQ), Kharg (IR). |
+| `notes` | — | ≤30 words, measured tone matching `shortageFlow` style. Call out uncertainty explicitly when it's material. |
+| `sources` | — | 2–4 short citations (e.g. "Reuters — Japan extra reserve release (2026-04-10)"). |
+
+**ISO codes:** `iso3` must be a real ISO 3166-1 alpha-3 code. It's the join key to the world-atlas TopoJSON. Also update `SHORTAGE_MAP_ISO_NUM_TO_ALPHA3` in `index.html` if you add a country not already mapped there (look up the ISO 3166-1 numeric code — e.g. Japan is `392`). Very small countries that don't appear at the 110m world-atlas resolution (like Singapore) also need an entry in `SHORTAGE_MAP_FALLBACK_CENTROIDS` so they still get an arc and a dot.
+
+**Cargo status vocabulary:**
+- `"landed"` — last Gulf-origin cargo has been confirmed discharged at the destination port in free press.
+- `"in-transit"` — a named cargo is at sea, widely reported, not yet discharged.
+- `"diverted"` — the cargo was rerouted to a different buyer or port.
+- `"unknown"` — free sources don't resolve it. This is the **honest default** and the most common state.
+
+**Pattern for when the picture changes:** when a new "final shipment landed" story runs (e.g. Reuters confirms the last Hormuz VLCC discharged at Batangas), flip that country's `lastCargo.status` to `"landed"` and backfill `arrivalDate`. When things ease, gradually downgrade `hormuzSharePct` exposure color only if there's real evidence of re-routing; otherwise keep the structural number and move the story in the chain section above.
+
 #### Paper vs. physical price (`priceDisparity` object)
 
 The "Paper vs. physical oil price" section compares screen futures to actual cargo prices and shows the backwardation as a tightness gauge.
@@ -431,6 +455,26 @@ shortageFlow            array     [{ stage, status, metric, note }, ...]
   status                string    "green" | "yellow" | "red"
   metric                string    short headline number or phrase (e.g. "Japan at 67.8% run")
   note                  string    one-sentence plain-language explainer (~35 words)
+
+shortageMap             object    world-map view of country-level Hormuz exposure
+  asOf                  string    snapshot date shown in the sub-header (e.g. "April 21, 2026")
+  title                 string    section heading (optional; falls back to the static HTML)
+  description           string    one-sentence caption (optional)
+  countries             array     [{ iso3, name, hormuzSharePct, daysOfCover, lastCargo, notes, sources }, ...]
+    iso3                string    ISO 3166-1 alpha-3 (3 letters, joins to the world-atlas TopoJSON)
+    name                string    human-readable country name
+    hormuzSharePct      number    0–100, pre-crisis % of crude imports routed via the Strait of Hormuz
+    daysOfCover         number    0–400, est. days before physical shortage bites (stocks + non-Gulf swaps)
+    lastCargo           object    last known Gulf-origin shipment
+      loadPort          string    Gulf loading port (Ras Tanura / Juaymah / Jubail / Basrah / …)
+      dischargePort     string    destination port
+      loadDate          string?   ISO date or null if free sources don't resolve it
+      arrivalDate       string?   ISO date or null
+      status            string    "landed" | "in-transit" | "diverted" | "unknown"
+      barrels           number    cargo size (typical VLCC ~2,000,000; Suezmax ~1,000,000)
+      source            string    short citation
+    notes               string    ≤30-word plain-English summary of exposure + current posture
+    sources             string[]  2–4 short open-source citations
 
 priceDisparity          object
   paperBrent            number    $/bbl — ICE Brent front-month futures
