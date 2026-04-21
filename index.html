@@ -189,6 +189,56 @@
   @media (prefers-color-scheme: dark) {
     .mh-modal { box-shadow: 0 20px 60px rgba(0,0,0,0.55); }
   }
+  /* Shortage map — choropleth + arcs + country cards */
+  .shortage-map-wrap { margin-bottom: 8px; }
+  .shortage-map-legend { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; font-size: 11px; color: var(--text-secondary); margin-bottom: 10px; }
+  .shortage-map-legend .sml-group { display: flex; align-items: center; gap: 6px; }
+  .shortage-map-legend .sml-title { font-weight: 500; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.4px; font-size: 10px; margin-right: 2px; }
+  .shortage-map-legend .sml-swatch { width: 14px; height: 10px; border-radius: 2px; display: inline-block; border: 1px solid var(--border); }
+  .shortage-map-legend .sml-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-primary); display: inline-block; }
+  .shortage-map-chart-wrap { position: relative; width: 100%; aspect-ratio: 16 / 9; background: var(--bg-secondary); border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); }
+  #shortage-map-svg { width: 100%; height: 100%; display: block; }
+  .shortage-map-sphere { fill: var(--bg-secondary); }
+  .shortage-map-land { fill: var(--bg-tertiary); stroke: var(--border); stroke-width: 0.4; transition: fill 0.15s ease, stroke 0.15s ease; }
+  .shortage-map-land.has-data { cursor: pointer; }
+  .shortage-map-land.has-data:hover, .shortage-map-land.is-active { stroke: var(--text-primary); stroke-width: 0.9; filter: brightness(1.05); }
+  .shortage-map-arc { fill: none; stroke: var(--color-danger); stroke-width: 1.25; stroke-linecap: round; opacity: 0.55; pointer-events: none; }
+  .shortage-map-arc.status-landed    { stroke-dasharray: none; opacity: 0.7; }
+  .shortage-map-arc.status-in-transit { stroke-dasharray: 3 3; }
+  .shortage-map-arc.status-diverted  { stroke-dasharray: 1 4; opacity: 0.35; }
+  .shortage-map-arc.status-unknown   { stroke-dasharray: 2 3; opacity: 0.35; }
+  .shortage-map-origin { fill: var(--color-danger); stroke: var(--bg-secondary); stroke-width: 1; }
+  .shortage-map-cover-dot { stroke: var(--bg-secondary); stroke-width: 1; pointer-events: none; }
+  .shortage-map-country-label { font-size: 10px; fill: var(--text-secondary); pointer-events: none; font-family: var(--font-sans); }
+  .shortage-map-tooltip { position: absolute; pointer-events: none; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 10px; font-size: 12px; line-height: 1.4; box-shadow: 0 6px 18px rgba(0,0,0,0.18); max-width: 240px; opacity: 0; transition: opacity 0.12s ease; z-index: 2; }
+  .shortage-map-tooltip.visible { opacity: 1; }
+  .shortage-map-tooltip .smt-name { font-weight: 500; margin-bottom: 3px; }
+  .shortage-map-tooltip .smt-row { display: flex; justify-content: space-between; gap: 12px; color: var(--text-secondary); }
+  .shortage-map-tooltip .smt-row strong { color: var(--text-primary); font-weight: 500; }
+  .shortage-map-loading, .shortage-map-error { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; font-size: 12px; color: var(--text-secondary); text-align: center; }
+  .shortage-map-error { color: var(--color-danger); }
+  .shortage-map-countries { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; margin-top: 12px; }
+  .smc-card { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 10px 12px; border-left: 3px solid var(--text-tertiary); cursor: pointer; transition: background 0.15s ease, box-shadow 0.15s ease; }
+  .smc-card:hover, .smc-card:focus { background: var(--bg-tertiary); box-shadow: inset 0 0 0 1px var(--border); outline: none; }
+  .smc-card.is-active { box-shadow: inset 0 0 0 1px var(--color-info); }
+  .smc-card.tier-red    { border-left-color: var(--color-danger); }
+  .smc-card.tier-orange { border-left-color: var(--color-warning); }
+  .smc-card.tier-yellow { border-left-color: #C7A538; }
+  .smc-card.tier-grey   { border-left-color: var(--text-tertiary); }
+  .smc-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .smc-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .smc-share { font-size: 12px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+  .smc-meta { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+  .smc-meta strong { color: var(--text-primary); font-weight: 500; }
+  .smc-status { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; padding: 1px 6px; border-radius: 3px; background: var(--bg-tertiary); color: var(--text-secondary); margin-left: 4px; border: 1px solid var(--border); }
+  .smc-status.status-landed     { color: var(--color-success); }
+  .smc-status.status-in-transit { color: var(--color-warning); }
+  .smc-status.status-diverted   { color: var(--color-danger); }
+  .smc-status.status-unknown    { color: var(--text-tertiary); }
+  @media (max-width: 520px) {
+    .shortage-map-chart-wrap { aspect-ratio: 4 / 3; }
+    .shortage-map-countries { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -292,6 +342,27 @@
   <div class="note">
     <strong>Why this matters:</strong> The U.S. gets only ~0.3 mb/d directly from the Persian Gulf, so a Hormuz closure <em>looks</em> small on the supply chart. But Asian and European refiners depend on it heavily. When they scramble for non-Gulf crude, they outbid U.S. Gulf Coast and Atlantic Basin buyers for the same cargoes — so the shortage reaches America through <strong>price and cargo competition</strong>, not through pipeline cuts. The further up the chain the red moves, the closer the squeeze gets to the U.S. dock.
   </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <div class="section-title" id="shortage-map-title">Shortage map: Hormuz exposure around the world</div>
+  <div class="section-sub" id="shortage-map-sub">Countries shaded by pre-crisis reliance on Hormuz-transiting crude; arcs trace a typical Gulf-to-discharge routing.</div>
+  <div class="shortage-map-wrap">
+    <div class="shortage-map-legend" id="shortage-map-legend" aria-hidden="true"></div>
+    <div class="shortage-map-chart-wrap">
+      <svg id="shortage-map-svg" role="img" aria-labelledby="shortage-map-title shortage-map-sub"></svg>
+      <div class="shortage-map-tooltip" id="shortage-map-tooltip" role="tooltip" aria-hidden="true"></div>
+      <div class="shortage-map-loading" id="shortage-map-loading">Loading world map…</div>
+      <div class="shortage-map-error" id="shortage-map-error" style="display:none"></div>
+    </div>
+    <div class="shortage-map-countries" id="shortage-map-countries" aria-label="Country details"></div>
+  </div>
+  <div class="note">
+    <strong>Reading this map:</strong> the <em>color</em> is the structural setup — what share of a country's pre-crisis crude came via the Strait of Hormuz. The <em>dot</em> on each country is a rough days-of-cover estimate, our best read of how long strategic + commercial stocks and non-Gulf replacements can bridge the gap. Click a country (or a card below the map) to see its last known Gulf-origin cargo. Cargo-level data from free sources is sparse, so many "last shipment" entries are marked <em>unknown</em> rather than fabricated.
+  </div>
+  <div id="est-shortage-map"></div>
 </div>
 
 <hr class="divider">
@@ -437,6 +508,8 @@
 <div class="note source-links" id="dash-sources" style="margin-top: 2rem;"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script>
 /* ============================================================
    DATA CONFIG — AGENT: UPDATE THIS BLOCK ONLY
@@ -469,7 +542,14 @@ const DATA = {
     { label: "CNBC — Markets", url: "https://www.cnbc.com/markets/", description: "U.S.-oriented market news and commodity coverage — price and policy context." },
     { label: "Al Jazeera", url: "https://www.aljazeera.com/", description: "Regional reporting on the Gulf and shipping — background for Hormuz and conflict framing." },
     { label: "Wikipedia — Strait of Hormuz", url: "https://en.wikipedia.org/wiki/Strait_of_Hormuz", description: "Static geography and history of the strait — orientation only; not a live data feed." },
-    { label: "Reuters — Energy", url: "https://www.reuters.com/business/energy/", description: "Wire summaries of weekly EIA builds/draws and SPR changes — useful when verifying headline numbers against the full WPSR tables." }
+    { label: "Reuters — Energy", url: "https://www.reuters.com/business/energy/", description: "Wire summaries of weekly EIA builds/draws and SPR changes — useful when verifying headline numbers against the full WPSR tables." },
+    { label: "JODI-Oil (Joint Org Data Initiative)", url: "https://www.jodidata.org/oil/", description: "Monthly crude imports by country and partner country — free CSVs. Primary source for the pre-crisis Hormuz-share exposure numbers on the shortage map." },
+    { label: "EIA — U.S. imports from the Persian Gulf", url: "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=MCRIMUSPG2&f=A", description: "Official U.S. annual series for Persian Gulf crude imports (MCRIMUSPG2) — anchors the shortage map's USA entry at ~3% Hormuz share." },
+    { label: "Energy Institute — Statistical Review of World Energy", url: "https://www.energyinst.org/statistical-review", description: "Free annual successor to the BP Statistical Review — country-level trade flow reference used to sanity-check China / India / regional shares." },
+    { label: "Reuters — Asia's reliance on Middle East oil", url: "https://www.reuters.com/business/energy/why-is-asia-so-reliant-middle-eastern-oil-2026-03-04/", description: "March 4, 2026 explainer on why Asian refiners depend on Hormuz crude — narrative context for the shortage map's Asian country set." },
+    { label: "The Diplomat — Thailand oil shock exposure", url: "https://thediplomat.com/2026/04/thailands-brittle-defense-against-oil-shocks/", description: "April 2026 analysis of Thailand's crude slate and refinery tuning — input for Thailand's Hormuz-share and days-of-cover estimates." },
+    { label: "Jakarta Post — Indonesia oil shock fiscal policy", url: "https://www.jakartapost.com/business/2026/03/31/navigating-oil-shock-fiscal-challenges-policy-choices-for-indonesia.html", description: "March 31, 2026 — fiscal framing of Indonesia's oil-shock exposure; informs Indonesia's shortage map entry and notes field." },
+    { label: "world-atlas — 110m TopoJSON", url: "https://github.com/topojson/world-atlas", description: "MIT-licensed simplified world boundaries from Natural Earth. Loaded at runtime from a CDN to render the shortage-map choropleth; not a data source, only geography." }
   ],
 
   // — Stockpiles (millions of barrels) —
@@ -552,6 +632,112 @@ const DATA = {
       note: "Persian Gulf imports already at ~0.3 mb/d; Atlantic Basin cargoes under competition from Asian buyers. AAA gas back below $4.10/gal on ceasefire-talk optimism, but the physical premium (Dated Brent ~$35 above futures) still flashes tightness."
     }
   ],
+
+  // — Shortage propagation map (country-level Persian Gulf / Hormuz exposure) —
+  // World-map companion to the shortage propagation chain. Each country entry is a
+  // one-shot "snapshot as of asOf": how dependent is it on Hormuz-transiting crude,
+  // roughly how many days of cover it has, and what we know (from open sources) about
+  // its last / next Gulf-origin cargo. This is hand-curated from free sources only
+  // (JODI-Oil, EIA, IEA public summaries, Energy Institute, national regulators,
+  // Reuters / CNBC / Jakarta Post / The Diplomat). No Kpler / Vortexa / paid feeds.
+  //
+  // !!! NO FABRICATION POLICY !!!
+  // Free news rarely resolves a named tanker arriving at a named port on a named date.
+  // Every lastCargo should default to status: "unknown" with loadDate: null and
+  // arrivalDate: null. Only set status to "landed" / "in-transit" / "diverted" when a
+  // real, dated public-press article confirms the cargo — and cite that article in
+  // lastCargo.source as "<Publisher>, YYYY-MM-DD" (e.g. "Reuters, 2026-03-19"). Do NOT
+  // invent vessel names, IMO numbers, load or arrival dates. The page validator
+  // enforces this: a non-"unknown" status without a plausible citation is a failure.
+  // See UPDATE_DASHBOARD.md "Shortage map" section for full maintainer guidance.
+  //
+  // Field meanings:
+  //   iso3            — ISO 3166-1 alpha-3 (joins to the world-atlas TopoJSON)
+  //   hormuzSharePct  — pre-crisis % of crude imports routed via the Strait of Hormuz
+  //                     (integer 0–100; Iraq-Kirkuk / Ceyhan pipeline barrels DO NOT count)
+  //   daysOfCover     — best public estimate of days before physical shortage bites,
+  //                     given strategic + commercial stocks and non-Gulf replacements
+  //   lastCargo       — the last known / estimated Gulf-origin shipment and its status
+  //                     ("landed" | "in-transit" | "diverted" | "unknown"). Default is
+  //                     "unknown"; only upgrade with a cited, dated source.
+  //   notes           — one-sentence plain-English summary (≤30 words, measured tone)
+  //   sources         — 2–4 short citations
+  shortageMap: {
+    asOf: "April 21, 2026",
+    title: "Where the shortage hits: country-by-country",
+    description: "Countries shaded by pre-crisis reliance on Hormuz-transiting crude. Dot size on each country shows estimated days of cover before non-Gulf replacements run thin. Arcs trace a typical Gulf→discharge routing; cargo-level confirmations in free sources are sparse, so specific vessel status is often 'unknown'.",
+    countries: [
+      { iso3: "JPN", name: "Japan",           hormuzSharePct: 95, daysOfCover: 118,
+        lastCargo: { loadPort: "Ras Tanura",    dischargePort: "Chiba",        loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "METI import mix; typical AG routing pre-closure" },
+        notes:   "~95% of crude from the Middle East (METI, 2023); METI/ANRE stockpiles plus coordinated releases bridge a long horizon (Reuters, Apr 10).",
+        sources: ["METI petroleum statistics (2023)", "Reuters — Japan extra reserve release (2026-04-10)", "IEA OMR April 2026"] },
+
+      { iso3: "KOR", name: "South Korea",     hormuzSharePct: 70, daysOfCover: 36,
+        lastCargo: { loadPort: "Mina Al Ahmadi", dischargePort: "Ulsan",       loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "KNOC/EIA trade pattern; cargo timing not in free data" },
+        notes:   "About seven in ten barrels from the Middle East; KNOC-held stocks and term liftings buy time while refiners seek Atlantic/African grades.",
+        sources: ["Industry coverage — Korea Middle East share ~70%", "KNOC public reserve reporting", "IEA OMR April 2026"] },
+
+      { iso3: "IND", name: "India",           hormuzSharePct: 52, daysOfCover: 44,
+        lastCargo: { loadPort: "Basrah",         dischargePort: "Jamnagar",    loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "Reuters monthly import mix; typical west-coast routing" },
+        notes:   "Middle East often near half of barrels; Russia/Iran waivers (expired Apr 11 / Apr 19) add scheduling risk on top of Hormuz disruption.",
+        sources: ["Reuters — ME share of India's imports (2024-12-23)", "PPAC India import/export portal", "IEA OMR April 2026"] },
+
+      { iso3: "PHL", name: "Philippines",     hormuzSharePct: 97, daysOfCover: 21,
+        lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Batangas",    loadDate: null, arrivalDate: null, status: "unknown", barrels: 1000000, source: "DOE narrative — nearly all crude from AG; no public cargo ID" },
+        notes:   "Philippines DOE data show crude almost entirely Middle East-sourced; thin commercial stocks mean short operational runway if AG barrels stop.",
+        sources: ["Philippines DOE — oil supply narrative (2023)", "IEA OMR April 2026"] },
+
+      { iso3: "TWN", name: "Taiwan",          hormuzSharePct: 34, daysOfCover: 39,
+        lastCargo: { loadPort: "Juaymah",        dischargePort: "Kaohsiung",   loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "CPC annual report; cargo-level data not public" },
+        notes:   "CPC still takes a large U.S. slate but ~34% Middle East crude in 2023; Hormuz risk is concentrated in that slice.",
+        sources: ["CPC Corporation 2024 annual report (2023 import sources)", "IEA OMR April 2026"] },
+
+      { iso3: "THA", name: "Thailand",        hormuzSharePct: 60, daysOfCover: 33,
+        lastCargo: { loadPort: "Jubail",         dischargePort: "Si Racha",    loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "EIA/Thai energy narratives — majority-Gulf slate" },
+        notes:   "Analysts cite a majority-Middle East crude diet; refineries tuned to those grades, so swaps are slower than headline diversification suggests.",
+        sources: ["EIA — Thailand country analysis", "The Diplomat — Thailand oil shock exposure (2026-04)"] },
+
+      { iso3: "CHN", name: "China",           hormuzSharePct: 50, daysOfCover: 52,
+        lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Qingdao",     loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "EI Statistical Review trade mix; cargo timing limited" },
+        notes:   "Roughly half of seaborne crude from the Middle East; large commercial + strategic tanks extend cover but absolute volumes at risk are huge.",
+        sources: ["Energy Institute — Statistical Review of World Energy 2024", "IEA OMR April 2026"] },
+
+      { iso3: "SGP", name: "Singapore",       hormuzSharePct: 78, daysOfCover: 27,
+        lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Jurong Island", loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "IEA OMR — distillate tightness; sourcing aggregated" },
+        notes:   "Major refining/export hub but Middle East grades anchor throughput; IEA flagged record Singapore middle-distillate stress. Days-of-cover especially uncertain (opaque hub stocks).",
+        sources: ["IEA OMR April 2026 (Singapore pricing context)", "Reuters — Asia reliance on Middle East crude (2026-03-04)"] },
+
+      { iso3: "IDN", name: "Indonesia",       hormuzSharePct: 24, daysOfCover: 41,
+        lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Balikpapan",  loadDate: null, arrivalDate: null, status: "unknown", barrels: 1000000, source: "Ministry statements — diversified slate; ~quarter ME" },
+        notes:   "Diversified crude slate since the 2010s; Middle East still a large wedge — fiscal strain rises via product prices (Jakarta Post, Mar 2026).",
+        sources: ["Gov't/industry reporting — ~20–25% ME crude", "Jakarta Post — navigating oil shock (2026-03-31)"] },
+
+      { iso3: "PAK", name: "Pakistan",        hormuzSharePct: 82, daysOfCover: 24,
+        lastCargo: { loadPort: "Jubail",         dischargePort: "Karachi",     loadDate: null, arrivalDate: null, status: "unknown", barrels: 700000, source: "Trade analytics — Saudi/UAE-dominated imports" },
+        notes:   "Saudi Arabia and UAE dominate import value; most barrels are inherently Hormuz-linked, so disruption passes through quickly to power and transport fuels.",
+        sources: ["TDAP / Pakistan petroleum sector background", "Business Recorder — trade risk after Gulf conflict (2026)"] },
+
+      { iso3: "BGD", name: "Bangladesh",      hormuzSharePct: 71, daysOfCover: 17,
+        lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Chittagong",  loadDate: null, arrivalDate: null, status: "unknown", barrels: 1000000, source: "South Asia import pattern; no free cargo database" },
+        notes:   "Middle East grades supply the bulk of demand; limited storage and import financing amplify shortfalls when AG differentials spike. Days-of-cover very uncertain.",
+        sources: ["Our World in Data — import dependence context", "IEA OMR April 2026 (regional demand hit)"] },
+
+      { iso3: "TUR", name: "Turkey",          hormuzSharePct: 22, daysOfCover: 29,
+        lastCargo: { loadPort: "Basrah",         dischargePort: "Aliaga",      loadDate: null, arrivalDate: null, status: "unknown",  barrels: 1000000, source: "Kirkuk–Ceyhan pipeline routing; Basrah barrels' Hormuz status not disclosed in free data" },
+        notes:   "Much Iraqi crude reaches Turkey via the Kirkuk–Ceyhan pipeline and bypasses Hormuz entirely; only Basrah-origin barrels are directly exposed.",
+        sources: ["EIA — Iraq country analysis (export routes)", "IEA OMR April 2026"] },
+
+      { iso3: "GBR", name: "United Kingdom",  hormuzSharePct: 12, daysOfCover: 88,
+        lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Hound Point", loadDate: null, arrivalDate: null, status: "unknown", barrels: 700000, source: "UK trade mix; no public cargo ID" },
+        notes:   "North Sea and Atlantic barrels dominate U.K. crude; Persian Gulf is a modest slice, so Hormuz is a price/grade issue more than a volume shock.",
+        sources: ["UK DESNZ — energy statistics (trade)", "IEA OMR April 2026"] },
+
+      { iso3: "USA", name: "United States",   hormuzSharePct: 3,  daysOfCover: 175,
+        lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Port Arthur", loadDate: null, arrivalDate: null, status: "unknown", barrels: 500000, source: "EIA Persian Gulf crude series; cargo-level detail sparse" },
+        notes:   "EIA shows Persian Gulf crude ~0.3 mb/d — a small share of U.S. receipts; SPR and domestic output buffer Hormuz risk directly.",
+        sources: ["EIA — U.S. imports from Persian Gulf (series MCRIMUSPG2)", "EIA — PET_MOVE_IMPCUS_A1_MP0 table"] }
+    ]
+  },
 
   // — Paper vs physical price disparity —
   // paperBrent  = ICE Brent front-month futures ($/bbl)
@@ -733,6 +919,9 @@ function renderDashboard() {
   // Shortage propagation chain
   renderShortageChain(d.shortageFlow);
 
+  // Shortage map (choropleth + arcs + country cards)
+  renderShortageMap(d.shortageMap);
+
   // Paper vs physical price disparity
   renderPriceDisparity(d.priceDisparity);
 
@@ -741,6 +930,7 @@ function renderDashboard() {
   renderEstimateBlock('est-supply-flows', d.estimates && d.estimates.supplyFlows);
   renderEstimateBlock('est-hormuz', d.estimates && d.estimates.hormuz);
   renderEstimateBlock('est-price-disparity', d.estimates && d.estimates.priceDisparity);
+  renderEstimateBlock('est-shortage-map', d.estimates && d.estimates.shortageMap);
 
   // Build initial chart
   buildChart('base');
@@ -822,6 +1012,372 @@ function renderShortageChain(flow) {
     }
   }
   host.innerHTML = parts.join('');
+}
+
+/* ============================================================
+   Shortage map — world choropleth + Gulf-origin arcs.
+   Uses D3 (geo/selection/scale) + TopoJSON client loaded via CDN.
+   Data source: world-atlas 110m countries (unpkg CDN fallback list).
+   Country join is on ISO 3166-1 numeric -> alpha-3 via an inlined map.
+   ============================================================ */
+var SHORTAGE_MAP_WORLD_ATLAS_URLS = [
+  'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json',
+  'https://unpkg.com/world-atlas@2/countries-110m.json'
+];
+var shortageMapWorldPromise = null;
+var shortageMapState = { active: null };
+
+function loadShortageMapWorld() {
+  if (shortageMapWorldPromise) return shortageMapWorldPromise;
+  if (!window.d3 || !window.topojson) {
+    shortageMapWorldPromise = Promise.reject(new Error('d3/topojson unavailable'));
+    return shortageMapWorldPromise;
+  }
+  shortageMapWorldPromise = (function tryUrls(idx) {
+    if (idx >= SHORTAGE_MAP_WORLD_ATLAS_URLS.length) {
+      return Promise.reject(new Error('all world-atlas CDN urls failed'));
+    }
+    return fetch(SHORTAGE_MAP_WORLD_ATLAS_URLS[idx])
+      .then(function (r) { if (!r.ok) throw new Error('bad status ' + r.status); return r.json(); })
+      .catch(function () { return tryUrls(idx + 1); });
+  })(0);
+  return shortageMapWorldPromise;
+}
+
+// ISO 3166-1 numeric -> alpha-3, for just the countries we care about on the map.
+// (world-atlas topojson keys features by numeric id as a zero-padded string.)
+var SHORTAGE_MAP_ISO_NUM_TO_ALPHA3 = {
+  "392": "JPN", "410": "KOR", "356": "IND", "608": "PHL", "158": "TWN",
+  "764": "THA", "156": "CHN", "702": "SGP", "360": "IDN", "586": "PAK",
+  "050": "BGD", "792": "TUR", "826": "GBR", "840": "USA"
+};
+
+// Fallback [lon, lat] for countries too small to appear in the 110m world-atlas
+// (e.g. Singapore). Used to still draw the cover dot + arc so the card isn't orphaned.
+var SHORTAGE_MAP_FALLBACK_CENTROIDS = {
+  "SGP": [103.82, 1.35]
+};
+
+function shortageMapShareTier(pct) {
+  if (pct == null || isNaN(pct)) return 'grey';
+  if (pct >= 60) return 'red';
+  if (pct >= 30) return 'orange';
+  if (pct >= 10) return 'yellow';
+  return 'grey';
+}
+
+function shortageMapShareColor(pct) {
+  var tier = shortageMapShareTier(pct);
+  if (tier === 'red')    return 'var(--color-danger)';
+  if (tier === 'orange') return 'var(--color-warning)';
+  if (tier === 'yellow') return '#C7A538';
+  return 'var(--bg-tertiary)';
+}
+
+function shortageMapCoverDotRadius(days) {
+  if (days == null || isNaN(days)) return 3;
+  var d = Math.max(10, Math.min(200, days));
+  return 3 + Math.sqrt(d) * 0.45;
+}
+
+function shortageMapCoverDotColor(days) {
+  if (days == null || isNaN(days)) return 'var(--text-tertiary)';
+  if (days < 25)  return 'var(--color-danger)';
+  if (days < 60)  return 'var(--color-warning)';
+  return 'var(--color-success)';
+}
+
+function renderShortageMap(cfg) {
+  var host = document.getElementById('shortage-map-svg');
+  var titleEl = document.getElementById('shortage-map-title');
+  var subEl = document.getElementById('shortage-map-sub');
+  var legendEl = document.getElementById('shortage-map-legend');
+  var cardsEl = document.getElementById('shortage-map-countries');
+  var loadingEl = document.getElementById('shortage-map-loading');
+  var errorEl = document.getElementById('shortage-map-error');
+  if (!host || !cardsEl || !legendEl) return;
+
+  if (!cfg || !Array.isArray(cfg.countries) || cfg.countries.length === 0) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) {
+      errorEl.textContent = 'shortageMap data missing; see UPDATE_DASHBOARD.md.';
+      errorEl.style.display = 'flex';
+    }
+    cardsEl.innerHTML = '';
+    return;
+  }
+
+  if (cfg.title && titleEl) titleEl.textContent = cfg.title;
+  if (cfg.asOf && subEl) {
+    subEl.textContent = (cfg.description || subEl.textContent) + ' Snapshot as of ' + cfg.asOf + '.';
+  }
+
+  renderShortageMapLegend(legendEl);
+  renderShortageMapCards(cardsEl, cfg.countries);
+
+  if (!window.d3 || !window.topojson) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) {
+      errorEl.textContent = 'D3 / topojson failed to load from CDN — cards above still summarize the data.';
+      errorEl.style.display = 'flex';
+    }
+    return;
+  }
+
+  loadShortageMapWorld().then(function (world) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (!world || !world.objects || !world.objects.countries) {
+      if (errorEl) {
+        errorEl.textContent = 'Could not load world-atlas from CDN — cards above still summarize the data.';
+        errorEl.style.display = 'flex';
+      }
+      return;
+    }
+    drawShortageMapSvg(host, world, cfg.countries);
+  }).catch(function (err) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) {
+      errorEl.textContent = 'Map render error (' + (err && err.message || err) + ') — cards above still summarize the data.';
+      errorEl.style.display = 'flex';
+    }
+  });
+}
+
+function renderShortageMapLegend(host) {
+  host.setAttribute('aria-hidden', 'false');
+  host.innerHTML =
+    '<div class="sml-group"><span class="sml-title">Hormuz share</span></div>' +
+    '<div class="sml-group"><span class="sml-swatch" style="background:var(--color-danger)"></span>60%+</div>' +
+    '<div class="sml-group"><span class="sml-swatch" style="background:var(--color-warning)"></span>30–59%</div>' +
+    '<div class="sml-group"><span class="sml-swatch" style="background:#C7A538"></span>10–29%</div>' +
+    '<div class="sml-group"><span class="sml-swatch" style="background:var(--bg-tertiary)"></span>&lt;10%</div>' +
+    '<div class="sml-group" style="margin-left:8px"><span class="sml-title">Days of cover</span></div>' +
+    '<div class="sml-group"><span class="sml-dot" style="background:var(--color-danger);width:6px;height:6px"></span>&lt;25</div>' +
+    '<div class="sml-group"><span class="sml-dot" style="background:var(--color-warning);width:9px;height:9px"></span>25–59</div>' +
+    '<div class="sml-group"><span class="sml-dot" style="background:var(--color-success);width:12px;height:12px"></span>60+</div>';
+}
+
+function renderShortageMapCards(host, countries) {
+  function esc(t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  var validStatus = { landed: 1, 'in-transit': 1, diverted: 1, unknown: 1 };
+  var sorted = countries.slice().sort(function (a, b) {
+    return (b.hormuzSharePct || 0) - (a.hormuzSharePct || 0);
+  });
+  var parts = sorted.map(function (c) {
+    var tier = shortageMapShareTier(c.hormuzSharePct);
+    var lc = c.lastCargo || {};
+    var status = validStatus[lc.status] ? lc.status : 'unknown';
+    var cargoLine = status === 'unknown'
+      ? 'Last cargo: <strong>unknown</strong> (free-source cargo tracking is sparse)'
+      : 'Last cargo: <strong>' + esc(lc.loadPort || '?') + ' → ' + esc(lc.dischargePort || '?') + '</strong>';
+    return (
+      '<div class="smc-card tier-' + tier + '" role="button" tabindex="0" data-iso3="' + esc(c.iso3) + '" aria-label="' + esc(c.name) + ' — ' + (c.hormuzSharePct || 0) + '% Hormuz share">' +
+        '<div class="smc-head">' +
+          '<span class="smc-name">' + esc(c.name) + '</span>' +
+          '<span class="smc-share">' + (c.hormuzSharePct != null ? c.hormuzSharePct + '%' : '—') + ' via Hormuz</span>' +
+        '</div>' +
+        '<div class="smc-meta">' +
+          '<strong>' + (c.daysOfCover != null ? c.daysOfCover : '—') + ' days</strong> est. cover' +
+          '<span class="smc-status status-' + status + '">' + status.replace('-', ' ') + '</span>' +
+        '</div>' +
+        '<div class="smc-meta" style="margin-top:4px">' + cargoLine + '</div>' +
+        '<div class="smc-meta" style="margin-top:4px">' + esc(c.notes || '') + '</div>' +
+      '</div>'
+    );
+  });
+  host.innerHTML = parts.join('');
+
+  host.querySelectorAll('.smc-card').forEach(function (el) {
+    el.addEventListener('click', function () { shortageMapFocus(el.getAttribute('data-iso3')); });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        shortageMapFocus(el.getAttribute('data-iso3'));
+      }
+    });
+  });
+}
+
+function shortageMapFocus(iso3) {
+  shortageMapState.active = iso3;
+  document.querySelectorAll('.smc-card').forEach(function (el) {
+    el.classList.toggle('is-active', el.getAttribute('data-iso3') === iso3);
+  });
+  document.querySelectorAll('.shortage-map-land').forEach(function (el) {
+    el.classList.toggle('is-active', el.getAttribute('data-iso3') === iso3);
+  });
+}
+
+function drawShortageMapSvg(svgEl, world, countries) {
+  var d3 = window.d3;
+  var topojson = window.topojson;
+  var svg = d3.select(svgEl);
+  svg.selectAll('*').remove();
+
+  // Map data keyed by ISO-alpha3
+  var dataByIso = {};
+  countries.forEach(function (c) { dataByIso[c.iso3] = c; });
+
+  // Sizing based on the rendered container (SVG fills parent; use its clientWidth).
+  var parent = svgEl.parentNode;
+  var width = parent.clientWidth || 720;
+  var height = Math.round(width * 9 / 16);
+  // Narrow viewports: honor the CSS 4:3 aspect ratio.
+  if (window.matchMedia && window.matchMedia('(max-width: 520px)').matches) {
+    height = Math.round(width * 3 / 4);
+  }
+  svg.attr('viewBox', '0 0 ' + width + ' ' + height).attr('preserveAspectRatio', 'xMidYMid meet');
+
+  var projection = d3.geoEqualEarth()
+    .scale(width / 6.2)
+    .translate([width / 2, height / 2 + 10]);
+  var path = d3.geoPath(projection);
+
+  // Sphere + graticule background
+  svg.append('path').attr('class', 'shortage-map-sphere').attr('d', path({ type: 'Sphere' }));
+
+  var land = topojson.feature(world, world.objects.countries).features;
+
+  // Country polygons
+  svg.append('g').attr('class', 'shortage-map-land-group')
+    .selectAll('path')
+    .data(land)
+    .enter()
+    .append('path')
+    .attr('class', function (f) {
+      var iso3 = SHORTAGE_MAP_ISO_NUM_TO_ALPHA3[String(f.id).padStart(3, '0')];
+      return 'shortage-map-land' + (iso3 && dataByIso[iso3] ? ' has-data' : '');
+    })
+    .attr('data-iso3', function (f) {
+      return SHORTAGE_MAP_ISO_NUM_TO_ALPHA3[String(f.id).padStart(3, '0')] || '';
+    })
+    .attr('fill', function (f) {
+      var iso3 = SHORTAGE_MAP_ISO_NUM_TO_ALPHA3[String(f.id).padStart(3, '0')];
+      var entry = iso3 && dataByIso[iso3];
+      return entry ? shortageMapShareColor(entry.hormuzSharePct) : null;
+    })
+    .attr('d', path)
+    .on('mouseenter', function (evt, f) {
+      var iso3 = SHORTAGE_MAP_ISO_NUM_TO_ALPHA3[String(f.id).padStart(3, '0')];
+      var entry = iso3 && dataByIso[iso3];
+      if (entry) shortageMapShowTooltip(evt, entry);
+    })
+    .on('mousemove', function (evt, f) {
+      var iso3 = SHORTAGE_MAP_ISO_NUM_TO_ALPHA3[String(f.id).padStart(3, '0')];
+      var entry = iso3 && dataByIso[iso3];
+      if (entry) shortageMapShowTooltip(evt, entry);
+    })
+    .on('mouseleave', shortageMapHideTooltip)
+    .on('click', function (evt, f) {
+      var iso3 = SHORTAGE_MAP_ISO_NUM_TO_ALPHA3[String(f.id).padStart(3, '0')];
+      if (iso3 && dataByIso[iso3]) shortageMapFocus(iso3);
+    });
+
+  // Centroid lookup by iso3 for arcs and cover dots.
+  var centroidByIso = {};
+  land.forEach(function (f) {
+    var iso3 = SHORTAGE_MAP_ISO_NUM_TO_ALPHA3[String(f.id).padStart(3, '0')];
+    if (iso3) centroidByIso[iso3] = d3.geoCentroid(f);
+  });
+  // Fill in any countries whose polygons are too small for the 110m atlas.
+  Object.keys(SHORTAGE_MAP_FALLBACK_CENTROIDS).forEach(function (iso3) {
+    if (!centroidByIso[iso3]) centroidByIso[iso3] = SHORTAGE_MAP_FALLBACK_CENTROIDS[iso3];
+  });
+
+  // Gulf origin "cluster" anchor — not a real port; represents the Strait of Hormuz region.
+  var HORMUZ_ORIGIN = [56.5, 26.5];
+
+  // Arcs from Hormuz to each country centroid with data.
+  var arcGroup = svg.append('g').attr('class', 'shortage-map-arc-group').attr('aria-hidden', 'true');
+  countries.forEach(function (c) {
+    var target = centroidByIso[c.iso3];
+    if (!target) return;
+    var status = (c.lastCargo && c.lastCargo.status) || 'unknown';
+    var arc = { type: 'LineString', coordinates: [HORMUZ_ORIGIN, target] };
+    arcGroup.append('path')
+      .attr('class', 'shortage-map-arc status-' + status)
+      .attr('d', path(arc));
+  });
+
+  // Gulf origin marker
+  var originPx = projection(HORMUZ_ORIGIN);
+  if (originPx) {
+    svg.append('circle')
+      .attr('class', 'shortage-map-origin')
+      .attr('cx', originPx[0])
+      .attr('cy', originPx[1])
+      .attr('r', 3.5);
+    svg.append('text')
+      .attr('class', 'shortage-map-country-label')
+      .attr('x', originPx[0] + 6)
+      .attr('y', originPx[1] + 3)
+      .text('Hormuz');
+  }
+
+  // Country dots sized by days-of-cover
+  var dotGroup = svg.append('g').attr('class', 'shortage-map-dot-group');
+  countries.forEach(function (c) {
+    var centroid = centroidByIso[c.iso3];
+    if (!centroid) return;
+    var px = projection(centroid);
+    if (!px) return;
+    dotGroup.append('circle')
+      .attr('class', 'shortage-map-cover-dot')
+      .attr('cx', px[0])
+      .attr('cy', px[1])
+      .attr('r', shortageMapCoverDotRadius(c.daysOfCover))
+      .attr('fill', shortageMapCoverDotColor(c.daysOfCover));
+  });
+
+  // Re-render on resize (debounced) so the projection tracks container width.
+  if (!svgEl.__shortageMapResizeBound) {
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        drawShortageMapSvg(svgEl, world, countries);
+      }, 180);
+    });
+    svgEl.__shortageMapResizeBound = true;
+  }
+}
+
+function shortageMapShowTooltip(evt, entry) {
+  var tip = document.getElementById('shortage-map-tooltip');
+  var wrap = tip && tip.parentNode;
+  if (!tip || !wrap) return;
+  function esc(t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  var lc = entry.lastCargo || {};
+  var status = lc.status || 'unknown';
+  tip.innerHTML =
+    '<div class="smt-name">' + esc(entry.name) + '</div>' +
+    '<div class="smt-row"><span>Via Hormuz</span><strong>' + (entry.hormuzSharePct != null ? entry.hormuzSharePct + '%' : '—') + '</strong></div>' +
+    '<div class="smt-row"><span>Days of cover</span><strong>' + (entry.daysOfCover != null ? entry.daysOfCover : '—') + '</strong></div>' +
+    '<div class="smt-row"><span>Last cargo</span><strong>' + esc(status.replace('-', ' ')) + '</strong></div>';
+  var rect = wrap.getBoundingClientRect();
+  var x = evt.clientX - rect.left + 12;
+  var y = evt.clientY - rect.top + 12;
+  if (x + 240 > rect.width) x = rect.width - 244;
+  if (y + 120 > rect.height) y = rect.height - 124;
+  tip.style.left = Math.max(4, x) + 'px';
+  tip.style.top = Math.max(4, y) + 'px';
+  tip.classList.add('visible');
+  tip.setAttribute('aria-hidden', 'false');
+}
+
+function shortageMapHideTooltip() {
+  var tip = document.getElementById('shortage-map-tooltip');
+  if (!tip) return;
+  tip.classList.remove('visible');
+  tip.setAttribute('aria-hidden', 'true');
 }
 
 function renderPriceDisparity(pd) {
@@ -1013,6 +1569,94 @@ function validateData() {
       }
       if (!stage.note || typeof stage.note !== 'string') {
         warn('shortageFlow[' + sf + ']: missing note (the explanatory sentence for this stage)');
+      }
+    }
+  }
+
+  // --- Shortage map (country-level Hormuz exposure) ---
+  if (d.shortageMap === undefined) {
+    warn('shortageMap is missing — the world-map panel will show an empty state');
+  } else if (typeof d.shortageMap !== 'object' || d.shortageMap === null) {
+    fail('shortageMap must be an object with { asOf, countries: [...] }');
+  } else {
+    var sm = d.shortageMap;
+    if (!sm.asOf || typeof sm.asOf !== 'string') {
+      warn('shortageMap.asOf should be a short date string (e.g. "April 21, 2026")');
+    }
+    if (!Array.isArray(sm.countries) || sm.countries.length === 0) {
+      fail('shortageMap.countries must be a non-empty array');
+    } else {
+      var smValidCargoStatus = { landed: 1, 'in-transit': 1, diverted: 1, unknown: 1 };
+      var seenIso = {};
+      for (var smi = 0; smi < sm.countries.length; smi++) {
+        var entry = sm.countries[smi];
+        var prefix = 'shortageMap.countries[' + smi + ']';
+        if (!entry || typeof entry !== 'object') {
+          fail(prefix + ' must be an object');
+          continue;
+        }
+        if (!entry.iso3 || typeof entry.iso3 !== 'string' || entry.iso3.length !== 3) {
+          fail(prefix + '.iso3 must be a 3-letter ISO 3166-1 alpha-3 code, got: ' + JSON.stringify(entry.iso3));
+        } else if (seenIso[entry.iso3]) {
+          fail(prefix + '.iso3 "' + entry.iso3 + '" is duplicated — each country should appear once');
+        } else {
+          seenIso[entry.iso3] = true;
+        }
+        if (!entry.name || typeof entry.name !== 'string') {
+          fail(prefix + '.name must be a non-empty string');
+        }
+        if (typeof entry.hormuzSharePct !== 'number' || isNaN(entry.hormuzSharePct) ||
+            entry.hormuzSharePct < 0 || entry.hormuzSharePct > 100) {
+          fail(prefix + '.hormuzSharePct must be a number 0–100, got: ' + JSON.stringify(entry.hormuzSharePct));
+        }
+        if (typeof entry.daysOfCover !== 'number' || isNaN(entry.daysOfCover) ||
+            entry.daysOfCover < 0 || entry.daysOfCover > 400) {
+          fail(prefix + '.daysOfCover must be a number 0–400, got: ' + JSON.stringify(entry.daysOfCover));
+        }
+        if (!entry.notes || typeof entry.notes !== 'string') {
+          warn(prefix + '.notes should be a short plain-English summary');
+        }
+        if (entry.lastCargo === undefined || entry.lastCargo === null) {
+          warn(prefix + '.lastCargo is missing — set status: "unknown" if free sources do not resolve a cargo');
+        } else if (typeof entry.lastCargo !== 'object') {
+          fail(prefix + '.lastCargo must be an object or omitted');
+        } else if (!smValidCargoStatus[entry.lastCargo.status]) {
+          fail(prefix + '.lastCargo.status must be "landed" | "in-transit" | "diverted" | "unknown", got: ' + JSON.stringify(entry.lastCargo.status));
+        } else {
+          // NO-FABRICATION ENFORCEMENT for non-"unknown" cargo:
+          // a confirmed cargo must come with (a) a citation-shaped source that names a
+          // publisher and a 4-digit year, and (b) at least one ISO-format date. Dates
+          // must be YYYY-MM-DD when present. See UPDATE_DASHBOARD.md "Shortage map".
+          var lc = entry.lastCargo;
+          var iso = /^\d{4}-\d{2}-\d{2}$/;
+          if (lc.loadDate != null && (typeof lc.loadDate !== 'string' || !iso.test(lc.loadDate))) {
+            fail(prefix + '.lastCargo.loadDate must be null or an ISO YYYY-MM-DD string, got: ' + JSON.stringify(lc.loadDate));
+          }
+          if (lc.arrivalDate != null && (typeof lc.arrivalDate !== 'string' || !iso.test(lc.arrivalDate))) {
+            fail(prefix + '.lastCargo.arrivalDate must be null or an ISO YYYY-MM-DD string, got: ' + JSON.stringify(lc.arrivalDate));
+          }
+          if (lc.status !== 'unknown') {
+            // Citation sanity check: must contain a 4-digit year (cheap proxy for a dated source).
+            var srcText = typeof lc.source === 'string' ? lc.source : '';
+            var hasYear = /(19|20)\d{2}/.test(srcText);
+            // Exclude obvious non-citation prose that the curator may have left in from
+            // the "unknown" template when flipping the status.
+            var looksLikeRouting = /\btypical\b|\brouting\b|\bpattern\b|\bnot (public|disclosed|in free)\b|\bno public cargo\b/i.test(srcText);
+            if (!srcText || !hasYear || looksLikeRouting) {
+              fail(prefix + '.lastCargo.status = "' + lc.status + '" requires lastCargo.source to be a dated public citation (e.g. "Reuters, 2026-03-19"). Got: ' + JSON.stringify(srcText) + '. If the cargo is not confirmed in free press, set status to "unknown".');
+            }
+            if (lc.loadDate == null && lc.arrivalDate == null) {
+              fail(prefix + '.lastCargo.status = "' + lc.status + '" requires at least one of loadDate or arrivalDate in ISO YYYY-MM-DD form. If free sources do not give a date, set status to "unknown".');
+            }
+            // "landed" logically implies we know when it arrived.
+            if (lc.status === 'landed' && lc.arrivalDate == null) {
+              warn(prefix + '.lastCargo.status = "landed" typically needs arrivalDate to be set. Leave it null only if the press confirmed discharge without a specific date.');
+            }
+          }
+        }
+        if (entry.sources !== undefined && !Array.isArray(entry.sources)) {
+          warn(prefix + '.sources should be an array of short citations');
+        }
       }
     }
   }
@@ -1436,6 +2080,15 @@ renderDashboard();
   <div class="update-log-panel-inner">
     <h2 id="update-log-title">Update Log</h2>
     <p class="update-log-sub">Summary of changes to the numbers and narrative on this page (not technical site notes). Updated when <code>DATA</code> is refreshed.</p>
+    <div class="update-log-entry">
+      <div class="date">April 21, 2026 — shortage map added</div>
+      <ul>
+        <li><strong>New section — Shortage map:</strong> world-map companion to the Shortage propagation chain. Countries shaded by pre-crisis % of crude arriving via the Strait of Hormuz; per-country dots sized by estimated days-of-cover; red arcs trace a typical Gulf-to-discharge routing. Hover or tap a country for details; a full card grid lists all tracked countries below the map.</li>
+        <li><strong>Data sources — all free/open:</strong> JODI-Oil, EIA International Energy Data &amp; country briefs, IEA Oil Market Report public summaries, Energy Institute Statistical Review 2024, national regulators (METI, KNOC, PPAC, Philippines DOE, UK DESNZ), Reuters / CNBC / Al Jazeera / Jakarta Post / The Diplomat news coverage. No Kpler / Vortexa / paid Platts.</li>
+        <li><strong>14 countries covered:</strong> Japan, South Korea, India, Philippines, Taiwan, Thailand, China, Singapore, Indonesia, Pakistan, Bangladesh, Turkey, United Kingdom, United States. Per-country Hormuz share and days-of-cover are best available estimates; cargo-level "last shipment" status is typically <em>unknown</em> because free sources rarely resolve named vessels.</li>
+        <li><strong>Rendering:</strong> D3 v7 + topojson-client via CDN + world-atlas@2 110m TopoJSON; graceful fallback to the card grid when CDN or world-atlas fails to load. Singapore uses a hard-coded centroid since it's below the 110m resolution.</li>
+      </ul>
+    </div>
     <div class="update-log-entry">
       <div class="date">April 21, 2026 — narrative refresh + new sections</div>
       <ul>
