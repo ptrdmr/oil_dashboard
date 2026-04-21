@@ -641,6 +641,16 @@ const DATA = {
   // (JODI-Oil, EIA, IEA public summaries, Energy Institute, national regulators,
   // Reuters / CNBC / Jakarta Post / The Diplomat). No Kpler / Vortexa / paid feeds.
   //
+  // !!! NO FABRICATION POLICY !!!
+  // Free news rarely resolves a named tanker arriving at a named port on a named date.
+  // Every lastCargo should default to status: "unknown" with loadDate: null and
+  // arrivalDate: null. Only set status to "landed" / "in-transit" / "diverted" when a
+  // real, dated public-press article confirms the cargo — and cite that article in
+  // lastCargo.source as "<Publisher>, YYYY-MM-DD" (e.g. "Reuters, 2026-03-19"). Do NOT
+  // invent vessel names, IMO numbers, load or arrival dates. The page validator
+  // enforces this: a non-"unknown" status without a plausible citation is a failure.
+  // See UPDATE_DASHBOARD.md "Shortage map" section for full maintainer guidance.
+  //
   // Field meanings:
   //   iso3            — ISO 3166-1 alpha-3 (joins to the world-atlas TopoJSON)
   //   hormuzSharePct  — pre-crisis % of crude imports routed via the Strait of Hormuz
@@ -648,8 +658,8 @@ const DATA = {
   //   daysOfCover     — best public estimate of days before physical shortage bites,
   //                     given strategic + commercial stocks and non-Gulf replacements
   //   lastCargo       — the last known / estimated Gulf-origin shipment and its status
-  //                     ("landed" | "in-transit" | "diverted" | "unknown"). Free sources
-  //                     rarely resolve this to a named vessel, so "unknown" is honest.
+  //                     ("landed" | "in-transit" | "diverted" | "unknown"). Default is
+  //                     "unknown"; only upgrade with a cited, dated source.
   //   notes           — one-sentence plain-English summary (≤30 words, measured tone)
   //   sources         — 2–4 short citations
   shortageMap: {
@@ -713,7 +723,7 @@ const DATA = {
         sources: ["Our World in Data — import dependence context", "IEA OMR April 2026 (regional demand hit)"] },
 
       { iso3: "TUR", name: "Turkey",          hormuzSharePct: 22, daysOfCover: 29,
-        lastCargo: { loadPort: "Basrah",         dischargePort: "Aliaga",      loadDate: null, arrivalDate: null, status: "diverted", barrels: 1000000, source: "Iraq Basrah barrels Hormuz-exposed; Kirkuk–Ceyhan bypasses strait" },
+        lastCargo: { loadPort: "Basrah",         dischargePort: "Aliaga",      loadDate: null, arrivalDate: null, status: "unknown",  barrels: 1000000, source: "Kirkuk–Ceyhan pipeline routing; Basrah barrels' Hormuz status not disclosed in free data" },
         notes:   "Much Iraqi crude reaches Turkey via the Kirkuk–Ceyhan pipeline and bypasses Hormuz entirely; only Basrah-origin barrels are directly exposed.",
         sources: ["EIA — Iraq country analysis (export routes)", "IEA OMR April 2026"] },
 
@@ -1612,6 +1622,37 @@ function validateData() {
           fail(prefix + '.lastCargo must be an object or omitted');
         } else if (!smValidCargoStatus[entry.lastCargo.status]) {
           fail(prefix + '.lastCargo.status must be "landed" | "in-transit" | "diverted" | "unknown", got: ' + JSON.stringify(entry.lastCargo.status));
+        } else {
+          // NO-FABRICATION ENFORCEMENT for non-"unknown" cargo:
+          // a confirmed cargo must come with (a) a citation-shaped source that names a
+          // publisher and a 4-digit year, and (b) at least one ISO-format date. Dates
+          // must be YYYY-MM-DD when present. See UPDATE_DASHBOARD.md "Shortage map".
+          var lc = entry.lastCargo;
+          var iso = /^\d{4}-\d{2}-\d{2}$/;
+          if (lc.loadDate != null && (typeof lc.loadDate !== 'string' || !iso.test(lc.loadDate))) {
+            fail(prefix + '.lastCargo.loadDate must be null or an ISO YYYY-MM-DD string, got: ' + JSON.stringify(lc.loadDate));
+          }
+          if (lc.arrivalDate != null && (typeof lc.arrivalDate !== 'string' || !iso.test(lc.arrivalDate))) {
+            fail(prefix + '.lastCargo.arrivalDate must be null or an ISO YYYY-MM-DD string, got: ' + JSON.stringify(lc.arrivalDate));
+          }
+          if (lc.status !== 'unknown') {
+            // Citation sanity check: must contain a 4-digit year (cheap proxy for a dated source).
+            var srcText = typeof lc.source === 'string' ? lc.source : '';
+            var hasYear = /(19|20)\d{2}/.test(srcText);
+            // Exclude obvious non-citation prose that the curator may have left in from
+            // the "unknown" template when flipping the status.
+            var looksLikeRouting = /\btypical\b|\brouting\b|\bpattern\b|\bnot (public|disclosed|in free)\b|\bno public cargo\b/i.test(srcText);
+            if (!srcText || !hasYear || looksLikeRouting) {
+              fail(prefix + '.lastCargo.status = "' + lc.status + '" requires lastCargo.source to be a dated public citation (e.g. "Reuters, 2026-03-19"). Got: ' + JSON.stringify(srcText) + '. If the cargo is not confirmed in free press, set status to "unknown".');
+            }
+            if (lc.loadDate == null && lc.arrivalDate == null) {
+              fail(prefix + '.lastCargo.status = "' + lc.status + '" requires at least one of loadDate or arrivalDate in ISO YYYY-MM-DD form. If free sources do not give a date, set status to "unknown".');
+            }
+            // "landed" logically implies we know when it arrived.
+            if (lc.status === 'landed' && lc.arrivalDate == null) {
+              warn(prefix + '.lastCargo.status = "landed" typically needs arrivalDate to be set. Leave it null only if the press confirmed discharge without a specific date.');
+            }
+          }
         }
         if (entry.sources !== undefined && !Array.isArray(entry.sources)) {
           warn(prefix + '.sources should be an array of short citations');

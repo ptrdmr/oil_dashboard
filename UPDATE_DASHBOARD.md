@@ -107,6 +107,14 @@ Keep `note` under ~35 words per stage. The chain renders from top-to-bottom in t
 
 The world-map companion to the shortage-propagation chain. It shades countries by pre-crisis Persian Gulf / Hormuz reliance and draws a simple arc from the Gulf to each country's centroid. Keep the data list small and curated (10–15 countries) — the signal dies if you try to cover everyone.
 
+> **⚠️ DO NOT FABRICATE VESSEL-LEVEL DETAIL.** Free open-source news rarely resolves a named tanker arriving at a named port on a named date. That is fine. The default for every `lastCargo` entry is `status: "unknown"` with `loadDate: null` and `arrivalDate: null`. Only set `status` to `"landed"` / `"in-transit"` / `"diverted"` when a named, dated public-press article confirms the cargo — and cite that article in `lastCargo.source` (publisher + ISO date, e.g. `"Reuters, 2026-03-19"`). A credibility-free map is worse than a map with honest gaps. The page validator will flag any non-`unknown` cargo that lacks a plausible citation.
+>
+> **Concrete rules:**
+> - Never invent a vessel name, IMO number, load date, or arrival date that is not in a named public source.
+> - Do not copy schema examples from this doc or from the data block as if they were real shipments. If you cannot find a real cited cargo, leave `status: "unknown"` and dates `null`.
+> - `lastCargo.source` must read like a citation ("Reuters, 2026-03-19", "CNBC, 2026-04-17"), not like a routing description ("typical AG routing"). Routing descriptions are only acceptable when `status: "unknown"`.
+> - If in doubt, downgrade to `"unknown"`. That is always a safe edit.
+
 **Only use free, open data.** No Kpler / Vortexa / ClipperData / paid Platts assessments. Primary sources, all free:
 
 | Field | What to search | Primary sources |
