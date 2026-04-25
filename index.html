@@ -519,10 +519,10 @@
    ============================================================ */
 const DATA = {
   // — Metadata —
-  updated: "April 21, 2026",
-  eiaWeekEnding: "April 10, 2026",
+  updated: "April 25, 2026",
+  eiaWeekEnding: "April 17, 2026",
   // — One-line context for this compile (report dates, etc.); shown above the unified source list —
-  sourcesIntro: "Numbers on this page were checked against the reports below. EIA Weekly Petroleum Status Report: release Apr 15, 2026 (week ending Apr 10, 2026) — the next WPSR (week ending Apr 17) publishes Apr 22, so U.S. stock figures here carry over from the Apr 15 release. Production and consumption references align with the STEO released Apr 8, 2026. Physical vs. paper and shortage-propagation figures draw on IEA OMR (Apr 14), Platts Dated Brent (CNBC reporting of Apr 9 assessment), Reuters/Kpler refinery and transit coverage, and Argus / Insights Global ARA stock data (Apr 16).",
+  sourcesIntro: "Numbers on this page were checked against the reports below. EIA Weekly Petroleum Status Report: release Apr 22, 2026 (week ending Apr 17, 2026). Production and consumption references align with the STEO released Apr 8, 2026. Physical vs. paper figures draw on Investing.com / Morningstar futures reporting (Apr 24–25) and Platts Dated Brent as cited in Reuters and CNBC. Shortage-propagation figures updated from Reuters (Apr 23 Asia refining cuts), Argus / Insights Global ARA stock data (Apr 15–20), and ISW Iran Update (Apr 25). Hormuz situation from AP, NPR, Euronews, Middle East Monitor, and ISW (Apr 22–25).",
 
   // — Unified source list: each row is label + what it offers + URL (for verification) —
   sourceLinks: [
@@ -553,18 +553,18 @@ const DATA = {
   ],
 
   // — Stockpiles (millions of barrels) —
-  commercialCrude:       463.8,
-  commercialCrudeChange: "-0.9M last week",
-  sprPreRelease:         409.2,
+  commercialCrude:       465.7,
+  commercialCrudeChange: "+1.9M last week",
+  sprPreRelease:         405.0,
   sprCapacity:           714,
   sprCommittedRelease:   172,
   sprCommittedNote:      "IEA coordinated (exchange)",
-  effectiveSpr:          237.2,
-  gasolineStocks:        232.9,
-  gasolineChange:        "-6.3M last week",
-  distillateStocks:      111.6,
+  effectiveSpr:          233.0,
+  gasolineStocks:        228.4,
+  gasolineChange:        "-4.6M last week",
+  distillateStocks:      108.1,
   distillateNote:        "diesel + heating oil",
-  cushingChange:         "-1.7M",
+  cushingChange:         "+806K",
   cushingNote:           "barrels last week",
 
   // — Supply flows (mb/d) —
@@ -585,20 +585,20 @@ const DATA = {
 
   // — Hormuz status —
   hormuzPreWarTransits:  "100+",
-  hormuzCurrentTransits: "~5–10",
-  hormuzTransitNote:     "Two-week U.S.–Iran ceasefire set to expire Apr 22 (extension 'highly unlikely' per Trump); brief Apr 17 reopening stalled Apr 18 after Iranian gunboats fired on transit vessels; transits <5% of pre-war baseline",
+  hormuzCurrentTransits: "~5",
+  hormuzTransitNote:     "Trump extended ceasefire indefinitely on Apr 22 but canceled Witkoff/Kushner trip to Pakistan on Apr 25 after Iran refused to shift position; US blockade of Iranian ports continues; Iran collecting transit fees and demanding blockade end before talks; ~5 ships per 24h (ISW Apr 25)",
   strandedVLCCs:         60,
   strandedVLCCNote:      "~7–8% of global VLCC fleet; hundreds of ships of all types stranded in Gulf",
-  attacksOnShips:        "24+",
-  attacksSince:          "confirmed since Feb 28; fresh gunboat incidents Apr 18",
+  attacksOnShips:        "27+",
+  attacksSince:          "confirmed since Feb 28; Iran fired on 3 ships and captured 2 on Apr 22; seized 2 more vessels Apr 25",
 
   // — Prices —
   brentPreWar:           71,
   brentPreWarDate:       "Feb 27, 2026",
-  brentCurrent:          95,
-  brentCurrentNote:      "+34% vs pre-war baseline",
-  gasPrice:              "4.02",
-  gasPriceNote:          "-9¢ vs week ago (AAA national avg., 4/21) on ceasefire-talk optimism",
+  brentCurrent:          105,
+  brentCurrentNote:      "+48% vs pre-war baseline",
+  gasPrice:              "4.09",
+  gasPriceNote:          "+7¢ vs prior snapshot (AAA national avg., 4/25); bounced from $4.03 mid-week as crude surged past $105",
   eiaForecastPrice:      70,
   eiaForecastNote:       "if Hormuz reopens",
   eiaForecastPeriod:     "Q4",
@@ -610,26 +610,26 @@ const DATA = {
     {
       stage: "Gulf-dependent Asian refiners",
       status: "red",
-      metric: "Japan at 67.8% run",
-      note: "Japan releasing national stockpiles (Reuters, Apr 15); South Korea pivoting to Algeria/Libya; India juggling expired Russia (Apr 11) and Iran (Apr 19) waivers. Regional run cuts >2 mb/d — the deepest since the pandemic."
+      metric: "Asia imports −22% yoy",
+      note: "Asia crude imports at 10-year low (20.4 mb/d in April per Kpler); Japan/S. Korea runs heading to ~65%; Asia-wide run cuts of ~2.7 mb/d from pre-war. Diesel and jet output losses of 1–2 mb/d (Reuters, Apr 23)."
     },
     {
       stage: "Atlantic Basin bidding war",
       status: "red",
-      metric: "Asian buyers outbidding EU",
-      note: "Asian refiners scrambling for non-ME crude (WTI, Brazil, West Africa, Azerbaijan) are paying up — dragging replacement cargoes away from European and U.S. East/Gulf Coast buyers."
+      metric: "Light-sweet share 21%",
+      note: "Asian refiners paying record premiums for non-ME crude; light-sweet share of Asia's slate hit a record 21% in April (Vortexa). WTI, West Africa, and CPC Blend cargoes being pulled from Atlantic Basin buyers."
     },
     {
       stage: "European refiners squeezed",
       status: "yellow",
-      metric: "ARA stocks 12-yr low",
-      note: "ARA independent stocks fell 4% wow to 4.72 Mt (Apr 16); gasoil −6.8% to 1.95 Mt, jet kero −7.6% to a 4-yr low. NW Europe hydroskimming margins went negative (−$6.45/bbl); analysts expect up to 500 kb/d of utilization cuts."
+      metric: "ARA at 8-mo low",
+      note: "ARA total stocks at 8-month lows; jet fuel at 6-year low (~600 kt, Apr 15); fuel oil stocks −17–19% in April; gasoil imports from March halved. Naphtha diverted to Asia. Tightness ahead (Argus/Insights Global)."
     },
     {
       stage: "U.S. impact window",
       status: "yellow",
-      metric: "Atlantic imports ~1.8 mb/d",
-      note: "Persian Gulf imports already at ~0.3 mb/d; Atlantic Basin cargoes under competition from Asian buyers. AAA gas back below $4.10/gal on ceasefire-talk optimism, but the physical premium (Dated Brent ~$35 above futures) still flashes tightness."
+      metric: "Gas $4.09/gal",
+      note: "AAA gas rebounded to $4.09 after mid-week dip as crude surged $10 to $105. Physical premium narrowed to ~$25 from ~$35 but still signals tightness. Atlantic imports holding at ~1.8 mb/d but under sustained competition."
     }
   ],
 
@@ -745,15 +745,15 @@ const DATA = {
   // spread      = physicalEstimate - paperBrent (USD/bbl, positive = physical premium)
   // m1m3Spread  = Brent futures front-month minus 3-months-out ($/bbl, positive = backwardation)
   priceDisparity: {
-    paperBrent:           95,
-    paperNote:            "ICE Brent front-month (Jun '26 contract) on Apr 21",
+    paperBrent:           105,
+    paperNote:            "ICE Brent front-month (Jun '26 contract) settled $105.33 on Apr 24",
     physicalEstimate:     130,
-    physicalNote:         "Platts Dated Brent $131.97 on Apr 9 (CNBC); held near $130 as of mid-April",
-    spread:               35,
-    spreadNote:           "vs. paper — peaked at +$48 on Apr 7 ($144.42 Dated vs $96.51 futures)",
-    m1m3Spread:           18,
-    m1m3Note:             "Brent front month vs 3-out (est.); peaked near $22/bbl earlier April",
-    backwardationStatus:  "yellow"
+    physicalNote:         "Dated Brent ~$25+ premium over futures (Investing.com Apr 24); down from ~$35 peak but still extreme",
+    spread:               25,
+    spreadNote:           "vs. paper — narrowed from +$35 at $95 futures as futures rallied $10; peaked +$48 on Apr 7",
+    m1m3Spread:           20,
+    m1m3Note:             "Brent front month vs 3-out (est.); extreme backwardation per Investing.com — 'historically rare'",
+    backwardationStatus:  "red"
   },
 
   // — Estimate transparency —
@@ -776,17 +776,17 @@ const DATA = {
     hormuz: {
       title: "How Hormuz figures are estimated",
       items: [
-        { label: "Current daily transits ~5–10", note: "Range synthesized from Windward, StoneX, and Kpler ship-tracking feeds as reported by Reuters and Al Jazeera, cross-referenced against Al Jazeera's '95%+ decline from pre-war' framing (Apr 14). Not an official vessel count — Iran and the IMO publish nothing real-time." },
+        { label: "Current daily transits ~5", note: "Per ISW Iran Update (Apr 25) citing only ~5 ships in 24 hours; UKMTO confirmed IRGC attacks on Apr 22. Iran collecting transit fees and conditioning passage. Not an official vessel count — Iran and the IMO publish nothing real-time." },
         { label: "Stranded VLCCs 60", note: "Midpoint compiled from Lloyd's List and press reporting. The global VLCC fleet is ~800 ships; no open registry tracks 'stranded' status daily, so this is a rough indicator that may lag fleet movements by days." },
-        { label: "Attacks on ships 24+", note: "Running tally: Al Jazeera confirmed 22 through Apr 14, plus Apr 18 Iranian gunboat incidents reported by CNBC and Algemeiner. The '+' signals likely undercount; there is no official cumulative IMO / UKMTO figure for this conflict." }
+        { label: "Attacks on ships 27+", note: "Running tally: prior 24+ through Apr 18; Iran attacked 3 ships and captured 2 on Apr 22 (AP/NPR/UKMTO); Iran seized 2 more vessels Apr 25 (Middle East Monitor). The '+' signals likely undercount and possible overlap between seizure reports." }
       ]
     },
     priceDisparity: {
       title: "How these price estimates are derived",
       items: [
-        { label: "Physical (Dated Brent) ~$130", note: "Anchored to the Apr 9, 2026 Platts Dated Brent assessment of $131.97/bbl as reported by CNBC; live Platts assessments are paywalled. Assumed modest drift through Apr 21 since front-month Brent has stayed within ~$1 of $95. Treat as ±$5 accurate." },
-        { label: "Physical premium +$35", note: "Computed: physicalEstimate − paperBrent. Inherits the uncertainty of the physical estimate above. Peaked around +$48 on Apr 7 when Dated Brent hit $144.42 against $96.51 futures." },
-        { label: "M1–M3 backwardation ~$18", note: "Inferred from IEA Oil Market Report (Apr 14) and EBC Financial analysis noting Dated Brent M1–M3 peaked near $22/bbl earlier April. Rounded to a conservative current value — not a direct screen read of the ICE futures curve." }
+        { label: "Physical (Dated Brent) ~$130", note: "Based on Investing.com (Apr 24) reporting a $25+ premium over front-month Brent (~$105). Platts live assessments are paywalled. The premium narrowed from ~$35 when futures were at $95 to ~$25 as futures rallied $10. Treat as ±$5 accurate." },
+        { label: "Physical premium +$25", note: "Computed: physicalEstimate − paperBrent. Narrowed from +$35 as futures surged; Investing.com (Apr 24) confirms 'more than $25 per barrel' Dated-over-futures spread. Peaked +$48 on Apr 7." },
+        { label: "M1–M3 backwardation ~$20", note: "Inferred from Investing.com (Apr 24) describing 'extreme near-term physical tightness' and 'historically rare' backwardation readings. Reuters (Apr 24) notes structural dislocation. Not a direct screen read of the ICE futures curve." }
       ]
     }
   },
@@ -802,7 +802,7 @@ const DATA = {
   // The chart and DTE math are computed automatically.
   scenarios: {
     base: {
-      desc: "Domestic + Canada + Mexico supply remains intact. SPR releases at planned pace. No Hormuz-sourced oil. Refinery utilization at ~90%.",
+      desc: "Domestic + Canada + Mexico supply remains intact. SPR releases at planned pace. No Hormuz-sourced oil. Refinery utilization at ~89%.",
       consumption: 20.3,
       supply: 20.1,
       deficit: 0.2,
@@ -2080,6 +2080,15 @@ renderDashboard();
   <div class="update-log-panel-inner">
     <h2 id="update-log-title">Update Log</h2>
     <p class="update-log-sub">Summary of changes to the numbers and narrative on this page (not technical site notes). Updated when <code>DATA</code> is refreshed.</p>
+    <div class="update-log-entry">
+      <div class="date">April 25, 2026 — data refresh</div>
+      <ul>
+        <li><strong>EIA (week ending April 17, 2026):</strong> Commercial crude +1.9M bbl to 465.7M (surprise build vs expected draw); gasoline −4.6M bbl to 228.4M; distillates −3.4M bbl to 108.1M; Cushing +806K bbl. SPR −4.1M bbl to 405.0M; effective SPR now ~233M.</li>
+        <li><strong>Prices:</strong> Brent surged ~$10 from $95 to $105/b (+48% vs pre-war) on stalled diplomacy; AAA gas rebounded to $4.09/gal after briefly dipping to $4.03 mid-week. Physical premium (Dated Brent) narrowed to ~$25 from ~$35 as futures rallied; backwardation upgraded to red (~$20 M1–M3).</li>
+        <li><strong>Hormuz / maritime:</strong> Trump extended ceasefire Apr 22 but canceled Pakistan talks Apr 25 after Iran refused to shift; Iran attacked 3 ships Apr 22, seized 2 more Apr 25; US seized tanker Majestic X; attacks now 27+. Transits ~5/day.</li>
+        <li><strong>Shortage propagation:</strong> Asia crude imports at 10-year low (20.4 mb/d, −22% yoy per Kpler); Japan/S. Korea runs heading to 65%; diesel/jet output losses 1–2 mb/d (Reuters Apr 23). ARA stocks at 8-month lows; jet fuel at 6-year low.</li>
+      </ul>
+    </div>
     <div class="update-log-entry">
       <div class="date">April 21, 2026 — shortage map added</div>
       <ul>
