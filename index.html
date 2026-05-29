@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>America's Oil Situation Dashboard — April 2026</title>
+<title>How close is America to running out of oil? — May 2026</title>
 <style>
   :root {
     --bg-primary: #ffffff;
@@ -117,6 +117,13 @@
   }
   .note { font-size: 12px; color: var(--text-secondary); margin-top: 8px; padding: 8px 12px; background: var(--bg-secondary); border-radius: var(--radius-md); line-height: 1.5; }
   .note strong { color: var(--text-primary); }
+  .lens-section { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; background: var(--bg-secondary); margin-bottom: 8px; }
+  .lens-headline { font-size: 38px; font-weight: 600; line-height: 1.1; margin: 4px 0 2px; color: var(--text-primary); letter-spacing: -0.5px; }
+  .lens-headline-sub { font-size: 15px; color: var(--text-secondary); margin-bottom: 14px; }
+  .lens-caveat { font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; padding: 12px 14px; background: var(--bg-primary); border-left: 3px solid var(--text-tertiary); border-radius: var(--radius-md); margin-bottom: 16px; }
+  .lens-caveat strong { color: var(--text-primary); }
+  .lens-question { font-size: 12.5px; font-style: italic; color: var(--text-tertiary); margin-top: 14px; }
+  .lens-metrics .metric { background: var(--bg-primary); }
   .divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
   .intro { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 24px; }
   .intro p { margin: 0 0 8px; }
@@ -243,15 +250,15 @@
 </head>
 <body>
 <div class="page-header">
-  <h1>America's oil situation</h1>
+  <h1>How close is America to running out of oil?</h1>
   <button type="button" class="update-log-btn" id="update-log-toggle" aria-expanded="false" aria-controls="update-log-panel">Update Log</button>
 </div>
 <div class="page-sub" id="dash-updated">Compiled April 5, 2026 — Sources: EIA, DOE, UANI, Lloyd's List, Bloomberg, CNBC</div>
 <p class="page-hint" style="font-size:12px;color:var(--text-tertiary);margin:-18px 0 24px;line-height:1.45">Tip: click a stockpile card, supply row, or price tile (pointer cursor) to open a chart of past snapshots from <code style="font-size:11px">metric-history.json</code>.</p>
 
 <div class="intro">
-  <p>This dashboard tracks America's oil supply position during the 2026 Strait of Hormuz crisis. It shows how much crude oil the U.S. has in storage, where daily supply comes from, and how long reserves could last under different disruption scenarios.</p>
-  <p>The goal is to present a clear, at-a-glance picture of U.S. energy resilience — not to predict markets or recommend policy.</p>
+  <p>Some people say weeks. Some say years. Both are right — they're answering different questions. This page doesn't hand you a single verdict, because an honest one doesn't exist. Instead it lays out the same facts three ways and lets <em>you</em> decide which question you're actually asking.</p>
+  <p>The numbers below are real and current (EIA, DOE, market data, May 2026). The framing is yours to choose.</p>
   <details class="caveat-details">
     <summary><strong>About the data</strong></summary>
     <ul>
@@ -261,7 +268,7 @@
       <li>Those government-sourced stockpile and supply figures are the most reliable numbers on the dashboard.</li>
       <li>Hormuz transit counts, stranded tanker estimates, and attack tallies are compiled from maritime intelligence sources (UANI, Lloyd's List, Bloomberg) and news reporting — they are best-available estimates, not official counts, and may lag or vary between sources.</li>
       <li>Oil prices reflect market data at the time of update.</li>
-      <li>The &quot;days to empty&quot; projections are simplified models, not forecasts; they assume constant draw rates and do not account for policy responses, demand shifts, or supply changes that would occur in practice.</li>
+      <li>The three "lenses" up top are framings, not forecasts. Each is arithmetic on the real figures under one explicit assumption (all supply halts / domestic + Canada only / the current weekly draw). They deliberately don't model policy responses, demand shifts, or grade-matching — which is exactly why no single one is "the" answer.</li>
     </ul>
     <p class="caveat-sources-note">Links to sources, with short descriptions of what each one is for, are at the bottom of the page.</p>
   </details>
@@ -271,6 +278,25 @@
   <div class="vb-title">Data validation issues detected</div>
   <ul id="validation-list"></ul>
 </div>
+
+<div class="section">
+  <div class="section-title">Three honest answers. Pick the question you're actually asking.</div>
+  <div class="section-sub">Same facts, three framings. None is "the" answer — that's the point.</div>
+  <div class="scenario-toggle" id="lens-toggle" role="tablist" aria-label="Choose how to read the data">
+    <button class="active" data-lens="taps" role="tab">If the taps stopped</button>
+    <button data-lens="make" role="tab">What we make vs. burn</button>
+    <button data-lens="trend" role="tab">The trend right now</button>
+  </div>
+  <div class="lens-section">
+    <div class="lens-headline" id="lens-headline">—</div>
+    <div class="lens-headline-sub" id="lens-headline-sub"></div>
+    <div class="lens-caveat" id="lens-caveat"></div>
+    <div class="metric-grid lens-metrics" id="lens-metrics"></div>
+    <div class="lens-question" id="lens-question"></div>
+  </div>
+</div>
+
+<hr class="divider">
 
 <div class="section">
   <div class="section-title">Current U.S. oil stockpiles</div>
@@ -347,27 +373,6 @@
 <hr class="divider">
 
 <div class="section">
-  <div class="section-title" id="shortage-map-title">Shortage map: Hormuz exposure around the world</div>
-  <div class="section-sub" id="shortage-map-sub">Countries shaded by pre-crisis reliance on Hormuz-transiting crude; arcs trace a typical Gulf-to-discharge routing.</div>
-  <div class="shortage-map-wrap">
-    <div class="shortage-map-legend" id="shortage-map-legend" aria-hidden="true"></div>
-    <div class="shortage-map-chart-wrap">
-      <svg id="shortage-map-svg" role="img" aria-labelledby="shortage-map-title shortage-map-sub"></svg>
-      <div class="shortage-map-tooltip" id="shortage-map-tooltip" role="tooltip" aria-hidden="true"></div>
-      <div class="shortage-map-loading" id="shortage-map-loading">Loading world map…</div>
-      <div class="shortage-map-error" id="shortage-map-error" style="display:none"></div>
-    </div>
-    <div class="shortage-map-countries" id="shortage-map-countries" aria-label="Country details"></div>
-  </div>
-  <div class="note">
-    <strong>Reading this map:</strong> the <em>color</em> is the structural setup — what share of a country's pre-crisis crude came via the Strait of Hormuz. The <em>dot</em> on each country is a rough days-of-cover estimate, our best read of how long strategic + commercial stocks and non-Gulf replacements can bridge the gap. Click a country (or a card below the map) to see its last known Gulf-origin cargo. Cargo-level data from free sources is sparse, so many "last shipment" entries are marked <em>unknown</em> rather than fabricated.
-  </div>
-  <div id="est-shortage-map"></div>
-</div>
-
-<hr class="divider">
-
-<div class="section">
   <div class="section-title">Strait of Hormuz status</div>
   <div class="section-sub">Effectively closed since March 1, 2026</div>
   <div class="metric-grid">
@@ -398,55 +403,6 @@
 <hr class="divider">
 
 <div class="section">
-  <div class="section-title-row">
-    <div class="section-title" id="dte-section-heading">Days to empty projection</div>
-    <button type="button" class="dte-help-btn" id="dte-help-open" aria-expanded="false" aria-haspopup="dialog" aria-controls="dte-modal">How to read this chart</button>
-  </div>
-  <div class="section-sub">How long can America's crude last under different scenarios?</div>
-  <div class="scenario-toggle">
-    <button class="active" onclick="setScenario('base')">Base case</button>
-    <button onclick="setScenario('moderate')">Moderate disruption</button>
-    <button onclick="setScenario('severe')">Severe disruption</button>
-  </div>
-  <div id="scenario-desc" style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5">
-    Domestic + Canada + Mexico supply remains intact. SPR releases at planned pace. No Hormuz-sourced oil. Refinery utilization at 91%.
-  </div>
-  <div class="metric-grid" id="dte-metrics">
-    <div class="metric" data-metric="dailyConsumption" role="button" tabindex="0" aria-label="Daily consumption — show history">
-      <div class="label">Daily consumption</div>
-      <div class="value" id="dte-consumption">20.3 mb/d</div>
-    </div>
-    <div class="metric">
-      <div class="label">Domestic + imports</div>
-      <div class="value" id="dte-supply">20.1 mb/d</div>
-    </div>
-    <div class="metric">
-      <div class="label">Daily deficit</div>
-      <div class="value" id="dte-deficit">-0.2 mb/d</div>
-    </div>
-    <div class="metric">
-      <div class="label">Days to critical</div>
-      <div class="value" id="dte-days" style="font-size:28px">1,215</div>
-      <div class="sub" id="dte-sub">~3.3 years at current draw</div>
-    </div>
-  </div>
-  <div class="chart-wrap" style="height:280px">
-    <canvas id="dteChart"></canvas>
-  </div>
-  <div class="legend" id="dte-legend">
-    <span><span class="dot" style="background:#185FA5"></span>Commercial crude</span>
-    <span><span class="dot" style="background:#993556"></span>SPR</span>
-    <span><span class="dot" style="background:#6B7C93"></span>Combined (commercial + SPR)</span>
-    <span><span class="dot" style="background:#A32D2D"></span>IEA-style floor (90 × net imports)</span>
-  </div>
-  <div class="note">
-    <strong>Key insight:</strong> America is structurally insulated from the Hormuz crisis because ~88% of its supply (domestic production + Canadian pipeline) is land-locked and unaffected. The real risk isn't running out — it's the refinery mismatch: Gulf Coast refineries are configured for heavy, sour Middle Eastern grades, not the light sweet shale oil the U.S. produces. This creates a product-type squeeze even when barrels are nominally available.
-  </div>
-</div>
-
-<hr class="divider">
-
-<div class="section">
   <div class="section-title">Oil price impact</div>
   <div class="metric-grid">
     <div class="metric">
@@ -472,44 +428,9 @@
   </div>
 </div>
 
-<hr class="divider">
-
-<div class="section">
-  <div class="section-title">Paper vs. physical oil price</div>
-  <div class="section-sub">When actual cargoes clear well above screen futures, the physical market is telling you what headline prices can't.</div>
-  <div class="metric-grid">
-    <div class="metric">
-      <div class="label">Paper (futures)</div>
-      <div class="value" id="v-disp-paper">$95</div>
-      <div class="sub" id="s-disp-paper">ICE Brent front-month</div>
-    </div>
-    <div class="metric">
-      <div class="label">Physical (Dated Brent)</div>
-      <div class="value danger" id="v-disp-physical">~$130</div>
-      <div class="sub" id="s-disp-physical">Platts assessment</div>
-    </div>
-    <div class="metric">
-      <div class="label">Physical premium</div>
-      <div class="value danger" id="v-disp-spread">+$35</div>
-      <div class="sub" id="s-disp-spread">vs. paper</div>
-    </div>
-    <div class="metric">
-      <div class="label">Backwardation (M1–M3)</div>
-      <div class="value warning" id="v-disp-m1m3">~$18</div>
-      <div class="sub" id="s-disp-m1m3">front month vs 3-out</div>
-    </div>
-  </div>
-  <div class="note">
-    <strong>Reading this:</strong> <em>Paper</em> is the futures price quoted on TV — a financial contract traded on ICE. <em>Physical</em> (Dated Brent, assessed by Platts) is what actual North Sea cargoes trade at. When a chokepoint like Hormuz tightens, cargoes get scarce <em>before</em> futures reprice, so physical premiums blow out. A persistent <strong>$20+/bbl</strong> gap and a <strong>steep backwardation</strong> (front month above deferred months) both flash: supply is tight <em>right now</em>, even if the headline screens haven't fully caught up.
-  </div>
-  <div id="est-price-disparity"></div>
-</div>
-
 <div class="note source-links" id="dash-sources" style="margin-top: 2rem;"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script>
 /* ============================================================
    DATA CONFIG — AGENT: UPDATE THIS BLOCK ONLY
@@ -519,10 +440,10 @@
    ============================================================ */
 const DATA = {
   // — Metadata —
-  updated: "May 13, 2026",
-  eiaWeekEnding: "May 1, 2026",
+  updated: "May 28, 2026",
+  eiaWeekEnding: "May 22, 2026",
   // — One-line context for this compile (report dates, etc.); shown above the unified source list —
-  sourcesIntro: "Numbers on this page were checked against the reports below. EIA Weekly Petroleum Status Report: release May 6, 2026 (week ending May 1, 2026). Production and consumption references align with the STEO released May 12, 2026. Physical vs. paper figures draw on OilPrice.com / Investing.com reporting (May 8–12) and Platts Dated Brent as cited in Reuters and CNBC. Shortage-propagation figures updated from Energy Intelligence (Asia run cuts), Yonhap Infomax (S. Korea recovery), Argus / Insights Global ARA stock data (Apr–May), and Lloyd's List / Bloomberg (May 11–12). Hormuz situation from Time, CNBC, gCaptain, Gulf News, and Bloomberg (May 8–12).",
+  sourcesIntro: "Numbers on this page were checked against the reports below. EIA Weekly Petroleum Status Report: release May 28, 2026 (week ending May 22, 2026, delayed by Memorial Day). Production, consumption, and price-path references align with the STEO released May 12, 2026. Physical vs. paper figures draw on press reporting of Platts Dated Brent (Bloomberg/Reuters, mid–late May) and ICE futures; the physical premium is an estimate. Hormuz situation from Windward, NBC News, gCaptain, Reuters, and the May 21 Persian Gulf security brief, plus same-day reporting on the May 28 US–Iran strikes.",
 
   // — Unified source list: each row is label + what it offers + URL (for verification) —
   sourceLinks: [
@@ -532,8 +453,7 @@ const DATA = {
     { label: "U.S. DOE — SPR Quick Facts", url: "https://www.energy.gov/hgeo/opr/spr-quick-facts", description: "Strategic Petroleum Reserve inventory, authorized capacity, and drawdown capability — basis for SPR and effective-SPR lines." },
     { label: "IEA — Oil Market Report", url: "https://www.iea.org/reports/oil-market-report", description: "Global supply/demand, coordinated-release context, and middle-distillate crack commentary — anchors the shortage-propagation narrative (Asian run cuts, European distillate stress)." },
     { label: "S&P Global Platts — Dated Brent explained", url: "https://www.spglobal.com/energy/en/pricing-benchmarks/assessments/crude-oil/dated-brent-price-explained", description: "Primer on how Dated Brent is assessed from actual North Sea cargo trades — reference for the paper-vs-physical section." },
-    { label: "CNBC — Dated Brent & market stress", url: "https://www.cnbc.com/2026/04/10/oil-prices-dated-brent-energy-iran-war-ceasefire-strait-of-hormuz.html", description: "Reporting of the Apr 9 Platts Dated Brent assessment ($131.97/bbl) vs front-month futures ($96.51) — historical reference for peak physical premium." },
-    { label: "OilPrice.com — Physical crude premium collapse", url: "https://oilprice.com/Energy/Crude-Oil/Why-Physical-Crude-Premiums-Collapse-Despite-the-Hormuz-Crisis.html", description: "May 2026 analysis of why Dated Brent premiums collapsed from $30+ to near-parity despite ongoing Hormuz closure — SPR releases, Asian demand destruction, and record U.S. exports." },
+    { label: "CNBC — Dated Brent & market stress", url: "https://www.cnbc.com/2026/04/10/oil-prices-dated-brent-energy-iran-war-ceasefire-strait-of-hormuz.html", description: "Reporting of the Apr 9 Platts Dated Brent assessment ($131.97/bbl) vs front-month futures ($96.51), which framed the ~$35 physical premium shown in the price disparity panel." },
     { label: "Kpler — maritime & crude pricing insights", url: "https://www.kpler.com/blog/brent-prices-balancing-risks-within-us-iran-conflict", description: "Vessel tracking and Brent-curve analysis — source for prompt-spread / backwardation commentary during the Hormuz crisis." },
     { label: "Argus Media — ARA stocks via Insights Global", url: "https://www.argusmedia.com/en/news-and-insights/latest-market-news/2815208-ara-jet-fuel-stocks-at-six-year-low-insights-global", description: "Weekly Amsterdam-Rotterdam-Antwerp independent oil product stocks — input for the European refiners stage of the shortage chain (gasoil, jet, distillates)." },
     { label: "Trading Economics — U.S. crude oil stocks", url: "https://tradingeconomics.com/united-states/crude-oil-stocks-change", description: "Third-party chart of the same EIA crude stock series — quick cross-check when the weekly PDF is heavy." },
@@ -544,68 +464,69 @@ const DATA = {
     { label: "Al Jazeera", url: "https://www.aljazeera.com/", description: "Regional reporting on the Gulf and shipping — background for Hormuz and conflict framing." },
     { label: "Wikipedia — Strait of Hormuz", url: "https://en.wikipedia.org/wiki/Strait_of_Hormuz", description: "Static geography and history of the strait — orientation only; not a live data feed." },
     { label: "Reuters — Energy", url: "https://www.reuters.com/business/energy/", description: "Wire summaries of weekly EIA builds/draws and SPR changes — useful when verifying headline numbers against the full WPSR tables." },
-    { label: "Energy Intelligence — Asia refining run cuts", url: "https://www.energyintel.com/", description: "Reported 3.9–4.2 mb/d of Asian refining run cuts during March–April 2026, the deepest since COVID. Used for the Gulf-dependent Asian refiners stage." },
-    { label: "Yonhap Infomax — S. Korea crude recovery", url: "https://en.infomaxai.com/", description: "May 2026 reporting that South Korea's crude procurement for May–July is at 80%+ of year-ago levels and naphtha supply reaching 90% of pre-war — recovery signal in the Asian refiners stage." },
-    { label: "gCaptain — Hormuz & maritime", url: "https://gcaptain.com/", description: "Coverage of Maersk transit suspensions, ceasefire status, and US–Iran diplomatic breakdowns at the Strait of Hormuz." },
-    { label: "Lloyd's List — Gulf tanker stranding", url: "https://www.lloydslist.com/LL1157027/More-than-150-tankers-still-trapped-in-Gulf-as-Japanese-VLCC-appears-to-exit-Hormuz", description: "May 2026 count of 150+ non-sanctioned tankers still stranded in the Gulf, including 62 VLCCs — basis for stranded-VLCC figure." },
     { label: "JODI-Oil (Joint Org Data Initiative)", url: "https://www.jodidata.org/oil/", description: "Monthly crude imports by country and partner country — free CSVs. Primary source for the pre-crisis Hormuz-share exposure numbers on the shortage map." },
     { label: "EIA — U.S. imports from the Persian Gulf", url: "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=MCRIMUSPG2&f=A", description: "Official U.S. annual series for Persian Gulf crude imports (MCRIMUSPG2) — anchors the shortage map's USA entry at ~3% Hormuz share." },
     { label: "Energy Institute — Statistical Review of World Energy", url: "https://www.energyinst.org/statistical-review", description: "Free annual successor to the BP Statistical Review — country-level trade flow reference used to sanity-check China / India / regional shares." },
     { label: "Reuters — Asia's reliance on Middle East oil", url: "https://www.reuters.com/business/energy/why-is-asia-so-reliant-middle-eastern-oil-2026-03-04/", description: "March 4, 2026 explainer on why Asian refiners depend on Hormuz crude — narrative context for the shortage map's Asian country set." },
     { label: "The Diplomat — Thailand oil shock exposure", url: "https://thediplomat.com/2026/04/thailands-brittle-defense-against-oil-shocks/", description: "April 2026 analysis of Thailand's crude slate and refinery tuning — input for Thailand's Hormuz-share and days-of-cover estimates." },
     { label: "Jakarta Post — Indonesia oil shock fiscal policy", url: "https://www.jakartapost.com/business/2026/03/31/navigating-oil-shock-fiscal-challenges-policy-choices-for-indonesia.html", description: "March 31, 2026 — fiscal framing of Indonesia's oil-shock exposure; informs Indonesia's shortage map entry and notes field." },
+    { label: "Windward — Hormuz ceasefire tracking", url: "https://windward.ai/blog/five-weeks-into-the-ceasefire/", description: "Maritime-intelligence analysis of post-ceasefire Hormuz transits, dark/EMCON sailing, and Iranian export infrastructure — input for current transit estimates and the constrained-strait narrative." },
+    { label: "gCaptain — Iran's Hormuz transit system", url: "https://gcaptain.com/inside-irans-expanding-hormuz-transit-system-checkpoints-diplomatic-deals-and-passage-fees/", description: "Reporting on Iran's tiered passage mechanism (vetting, government deals, fees) under the new Persian Gulf Strait Authority — basis for the PGSA framing in the Hormuz and shortage-chain sections." },
+    { label: "NBC News — Hormuz traffic standstill", url: "https://www.nbcnews.com/world/iran/strait-hormuz-shipping-traffic-effectively-standstill-iran-ceasefire-rcna267391", description: "Coverage of how thin Hormuz traffic remains versus the ~100+/day pre-war norm despite the ceasefire — context for current vs. pre-war transit counts." },
     { label: "world-atlas — 110m TopoJSON", url: "https://github.com/topojson/world-atlas", description: "MIT-licensed simplified world boundaries from Natural Earth. Loaded at runtime from a CDN to render the shortage-map choropleth; not a data source, only geography." }
   ],
 
   // — Stockpiles (millions of barrels) —
-  commercialCrude:       457.2,
-  commercialCrudeChange: "−2.3M last week",
-  sprPreRelease:         392.7,
+  commercialCrude:       441.7,
+  commercialCrudeChange: "-3.3M last week",
+  sprWeeklyChange:       "-9.0M",
+  refineryIntake:        17.0,
+  sprPreRelease:         365.1,
   sprCapacity:           714,
-  sprCommittedRelease:   172,
-  sprCommittedNote:      "IEA coordinated (exchange)",
-  effectiveSpr:          220.7,
-  gasolineStocks:        219.8,
-  gasolineChange:        "−2.5M last week",
-  distillateStocks:      102.3,
+  sprCommittedRelease:   122,
+  sprCommittedNote:      "remaining of 172M IEA pledge (~50M shipped)",
+  effectiveSpr:          243.1,
+  gasolineStocks:        211.6,
+  gasolineChange:        "-2.6M last week",
+  distillateStocks:      100.8,
   distillateNote:        "diesel + heating oil",
-  cushingChange:         "−648K",
-  cushingNote:           "barrels last week",
+  cushingChange:         "-1.7M",
+  cushingNote:           "barrels last week (−1,702K)",
 
   // — Supply flows (mb/d) —
   domesticProduction:    13.6,
   canadaPipeline:        4.1,
-  mexicoMaritime:        0.5,
-  atlanticBasin:         1.0,
-  persianGulf:           0.1,
+  mexicoMaritime:        0.6,
+  atlanticBasin:         1.8,
+  persianGulf:           0.3,
   sprMaxDrawdown:        4.4,
 
   // — Supply flow status: "green", "yellow", or "red" —
   domesticStatus:        "green",
   canadaStatus:          "green",
   mexicoStatus:          "green",
-  atlanticStatus:        "red",
+  atlanticStatus:        "yellow",
   persianGulfStatus:     "red",
   sprDrawdownStatus:     "yellow",
 
   // — Hormuz status —
   hormuzPreWarTransits:  "100+",
   hormuzCurrentTransits: "~8",
-  hormuzTransitNote:     "Ceasefire 'on life support' per Trump (May 11) after rejecting Iran's proposal; US blockade continues; ~8–9 ships per 24h, many going 'dark' to avoid IRGC (Gulf News May 12); Iraqi supertanker reversed near US blockade May 11 (Bloomberg); Iran tightening control via shipping deals with Iraq/Pakistan",
-  strandedVLCCs:         62,
-  strandedVLCCNote:      "~10% of global VLCC fleet; 150+ tankers of all types stranded in Gulf (Lloyd's List May 2026)",
-  attacksOnShips:        "30+",
-  attacksSince:          "since Feb 28; UKMTO confirmed 26 attacks through early May; Iran seized JIN LI tanker May 8; 42 of 53 trapped container ships still inside Gulf",
+  hormuzTransitNote:     "Ceasefire technically holds but US and Iran traded fresh strikes May 28 (3-month war anniversary); positions on Hormuz hardening. Iran formalized its Persian Gulf Strait Authority (PGSA) toll/permit regime May 19; transit by vetting, tiered access, and fees. ~55 commodity vessels/week (~8/day) per Kpler vs ~840/week pre-war; LNG near zero. US blockade of Iranian ports continues.",
+  strandedVLCCs:         60,
+  strandedVLCCNote:      "Gen. Caine (JCS): 1,550+ commercial vessels and ~22,500 mariners trapped in the Gulf (early May); ~60 VLCCs among ~7–8% of the global VLCC fleet",
+  attacksOnShips:        "34",
+  attacksSince:          "commercial vessels hit since Feb 28 (Persian Gulf security brief, May 21); no confirmed merchant-ship attacks since May 13; US seized 3 vessels enforcing its blockade, Iran continues to hold 4+",
 
   // — Prices —
   brentPreWar:           71,
   brentPreWarDate:       "Feb 27, 2026",
-  brentCurrent:          106,
-  brentCurrentNote:      "+49% vs pre-war baseline",
-  gasPrice:              "4.52",
-  gasPriceNote:          "+$0.43 vs prior snapshot (AAA national avg., 5/12); second straight week of 25¢ increases; highest since 2022",
-  eiaForecastPrice:      85,
-  eiaForecastNote:       "Q4 est. if Hormuz reopens mid-year; STEO May '26 projects $95/bbl avg for 2026",
+  brentCurrent:          95,
+  brentCurrentNote:      "+34% vs pre-war baseline",
+  gasPrice:              "4.43",
+  gasPriceNote:          "-14¢ over the past week (AAA national avg., 5/28); easing off the $4.56 Memorial Day four-year high as crude softened on peace-deal hopes",
+  eiaForecastPrice:      89,
+  eiaForecastNote:       "4Q26 avg as Mideast output returns (STEO May 12)",
   eiaForecastPeriod:     "Q4",
 
   // — Shortage propagation chain (Gulf-dependent buyers → Atlantic bidding → European refiners → U.S. impact) —
@@ -615,26 +536,26 @@ const DATA = {
     {
       stage: "Gulf-dependent Asian refiners",
       status: "red",
-      metric: "Asia run cuts ~4 mb/d",
-      note: "Refining run cuts of 3.9–4.2 mb/d, deepest since COVID (Energy Intel). Japan at ~68% utilization; S. Korea recovering — crude procurement at 80%+ of pre-war for May–Jul (Yonhap). China imports −20% in April."
+      metric: "Tiered PGSA access",
+      note: "Iran's PGSA gives passage priority to China/Russia, then India/Pakistan, then case-by-case government deals (Reuters). India is paying steep premiums to keep barrels moving; Gulf-dependent refiners still running reduced slates three months in."
     },
     {
       stage: "Atlantic Basin bidding war",
       status: "red",
-      metric: "WTI premium $30–40",
-      note: "Asian refiners paying $30–40/bbl premiums for WTI Midland delivered to Asia (up from $20 in Mar). US crude exports hit record 5.2 mb/d in April (CNBC). Panama Canal oil shipments +70% (Nikkei)."
+      metric: "WTI > Brent premium",
+      note: "WTI still trading at a premium to Brent as Asian and European buyers pull light-sweet Atlantic Basin cargoes; the realignment toward non-Gulf grades is now structural and expected to persist into 2027 (CZ/DHL)."
     },
     {
       stage: "European refiners squeezed",
-      status: "red",
-      metric: "ARA at 12-yr low",
-      note: "ARA product stocks at lowest since 2014; fuel oil at 10-yr low (4.37M bbl); Gulf refinery destruction removed ~2.8 mb/d capacity, cutting ~15% of Europe's diesel imports (General Index, Mar 2026)."
+      status: "yellow",
+      metric: "Curve in backwardation",
+      note: "Middle-distillate tightness persists; the Brent curve remains in steep backwardation (Dec '26 ~$10 below front-month). Naphtha and gasoil flows keep diverting to Asia, holding Northwest Europe stocks soft."
     },
     {
       stage: "U.S. impact window",
       status: "yellow",
-      metric: "Gas $4.52/gal",
-      note: "AAA jumped $0.43 in 3 weeks to highest since 2022. Physical premium collapsed but ceasefire 'on life support' (Trump, May 11). Atlantic Basin imports fell to ~1.0 mb/d as Asian competition diverts cargoes."
+      metric: "Gas $4.43/gal",
+      note: "AAA gas eased to $4.43 off the $4.56 Memorial Day four-year high as crude softened on peace-deal hopes. SPR drew ~9–10M bbl/wk again and commercial crude fell to 441.7M; Atlantic imports holding ~1.8 mb/d under sustained competition."
     }
   ],
 
@@ -668,78 +589,78 @@ const DATA = {
   //   notes           — one-sentence plain-English summary (≤30 words, measured tone)
   //   sources         — 2–4 short citations
   shortageMap: {
-    asOf: "May 13, 2026",
+    asOf: "May 28, 2026",
     title: "Where the shortage hits: country-by-country",
-    description: "Countries shaded by pre-crisis reliance on Hormuz-transiting crude. Dot size on each country shows estimated days of cover before non-Gulf replacements run thin. Arcs trace a typical Gulf→discharge routing; cargo-level confirmations in free sources are sparse, so specific vessel status is often 'unknown'.",
+    description: "Countries shaded by pre-crisis reliance on Hormuz-transiting crude (a structural exposure that does not change week to week). Dot size shows estimated days of cover — a directional figure now ~5 weeks lower than at the April snapshot as stocks draw down. Under Iran's PGSA regime, passage is tiered (China/Russia, then India/Pakistan, then government deals), so cargo-level status in free sources stays largely 'unknown'.",
     countries: [
-      { iso3: "JPN", name: "Japan",           hormuzSharePct: 95, daysOfCover: 100,
+      { iso3: "JPN", name: "Japan",           hormuzSharePct: 95, daysOfCover: 118,
         lastCargo: { loadPort: "Ras Tanura",    dischargePort: "Chiba",        loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "METI import mix; typical AG routing pre-closure" },
-        notes:   "~95% ME crude (METI); refineries at ~68% utilization (Apr); IEA release + demand cuts extending cover but stocks depleting steadily.",
-        sources: ["METI petroleum statistics (2023)", "Reuters — Japan extra reserve release (2026-04-10)", "Hydrocarbon Processing — Japan runs (2026-04)", "IEA OMR April 2026"] },
+        notes:   "~95% of crude from the Middle East (METI, 2023); METI/ANRE stockpiles plus coordinated releases bridge a long horizon (Reuters, Apr 10).",
+        sources: ["METI petroleum statistics (2023)", "Reuters — Japan extra reserve release (2026-04-10)", "IEA OMR April 2026"] },
 
-      { iso3: "KOR", name: "South Korea",     hormuzSharePct: 70, daysOfCover: 28,
+      { iso3: "KOR", name: "South Korea",     hormuzSharePct: 70, daysOfCover: 36,
         lastCargo: { loadPort: "Mina Al Ahmadi", dischargePort: "Ulsan",       loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "KNOC/EIA trade pattern; cargo timing not in free data" },
-        notes:   "~70% ME crude; naphtha supply reaching 90% of pre-war in May; crude procurement at 80%+ of year-ago for May–Jul (Yonhap). Diversification easing pressure.",
-        sources: ["Industry coverage — Korea Middle East share ~70%", "KNOC public reserve reporting", "Yonhap Infomax — S. Korea recovery (2026-05)", "IEA OMR April 2026"] },
+        notes:   "About seven in ten barrels from the Middle East; KNOC-held stocks and term liftings buy time while refiners seek Atlantic/African grades.",
+        sources: ["Industry coverage — Korea Middle East share ~70%", "KNOC public reserve reporting", "IEA OMR April 2026"] },
 
-      { iso3: "IND", name: "India",           hormuzSharePct: 52, daysOfCover: 35,
+      { iso3: "IND", name: "India",           hormuzSharePct: 52, daysOfCover: 44,
         lastCargo: { loadPort: "Basrah",         dischargePort: "Jamnagar",    loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "Reuters monthly import mix; typical west-coast routing" },
-        notes:   "ME near half of barrels; Russia/Iran waivers expired — scheduling risk on top of Hormuz disruption. Cover declining as stocks draw faster than alternatives arrive.",
+        notes:   "Middle East often near half of barrels; Russia/Iran waivers (expired Apr 11 / Apr 19) add scheduling risk on top of Hormuz disruption.",
         sources: ["Reuters — ME share of India's imports (2024-12-23)", "PPAC India import/export portal", "IEA OMR April 2026"] },
 
-      { iso3: "PHL", name: "Philippines",     hormuzSharePct: 97, daysOfCover: 12,
+      { iso3: "PHL", name: "Philippines",     hormuzSharePct: 97, daysOfCover: 21,
         lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Batangas",    loadDate: null, arrivalDate: null, status: "unknown", barrels: 1000000, source: "DOE narrative — nearly all crude from AG; no public cargo ID" },
         notes:   "Philippines DOE data show crude almost entirely Middle East-sourced; thin commercial stocks mean short operational runway if AG barrels stop.",
         sources: ["Philippines DOE — oil supply narrative (2023)", "IEA OMR April 2026"] },
 
-      { iso3: "TWN", name: "Taiwan",          hormuzSharePct: 34, daysOfCover: 30,
+      { iso3: "TWN", name: "Taiwan",          hormuzSharePct: 34, daysOfCover: 39,
         lastCargo: { loadPort: "Juaymah",        dischargePort: "Kaohsiung",   loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "CPC annual report; cargo-level data not public" },
         notes:   "CPC still takes a large U.S. slate but ~34% Middle East crude in 2023; Hormuz risk is concentrated in that slice.",
         sources: ["CPC Corporation 2024 annual report (2023 import sources)", "IEA OMR April 2026"] },
 
-      { iso3: "THA", name: "Thailand",        hormuzSharePct: 60, daysOfCover: 25,
+      { iso3: "THA", name: "Thailand",        hormuzSharePct: 60, daysOfCover: 33,
         lastCargo: { loadPort: "Jubail",         dischargePort: "Si Racha",    loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "EIA/Thai energy narratives — majority-Gulf slate" },
         notes:   "Analysts cite a majority-Middle East crude diet; refineries tuned to those grades, so swaps are slower than headline diversification suggests.",
         sources: ["EIA — Thailand country analysis", "The Diplomat — Thailand oil shock exposure (2026-04)"] },
 
-      { iso3: "CHN", name: "China",           hormuzSharePct: 50, daysOfCover: 45,
+      { iso3: "CHN", name: "China",           hormuzSharePct: 50, daysOfCover: 52,
         lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Qingdao",     loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "EI Statistical Review trade mix; cargo timing limited" },
-        notes:   "~50% seaborne crude from ME; imports −20% in April (OilPrice.com). Large strategic + commercial buffers extend timeline but absolute volumes at risk are enormous.",
-        sources: ["Energy Institute — Statistical Review of World Energy 2024", "OilPrice.com — China Hormuz absorption (2026-05)", "Breakwave Advisors — China import loss (2026-05)", "IEA OMR April 2026"] },
+        notes:   "Roughly half of seaborne crude from the Middle East; large commercial + strategic tanks extend cover but absolute volumes at risk are huge.",
+        sources: ["Energy Institute — Statistical Review of World Energy 2024", "IEA OMR April 2026"] },
 
-      { iso3: "SGP", name: "Singapore",       hormuzSharePct: 78, daysOfCover: 18,
+      { iso3: "SGP", name: "Singapore",       hormuzSharePct: 78, daysOfCover: 27,
         lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Jurong Island", loadDate: null, arrivalDate: null, status: "unknown", barrels: 2000000, source: "IEA OMR — distillate tightness; sourcing aggregated" },
         notes:   "Major refining/export hub but Middle East grades anchor throughput; IEA flagged record Singapore middle-distillate stress. Days-of-cover especially uncertain (opaque hub stocks).",
         sources: ["IEA OMR April 2026 (Singapore pricing context)", "Reuters — Asia reliance on Middle East crude (2026-03-04)"] },
 
-      { iso3: "IDN", name: "Indonesia",       hormuzSharePct: 24, daysOfCover: 35,
+      { iso3: "IDN", name: "Indonesia",       hormuzSharePct: 24, daysOfCover: 41,
         lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Balikpapan",  loadDate: null, arrivalDate: null, status: "unknown", barrels: 1000000, source: "Ministry statements — diversified slate; ~quarter ME" },
         notes:   "Diversified crude slate since the 2010s; Middle East still a large wedge — fiscal strain rises via product prices (Jakarta Post, Mar 2026).",
         sources: ["Gov't/industry reporting — ~20–25% ME crude", "Jakarta Post — navigating oil shock (2026-03-31)"] },
 
-      { iso3: "PAK", name: "Pakistan",        hormuzSharePct: 82, daysOfCover: 15,
+      { iso3: "PAK", name: "Pakistan",        hormuzSharePct: 82, daysOfCover: 24,
         lastCargo: { loadPort: "Jubail",         dischargePort: "Karachi",     loadDate: null, arrivalDate: null, status: "unknown", barrels: 700000, source: "Trade analytics — Saudi/UAE-dominated imports" },
         notes:   "Saudi Arabia and UAE dominate import value; most barrels are inherently Hormuz-linked, so disruption passes through quickly to power and transport fuels.",
         sources: ["TDAP / Pakistan petroleum sector background", "Business Recorder — trade risk after Gulf conflict (2026)"] },
 
-      { iso3: "BGD", name: "Bangladesh",      hormuzSharePct: 71, daysOfCover: 8,
+      { iso3: "BGD", name: "Bangladesh",      hormuzSharePct: 71, daysOfCover: 17,
         lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Chittagong",  loadDate: null, arrivalDate: null, status: "unknown", barrels: 1000000, source: "South Asia import pattern; no free cargo database" },
         notes:   "Middle East grades supply the bulk of demand; limited storage and import financing amplify shortfalls when AG differentials spike. Days-of-cover very uncertain.",
         sources: ["Our World in Data — import dependence context", "IEA OMR April 2026 (regional demand hit)"] },
 
-      { iso3: "TUR", name: "Turkey",          hormuzSharePct: 22, daysOfCover: 25,
+      { iso3: "TUR", name: "Turkey",          hormuzSharePct: 22, daysOfCover: 29,
         lastCargo: { loadPort: "Basrah",         dischargePort: "Aliaga",      loadDate: null, arrivalDate: null, status: "unknown",  barrels: 1000000, source: "Kirkuk–Ceyhan pipeline routing; Basrah barrels' Hormuz status not disclosed in free data" },
         notes:   "Much Iraqi crude reaches Turkey via the Kirkuk–Ceyhan pipeline and bypasses Hormuz entirely; only Basrah-origin barrels are directly exposed.",
         sources: ["EIA — Iraq country analysis (export routes)", "IEA OMR April 2026"] },
 
-      { iso3: "GBR", name: "United Kingdom",  hormuzSharePct: 12, daysOfCover: 75,
+      { iso3: "GBR", name: "United Kingdom",  hormuzSharePct: 12, daysOfCover: 88,
         lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Hound Point", loadDate: null, arrivalDate: null, status: "unknown", barrels: 700000, source: "UK trade mix; no public cargo ID" },
         notes:   "North Sea and Atlantic barrels dominate U.K. crude; Persian Gulf is a modest slice, so Hormuz is a price/grade issue more than a volume shock.",
         sources: ["UK DESNZ — energy statistics (trade)", "IEA OMR April 2026"] },
 
-      { iso3: "USA", name: "United States",   hormuzSharePct: 3,  daysOfCover: 155,
+      { iso3: "USA", name: "United States",   hormuzSharePct: 3,  daysOfCover: 175,
         lastCargo: { loadPort: "Ras Tanura",     dischargePort: "Port Arthur", loadDate: null, arrivalDate: null, status: "unknown", barrels: 500000, source: "EIA Persian Gulf crude series; cargo-level detail sparse" },
-        notes:   "PG crude ~0.1 mb/d (near zero); SPR drawdown accelerating (−12.3M bbl in 2 weeks). Domestic output and SPR buffer Hormuz risk but reserve depletion a longer-term concern.",
+        notes:   "EIA shows Persian Gulf crude ~0.3 mb/d — a small share of U.S. receipts; SPR and domestic output buffer Hormuz risk directly.",
         sources: ["EIA — U.S. imports from Persian Gulf (series MCRIMUSPG2)", "EIA — PET_MOVE_IMPCUS_A1_MP0 table"] }
     ]
   },
@@ -750,14 +671,14 @@ const DATA = {
   // spread      = physicalEstimate - paperBrent (USD/bbl, positive = physical premium)
   // m1m3Spread  = Brent futures front-month minus 3-months-out ($/bbl, positive = backwardation)
   priceDisparity: {
-    paperBrent:           106,
-    paperNote:            "ICE Brent front-month (Jul '26 contract) ~$106.16 on May 13",
-    physicalEstimate:     112,
-    physicalNote:         "Dated Brent premium collapsed from ~$25 to single digits as SPR releases and demand destruction eased tightness (OilPrice.com May); ceasefire collapse risk may rebuild premium",
-    spread:               6,
-    spreadNote:           "vs. paper — sharply narrowed from +$25 (Apr 25); collapsed from peak +$48 (Apr 7) as physical market rebalanced via SPR and lower Asian demand",
-    m1m3Spread:           10,
-    m1m3Note:             "Brent front month vs 3-out (est.); eased from ~$20 but still extreme; Hormuz risk premium remains the key driver",
+    paperBrent:           95,
+    paperNote:            "ICE Brent front-month (Jul '26) ~$95 on May 28; whipsawed −5% May 27 on peace-deal hopes, then +2% on fresh US–Iran strikes",
+    physicalEstimate:     115,
+    physicalNote:         "Dated Brent est. ~$20 over futures — a conservative midpoint; May sources split widely (BMI saw Dated >$130 vs ~$98 futures, ~$30+; others report the premium collapsing toward zero as buyers pause). Off the ~$35–40 April peak.",
+    spread:               20,
+    spreadNote:           "vs. paper (estimate) — true range is wide (~$0–35 in May depending on source/timing); we hold a conservative midpoint rather than pick a side. Peaked +$35–48 in April.",
+    m1m3Spread:           12,
+    m1m3Note:             "Brent front month vs 3-out (est.); curve still steeply backwardated — Dec '26 ~$10 below front-month (mid-May reporting)",
     backwardationStatus:  "red"
   },
 
@@ -773,31 +694,31 @@ const DATA = {
     supplyFlows: {
       title: "How these flows are estimated",
       items: [
-        { label: "Other (Atlantic Basin) ~1.0 mb/d", note: "Computed residual: EIA total U.S. crude imports (5.5 mb/d, week ending May 1) minus Canada pipeline (~4.1), Mexico (~0.5), Persian Gulf (~0.1). Down from ~1.8 mb/d as Asian buyers divert Atlantic barrels (CNBC, Nikkei May 2026)." },
-        { label: "Persian Gulf ~0.1 mb/d", note: "Near zero with Hormuz effectively closed for 10+ weeks. The small residual represents pre-crisis cargoes still discharging or rare US-escorted transits. The weekly WPSR import line lags by 1–2 weeks for country-of-origin detail." },
+        { label: "Other (Atlantic Basin) ~1.8 mb/d", note: "Computed residual: EIA total U.S. crude imports minus named flows (Canada pipeline, Mexico maritime, Persian Gulf). Swings with whichever Petroleum Supply Monthly / STEO vintage is current and cannot be read directly from any single EIA table." },
+        { label: "Persian Gulf ~0.3 mb/d", note: "Approximated from reported Arabian Gulf → U.S. Gulf Coast tanker arrivals during the Hormuz crisis; the weekly WPSR import line lags by 1–2 weeks for country-of-origin detail, so this is a nowcast rather than a confirmed figure." },
         { label: "SPR drawdown max 4.4 mb/d", note: "A statutory capability per DOE — the legal maximum release rate, not an actual flow being drawn today. Treat it as a ceiling when reading the supply-flow chart." }
       ]
     },
     hormuz: {
       title: "How Hormuz figures are estimated",
       items: [
-        { label: "Current daily transits ~8", note: "Per Gulf News / gCaptain (May 12) citing ~8–9 ships per 24 hours, many with transponders off ('dark'). Maersk keeping transits suspended. Not an official vessel count — Iran and the IMO publish nothing real-time." },
-        { label: "Stranded VLCCs 62", note: "Lloyd's List (May 2026) reports 150+ tankers total, with 62 VLCCs specifically trapped. The global VLCC fleet is ~800 ships; ~10% trapped inside the strait. Kpler puts VLCC figure at 57–58." },
-        { label: "Attacks on ships 30+", note: "Running tally from UKMTO (26 confirmed attacks through early May) plus additional seizures: Iran seized JIN LI tanker May 8; previously captured 2 MSC containers. Windward counts 74 total maritime incidents including infrastructure strikes. The '+' signals likely undercount." }
+        { label: "Current daily transits ~8", note: "Kpler logged ~55 commodity vessels in the week of May 11–17 (~8/day), the wartime weekly average, vs ~840/week pre-war. Some ships sail dark or spoof AIS, so this is a tracked estimate, not an official count — Iran and the IMO publish nothing real-time." },
+        { label: "Stranded VLCCs 60", note: "Gen. Caine (JCS) cited 1,550+ commercial vessels and ~22,500 mariners trapped in the Gulf (early May); ~60 are VLCCs by press estimate. No open registry tracks 'stranded' status daily, so the VLCC figure is a rough indicator." },
+        { label: "Attacks on ships 34", note: "Per the May 21 Persian Gulf security brief: 34 commercial vessels hit since Feb 28, with no confirmed merchant-ship attacks since May 13. Counts aggregate MARAD/UKMTO advisories and may lag or overlap with seizure reports." }
       ]
     },
     priceDisparity: {
       title: "How these price estimates are derived",
       items: [
-        { label: "Physical (Dated Brent) ~$112", note: "Dated Brent premium collapsed from ~$30+ to single-digit levels in early May (OilPrice.com). SPR releases, Asian demand cuts, and record US exports rebalanced the physical market. Platts live assessments paywalled; treat as ±$5 accurate." },
-        { label: "Physical premium +$6", note: "Computed: physicalEstimate − paperBrent. Collapsed from +$25 (Apr 25) and peak +$48 (Apr 7). OilPrice.com (May) describes 'near-parity' in the May buying cycle, though ceasefire collapse risk could widen the gap again." },
-        { label: "M1–M3 backwardation ~$10", note: "Eased from ~$20 as physical tightness moderated. Still elevated by historical standards — Hormuz risk premium remains the structural driver. Kpler (May) describes the Brent M1–M3 spread as the cleanest instrument for pricing Hormuz risk." }
+        { label: "Physical (Dated Brent) ~$115", note: "Estimate from press reporting of Platts Dated Brent (paywalled live). May reads conflict sharply: BMI/pipexch put Dated >$130 vs ~$98 futures (~$30+ premium), while other desks report the premium collapsing toward ~$0 as buyers wait out the rally. We hold a conservative ~$20 midpoint; treat as a wide ±$15." },
+        { label: "Physical premium +$20", note: "Computed: physicalEstimate − paperBrent. The honest May range is ~$0–35 depending on source and day; rather than pick a side we hold a conservative midpoint. Peaked +$35–48 in April." },
+        { label: "M1–M3 backwardation ~$12", note: "Inferred from mid-May reporting that the Brent curve stayed steeply backwardated — Dec '26 ~$10 below the front-month, with 2027 contracts anchored near $70–80. Not a direct read of the ICE futures curve." }
       ]
     }
   },
 
   // — Consumption —
-  dailyConsumption:      20.5,
+  dailyConsumption:      20.3,
 
   // — IEA 90-day stockholding benchmark (horizontal line on DTE chart): 90 × approximate net imports (mb/d) —
   ieaNetImportMbPerDay:  3.2,
@@ -807,18 +728,18 @@ const DATA = {
   // The chart and DTE math are computed automatically.
   scenarios: {
     base: {
-      desc: "Domestic + Canada + Mexico supply intact. Atlantic Basin at current reduced level (~1.0 mb/d due to Asian competition). No Hormuz oil. Refinery utilization at ~90%.",
-      consumption: 20.5,
-      supply: 19.2,
-      deficit: 1.3,
-      label: "~17 months at current draw"
+      desc: "Domestic + Canada + Mexico supply remains intact. SPR releases at planned pace. No Hormuz-sourced oil. Refinery utilization at ~94%.",
+      consumption: 20.3,
+      supply: 20.1,
+      deficit: 0.2,
+      label: "~9.4 years at current draw"
     },
     moderate: {
-      desc: "Canada pipeline flow reduced 15% due to tariff escalation. Atlantic Basin imports drop 30% from current reduced level. SPR drawdown accelerates. Refinery runs drop to 88%.",
-      consumption: 20.0,
-      supply: 18.3,
-      deficit: 1.7,
-      label: "~13 months to critical"
+      desc: "Canada pipeline flow reduced 15% due to tariff escalation. Atlantic Basin imports drop 30%. SPR drawdown accelerates to 2 mb/d. Refinery runs drop to 90%.",
+      consumption: 19.5,
+      supply: 18.9,
+      deficit: 0.6,
+      label: "~3.1 years to critical"
     },
     severe: {
       desc: "Full trade disruption: Canada pipeline at 50%, all maritime imports halted, SPR at max drawdown 4.4 mb/d. Emergency demand destruction measures in effect.",
@@ -924,21 +845,13 @@ function renderDashboard() {
   // Shortage propagation chain
   renderShortageChain(d.shortageFlow);
 
-  // Shortage map (choropleth + arcs + country cards)
-  renderShortageMap(d.shortageMap);
-
-  // Paper vs physical price disparity
-  renderPriceDisparity(d.priceDisparity);
-
   // Estimate markers and per-section methodology blocks
   applyEstimateMarkers(d.estimatedFields);
   renderEstimateBlock('est-supply-flows', d.estimates && d.estimates.supplyFlows);
   renderEstimateBlock('est-hormuz', d.estimates && d.estimates.hormuz);
-  renderEstimateBlock('est-price-disparity', d.estimates && d.estimates.priceDisparity);
-  renderEstimateBlock('est-shortage-map', d.estimates && d.estimates.shortageMap);
 
-  // Build initial chart
-  buildChart('base');
+  // The three reader-chosen lenses
+  renderLenses();
 }
 
 function appendEstPill(el) {
@@ -1403,75 +1316,112 @@ function renderPriceDisparity(pd) {
   setText('s-disp-m1m3', pd.m1m3Note || 'front month vs 3-out');
 }
 
-let chart;
-const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+/* ============================================================
+   The three reader-chosen lenses. Same facts, three framings.
+   All numbers are derived from DATA so they stay honest on update.
+   ============================================================ */
+var lensState = { current: 'taps' };
 
-function buildChart(key) {
-  const s = DATA.scenarios[key];
-  const months = [];
-  const commercial = [];
-  const spr = [];
-  const combined = [];
-  let c = DATA.commercialCrude;
-  let sp = DATA.effectiveSpr;
-  const dailyDraw = s.deficit;
-  const sprDaily = Math.min(dailyDraw * 0.6, 4.4);
-  const commDaily = dailyDraw - sprDaily;
-  const ieaFloorMmb = Math.round(90 * DATA.ieaNetImportMbPerDay);
+function buildLenses() {
+  var d = DATA;
+  var refIntake = d.refineryIntake || 17.0;        // mb/d, WPSR refinery inputs
+  var gasolineDemand = 8.9;                          // mb/d, typical product supplied
+  var distillateDemand = 3.6;                        // mb/d, typical product supplied
+  var northAmerica = d.domesticProduction + d.canadaPipeline; // pipeline crude — no strait can block it
 
-  for (let m = 0; m <= 36; m++) {
-    months.push(m === 0 ? 'Now' : 'M+' + m);
-    commercial.push(Math.max(0, Math.round(c)));
-    spr.push(Math.max(0, Math.round(sp)));
-    combined.push(Math.max(0, Math.round(c)) + Math.max(0, Math.round(sp)));
-    c -= commDaily * 30;
-    sp -= sprDaily * 30;
-    if (c < 0) c = 0;
-    if (sp < 0) sp = 0;
-  }
+  var crudeDays = Math.round(d.commercialCrude / refIntake);
+  var crudePlusSprDays = Math.round((d.commercialCrude + d.sprPreRelease) / refIntake);
+  var gasoDays = Math.round(d.gasolineStocks / gasolineDemand);
+  var distDays = Math.round(d.distillateStocks / distillateDemand);
 
-  const threshold = months.map(function() { return ieaFloorMmb; });
+  var domPct = Math.round(d.domesticProduction / d.dailyConsumption * 100);
+  var naPct = Math.round(northAmerica / d.dailyConsumption * 100);
+  var gulfPct = Math.round(d.persianGulf / d.dailyConsumption * 100);
 
-  const totalStart = DATA.commercialCrude + DATA.effectiveSpr;
-  const daysToZero = s.deficit > 0 ? Math.round(totalStart / s.deficit) : 99999;
+  var crudeWk = parseFloat(d.commercialCrudeChange);            // e.g. -3.3
+  var sprWk = parseFloat(d.sprWeeklyChange);                    // e.g. -9.0
+  var combinedWk = (isFinite(crudeWk) ? crudeWk : 0) + (isFinite(sprWk) ? sprWk : 0);
+  var crudeOnlyAbs = isFinite(crudeWk) ? Math.abs(crudeWk).toFixed(1) : '—';
+  var sprAbs = isFinite(sprWk) ? Math.abs(sprWk).toFixed(1) : '—';
+  var combinedAbs = Math.abs(combinedWk).toFixed(1);
 
-  document.getElementById('dte-consumption').textContent = s.consumption.toFixed(1) + ' mb/d';
-  document.getElementById('dte-supply').textContent = s.supply.toFixed(1) + ' mb/d';
-  document.getElementById('dte-deficit').textContent = '-' + s.deficit.toFixed(1) + ' mb/d';
-  document.getElementById('dte-deficit').style.color = s.deficit > 1 ? 'var(--color-danger, #A32D2D)' : 'var(--color-warning, #854F0B)';
-  document.getElementById('dte-days').textContent = daysToZero.toLocaleString();
-  document.getElementById('dte-sub').textContent = s.label;
-  document.getElementById('scenario-desc').textContent = s.desc;
-
-  if (chart) chart.destroy();
-  const ctx = document.getElementById('dteChart').getContext('2d');
-  chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: months,
-      datasets: [
-        { label: 'Commercial crude (M bbl)', data: commercial, borderColor: '#185FA5', backgroundColor: 'rgba(24,95,165,0.08)', fill: true, tension: 0.3, pointRadius: 0, order: 2 },
-        { label: 'SPR (M bbl)', data: spr, borderColor: '#993556', backgroundColor: 'rgba(153,53,86,0.08)', fill: true, tension: 0.3, pointRadius: 0, order: 2 },
-        { label: 'Combined (M bbl)', data: combined, borderColor: '#6B7C93', backgroundColor: 'transparent', borderDash: [4, 3], fill: false, tension: 0.3, pointRadius: 0, borderWidth: 2, order: 1 },
-        { label: 'IEA-style floor (M bbl)', data: threshold, borderColor: '#A32D2D', backgroundColor: 'transparent', borderDash: [8, 4], fill: false, tension: 0, pointRadius: 0, borderWidth: 2, order: 0 }
-      ]
+  return {
+    taps: {
+      headline: '~' + crudeDays + ' days',
+      headlineSub: 'of crude in commercial tanks — about ' + crudePlusSprDays + ' if you tap the SPR too.',
+      caveat: 'This is the doomsday math. It assumes every U.S. well, pipeline, and tanker stops on the same day — which has never happened, not once. It is the <strong>only</strong> framing that produces a real countdown, which is exactly why it overstates the danger. Treat it as the floor of a thought experiment, not a forecast.',
+      metrics: [
+        { label: 'Commercial crude cover', value: crudeDays + ' days', sub: 'at ~' + refIntake + ' mb/d refinery intake', cls: 'warning' },
+        { label: '+ Strategic Reserve', value: crudePlusSprDays + ' days', sub: 'commercial + the SPR', cls: '' },
+        { label: 'Gasoline cover', value: gasoDays + ' days', sub: 'at ~' + gasolineDemand + ' mb/d demand', cls: '' },
+        { label: 'Distillate cover', value: distDays + ' days', sub: 'at ~' + distillateDemand + ' mb/d demand', cls: '' }
+      ],
+      question: 'Honest read: a real "tank gauge" — but it describes a scenario that can\u2019t actually occur.'
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: isDark ? '#9c9a92' : '#73726c', font: { size: 11 }, maxTicksLimit: 12 } },
-        y: { beginAtZero: true, grid: { color: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' }, ticks: { color: isDark ? '#9c9a92' : '#73726c', font: { size: 11 }, callback: function(v) { return v + 'M'; } } }
-      }
+    make: {
+      headline: naPct + '% home-grown',
+      headlineSub: 'America makes ' + domPct + '% of its oil itself and pipes most of the rest in from Canada.',
+      caveat: 'On <strong>volume</strong>, the U.S. doesn\u2019t run out — about ' + naPct + '% of what it burns comes from sources no chokepoint can touch, and it\u2019s a net exporter. The catch is <strong>grade</strong>: Gulf Coast refineries are built for heavy, sour crude, while U.S. shale is light and sweet. "Enough barrels" is not the same as "the right barrels." That mismatch \u2014 not depletion \u2014 is the real squeeze.',
+      metrics: [
+        { label: 'From U.S. wells', value: domPct + '%', sub: d.domesticProduction + ' of ' + d.dailyConsumption + ' mb/d burned', cls: '' },
+        { label: '+ Canada (pipeline)', value: naPct + '%', sub: 'land-locked, unblockable', cls: 'success' },
+        { label: 'Direct from the Gulf', value: '~' + gulfPct + '%', sub: d.persianGulf + ' mb/d — a rounding error', cls: '' },
+        { label: 'Net trade position', value: 'Exporter', sub: '~4 mb/d it could redirect home', cls: '' }
+      ],
+      question: 'Honest read: the closest thing to the truth \u2014 but "enough barrels" hides a grade problem.'
+    },
+    trend: {
+      headline: '\u2212' + combinedAbs + 'M / week',
+      headlineSub: 'tracked crude is falling that fast right now \u2014 but most of it is a choice.',
+      caveat: 'Of that weekly draw, about <strong>' + sprAbs + 'M comes from a deliberate SPR release</strong> \u2014 a policy decision, not a sign the country is running dry. Stop the release and the underlying draw is roughly <strong>' + crudeOnlyAbs + 'M/week</strong> from commercial stocks. A draw is the system working as designed under stress, not the gauge hitting empty.',
+      metrics: [
+        { label: 'Commercial crude', value: '\u2212' + crudeOnlyAbs + 'M', sub: 'last week', cls: 'warning' },
+        { label: 'SPR release', value: '\u2212' + sprAbs + 'M', sub: 'deliberate, not depletion', cls: '' },
+        { label: 'Combined draw', value: '\u2212' + combinedAbs + 'M', sub: 'per week, all tracked crude', cls: 'danger' },
+        { label: 'Without the release', value: '\u2212' + crudeOnlyAbs + 'M', sub: 'the draw that isn\u2019t policy', cls: '' }
+      ],
+      question: 'Honest read: the trend is real, but a policy release is doing most of the work.'
     }
-  });
+  };
 }
 
-function setScenario(key) {
-  document.querySelectorAll('.scenario-toggle button').forEach(function(b) { b.classList.remove('active'); });
-  event.target.classList.add('active');
-  buildChart(key);
+function setLens(key) {
+  var lenses = buildLenses();
+  if (!lenses[key]) key = 'taps';
+  lensState.current = key;
+  var L = lenses[key];
+
+  document.querySelectorAll('#lens-toggle button').forEach(function (b) {
+    var on = b.getAttribute('data-lens') === key;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+
+  document.getElementById('lens-headline').textContent = L.headline;
+  document.getElementById('lens-headline-sub').textContent = L.headlineSub;
+  document.getElementById('lens-caveat').innerHTML = L.caveat;
+  document.getElementById('lens-question').textContent = L.question;
+
+  var cards = L.metrics.map(function (m) {
+    return '<div class="metric">' +
+      '<div class="label">' + m.label + '</div>' +
+      '<div class="value ' + (m.cls || '') + '">' + m.value + '</div>' +
+      '<div class="sub">' + m.sub + '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('lens-metrics').innerHTML = cards;
+}
+
+function renderLenses() {
+  var toggle = document.getElementById('lens-toggle');
+  if (toggle && !toggle.__bound) {
+    toggle.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-lens]');
+      if (btn) setLens(btn.getAttribute('data-lens'));
+    });
+    toggle.__bound = true;
+  }
+  setLens(lensState.current);
 }
 
 function validateData() {
@@ -2041,29 +1991,6 @@ var validationPassed = validateData();
 renderDashboard();
 </script>
 
-<div class="dte-modal-backdrop" id="dte-modal-backdrop" aria-hidden="true"></div>
-<div class="dte-modal" id="dte-modal" role="dialog" aria-modal="true" aria-labelledby="dte-modal-title" aria-hidden="true">
-  <div class="dte-modal-header">
-    <h2 id="dte-modal-title">Reading this chart</h2>
-    <button type="button" class="dte-modal-close" id="dte-modal-close" aria-label="Close dialog">&times;</button>
-  </div>
-  <div class="dte-modal-body">
-    <h3>What the chart is showing</h3>
-    <ul>
-      <li><strong>Vertical axis (Y):</strong> Inventories in millions of barrels. The blue series is commercial crude stocks; the magenta series is the Strategic Petroleum Reserve. The dashed gray line is the sum of those two — total crude held in commercial and government storage, which is the relevant measure for overall cover.</li>
-      <li><strong>Horizontal axis (X):</strong> Elapsed time from the present: “Now,” then monthly steps (M+4, M+8, …) out to 36 months (M+36). Each scenario uses a fixed daily shortfall and a fixed rule for how much of the draw comes from commercial stocks versus the SPR. The projection is intentionally simplified so scenarios can be compared side by side; it is an illustrative model, not a detailed market forecast.</li>
-      <li><strong>The red dashed line:</strong> Think of it as a <strong>minimum comfortable cushion</strong> for total crude stocks (commercial + SPR). We drew it at about <strong>90 days’ worth</strong> of oil using a rough, conservative guess at how much the U.S. still <strong>net-imports</strong> per day — the same <em>idea</em> as the old rule of thumb that big consuming countries should hold something like 90 days of import cover in emergency stocks. When the gray combined line drifts <strong>toward or under</strong> that red line, you’re in the zone where policymakers and analysts start to get nervous — not because the chart says something magical happens on that exact day, but because you’re no longer looking “fat and happy” on inventories. It’s a <strong>reference line for conversation</strong>, not a law of physics and not a promise about what Washington will do.</li>
-      <li><strong>“Days to critical” in the boxes above the chart:</strong> A back-of-the-envelope: take all the oil you started with in this model and divide by the scenario’s daily shortfall. That gives you a single headline number for how long until stocks are effectively gone <em>if</em> nothing changed. It won’t line up to the month with the moment the gray line kisses the red one — for that story, watch the shape of the lines.</li>
-    </ul>
-    <h3>Moderate disruption — where the numbers come from</h3>
-    <p><strong>15% off the Canada pipeline:</strong> By early March 2026 Canada was already looking at a <strong>10% tariff</strong> on energy exports to the U.S., and the trade fight was heating up. Cutting the flow 15% is our way of saying: tariffs make shipping oil south less attractive, <em>and</em> Alberta might squeeze supply on purpose in retaliation — they’ve done a version of that before with production curtailments. It’s meant to feel <strong>serious but not apocalyptic</strong>.</p>
-    <p><strong>30% less from the Atlantic basin:</strong> When tanker markets go haywire, the pain isn’t only at Hormuz. Picture <strong>200+ ships</strong> tied up, insurance going through the roof, and fewer hulls to go around. Cargoes that used to head here from West Africa, Brazil, or Guyana start getting bid away by Asian buyers who just lost Hormuz barrels and will pay anything. <strong>30%</strong> is our middle-of-the-road guess for how much of that Atlantic / Americas trade into the U.S. could get pulled away in a scramble like that.</p>
-    <p><strong>88% refinery runs:</strong> Real plants were running about <strong>91.4%</strong> in mid-March and already sliding. Dropping to 88% keeps you inside the kind of “normal operating band” the EIA talks about; once you fall <strong>below</strong> that band, you’re usually into planned maintenance or something actually choking supply.</p>
-    <h3>Severe disruption — a stress test, not a forecast</h3>
-    <p><strong>Half the Canadian pipe</strong> and <strong>no seaborne imports at all</strong> is the “everything breaks at once” story: tariffs pushed to something like an embargo, and every ocean route is too pricey or too risky to count on. We’re not saying that’s what <em>will</em> happen — we’re asking what it looks like if it <em>did</em>.</p>
-  </div>
-</div>
-
 <div class="mh-modal-backdrop" id="mh-modal-backdrop" aria-hidden="true"></div>
 <div class="mh-modal" id="metric-history-modal" role="dialog" aria-modal="true" aria-labelledby="metric-history-title" aria-hidden="true">
   <div class="mh-modal-header">
@@ -2086,12 +2013,12 @@ renderDashboard();
     <h2 id="update-log-title">Update Log</h2>
     <p class="update-log-sub">Summary of changes to the numbers and narrative on this page (not technical site notes). Updated when <code>DATA</code> is refreshed.</p>
     <div class="update-log-entry">
-      <div class="date">May 13, 2026 — data refresh</div>
+      <div class="date">May 28, 2026 — data refresh</div>
       <ul>
-        <li><strong>EIA (week ending May 1, 2026):</strong> Commercial crude −2.3M bbl to 457.2M; gasoline −2.5M bbl to 219.8M; distillates −1.3M bbl to 102.3M; Cushing −648K bbl. SPR −12.3M bbl to 392.7M (accelerated IEA drawdown); effective SPR now ~220.7M.</li>
-        <li><strong>Prices:</strong> Brent steady at ~$106/b (+49% vs pre-war); AAA gas jumped to $4.52/gal (+$0.43 vs prior snapshot), highest since 2022. Physical premium (Dated Brent) collapsed from ~$25 to ~$6 as SPR releases and demand destruction eased tightness. EIA STEO (May 12) now projects $95/bbl avg for 2026.</li>
-        <li><strong>Hormuz / maritime:</strong> Ceasefire "on life support" per Trump (May 11) after rejecting Iran's proposal; transits up slightly to ~8/day but many ships going "dark." VLCCs trapped: 62 (Lloyd's List); 150+ tankers total. Attacks 30+; Iran seized JIN LI tanker May 8.</li>
-        <li><strong>Supply flows / scenarios:</strong> Atlantic Basin imports fell to ~1.0 mb/d (from 1.8) as Asian buyers pay $30–40/bbl premiums for WTI; US crude exports hit record 5.2 mb/d. Base-case DTE shortened to ~17 months (from ~9.6 years) on reduced supply. European refiners upgraded to red (ARA at 12-yr lows).</li>
+        <li><strong>EIA (week ending May 22, 2026):</strong> Commercial crude −3.3M bbl to 441.7M (now ~2% below the 5-yr average); gasoline −2.6M to 211.6M; distillates −2.1M to 100.8M; Cushing −1.7M. SPR drawn another −9.0M to 365.1M as DOE keeps releasing ~9–10M bbl/wk; effective SPR now ~193M.</li>
+        <li><strong>Balances / scenarios:</strong> Consumption held at 20.3 mb/d (current EIA 4-week product-supplied proxy, ~20.2; demand soft on high prices). Lower inventories trim base-case runway to ~8.7 years (from ~9.6), moderate ~2.9 years, severe ~9 months.</li>
+        <li><strong>Prices:</strong> Brent eased to ~$95/b (+34% vs pre-war) — whipsawed −5% May 27 on peace-deal hopes, +2% May 28 on fresh strikes. AAA gas −14¢ on the week to $4.43, off the $4.56 Memorial Day four-year high. EIA 4Q26 Brent forecast lifted to $89. Estimated physical premium narrowed to ~$20; curve still backwardated.</li>
+        <li><strong>Hormuz / maritime (estimates):</strong> Ceasefire technically holds but US and Iran traded fresh strikes May 28 (3-mo war anniversary). Iran formalized its PGSA toll/permit regime May 19; ~55 vessels/week (~8/day) vs ~840 pre-war. Vessels hit since Feb 28 now 34 (none since May 13); Gen. Caine cites 1,550+ ships / 22,500 mariners trapped.</li>
       </ul>
     </div>
     <div class="update-log-entry">
@@ -2180,41 +2107,6 @@ renderDashboard();
     if (e.key === 'Escape' && document.body.classList.contains('update-log-open')) {
       closeUpdateLog();
       toggle.focus();
-    }
-  });
-})();
-</script>
-<script>
-/* DTE chart help modal */
-(function () {
-  var openBtn = document.getElementById('dte-help-open');
-  var modal = document.getElementById('dte-modal');
-  var backdrop = document.getElementById('dte-modal-backdrop');
-  var closeBtn = document.getElementById('dte-modal-close');
-  if (!openBtn || !modal || !backdrop) return;
-
-  function setOpen(open) {
-    document.body.classList.toggle('dte-modal-open', open);
-    openBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    modal.setAttribute('aria-hidden', open ? 'false' : 'true');
-    backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
-    if (open && closeBtn) closeBtn.focus();
-  }
-
-  function closeModal() {
-    setOpen(false);
-    openBtn.focus();
-  }
-
-  openBtn.addEventListener('click', function () {
-    setOpen(!document.body.classList.contains('dte-modal-open'));
-  });
-  backdrop.addEventListener('click', closeModal);
-  if (closeBtn) closeBtn.addEventListener('click', closeModal);
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && document.body.classList.contains('dte-modal-open')) {
-      e.preventDefault();
-      closeModal();
     }
   });
 })();
